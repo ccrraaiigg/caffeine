@@ -39,6 +39,7 @@ if (magicWindow.document.head.id == "magic") {
   progress.style.backgroundColor = 'rgb(255, 0, 0)';
   progress.style.transition = 'opacity 500ms';
   progress.style.opacity = 0;
+  magicWindow.progress = progress;
   if (magicWindow.document.body) magicWindow.document.body.appendChild(progress);
 
   thestatus.id = 'status';
@@ -50,7 +51,7 @@ if (magicWindow.document.head.id == "magic") {
   thestatus.style.opacity = 0;
   thestatus.style.color = "gray";
   thestatus.innerHTML = "<i>starting virtual machine...</i>";
-  window.top.thestatus = thestatus;
+  magicWindow.thestatus = thestatus;
   if (magicWindow.document.body) magicWindow.document.body.appendChild(thestatus);}
 
 
