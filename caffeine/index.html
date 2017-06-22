@@ -1,185 +1,171 @@
-<!DOCTYPE html>
 <html>
-<head>
-<meta charset="utf-8">
-<title>Context</title>
-<link rel="icon" type="image/png" href="pictures/context.png">
-<link rel="stylesheet" href="css/squeakjs.css">
-<script src="js/squeakjs/squeak.js"></script>
-<script>
-    function runSqueak(imageName) {
-        sqCanvas.style.position = "absolute";
-        sqText.style.display = "none";
-        SqueakJS.runSqueak(imageName, sqCanvas, {
-            fullscreen: true,
-            spinner: sqSpinner,
-            appName: imageName && imageName.replace(/\.image$/, ""),
-        });
-    }
-    function exportFile(a) {
-        var path = Squeak.splitFilePath(a.innerText);
-        Squeak.fileGet(path.fullname, function(buffer) {
-            var blob = new Blob([buffer], {type: 'application/octet-stream'}),
-                blobURL = URL.createObjectURL(blob);
-            a.setAttribute('href', blobURL);
-            a.setAttribute('download', path.basename);
-            a.onclick = function(){
-                setTimeout(function(){URL.revokeObjectURL(blobURL)}, 0);
-                return true;
-            };
-            a.click();
-        }, alert);
-        return false;
-    }
-    function showFiles() {
-        var imgList = [],
-            fileList = [],
-            dirs = [''],
-            nFiles = nDirs = nBytes = 0;
-        while (dirs.length > 0) {
-            var dir = dirs.pop(),
-                entries = Squeak.dirList(dir);
-            for (var f in entries) {
-                var entry = entries[f],
-                    path = dir + '/' + f;
-                if (!dir && !entry[3] && f.match(/\.image$/))
-                    imgList.push('<li>Run <a href="#image=' + path + '">' + f + '</a></li>');
-                if (entry[3]) {
-                    dirs.push(path);
-                    nDirs++;
-                } else {
-                    nFiles++;
-                    nBytes += entry[4];
-                    fileList.push('<li><a href="squeak:' + path + '" onclick="return exportFile(this)" target="_blank">' + path + '</a>' +
-                        (entry[4] >= 100000 ? ' (' + (entry[4]/1000000).toFixed(1) + ' MB)' 
-                        : ' (' + (entry[4]/1000).toFixed(1) + ' KB)') + '</li>');
-                }
-            };
-        }
-        function fdir(s) { return s.replace(/<[^>]*>/gi,'').replace(/[^\/]*$/, ''); }
-        function fsort(a, b) { return fdir(a).localeCompare(fdir(b)) || a.localeCompare(b); }
-        if (fileList.length) {
-            files.innerHTML = "<ul>" + fileList.sort(fsort).join("") + "</ul>";
-            filestats.innerHTML = nFiles + " files in " + nDirs + " directories, " +
-                (nBytes/1000000).toFixed(1) + " MBytes total";
-        }          
-        if (imgList.length) images.innerHTML = "<p>Previously run local images:</p><ul>" + imgList.sort(fsort).join("") + "</ul>";
-        else images.innerHTML = "<ul>[Once you have dropped local images to this page they will be listed here.]</ul>"
-    }
+  <head id="magic">
+    <title>
 
-    window.onhashchange = function() {
-        window.location.reload();
-    }
-    window.onload = function() {
-        // if we have a hash image then we just run Squeak with the options provided in the url
-        if (location.hash.match(/\.image/)) {
-            return runSqueak();
-        }
-        // generate the text to display
-        sqCanvas.style.display = "none";
-        var links = document.getElementsByTagName("a");
-        for (var i = 0; i < links.length; i++) {
-            var link = links[i],
-                href = link.getAttribute("href");
-            if (href[0] === "#" && link.innerHTML === "link") {
-                link.innerHTML = href;
-                link.onclick = (function(href) {
-                    return function onclick() { window.location = href; }
-                })(href);
-            }
-        }
-        // show stored files and images. Update after fsck (which takes a while)
-        showFiles();
-        setTimeout(function() {
-            Squeak.fsck(function(stats) { if (stats.deleted) showFiles(); });
-        }, 0);
-        // also, enable drag-and-drop even if no image loaded yet
-        // (squeak.js will replace these when an image is running)
-        document.body.ondragover = function(evt) {
-            evt.preventDefault();
-            if (evt.dataTransfer.items[0].kind == "file") {
-                evt.dataTransfer.dropEffect = "copy";
-                drop.style.borderColor = "#0E0";
-            } else {
-                evt.dataTransfer.dropEffect = "none";
-            }
-            return false;
-        };
-        document.body.ondragleave = function(evt) {
-            drop.style.borderColor = "";
-        };
-        document.body.ondrop = function(evt) {
-            evt.preventDefault();
-            drop.style.borderColor = "#080";
-            var files = [].slice.call(evt.dataTransfer.files),
-                todo = files.length,
-                imageName = null;
-            files.forEach(function(f) {
-                var reader = new FileReader();
-                reader.onload = function () {
-                    var buffer = this.result;
-                    console.log("Storing " + f.name + " (" + buffer.byteLength + " bytes)");
-                    if (/.*image$/.test(f.name)) imageName = f.name;
-                    Squeak.filePut(f.name, buffer, function success() {
-                        if (--todo > 0) return;
-                        drop.style.borderColor = "";
-                        if (!imageName) showFiles();
-                        else runSqueak(imageName);
-                    });
-                }
-                reader.onerror = function() { alert("Failed to read " + f.name); }
-                reader.readAsArrayBuffer(f);
-            });
-            return false;
-        };
-    }
-</script>
-<script>
-    window.downloadFile = function(sUrl) {
-    if (window.downloadFile.isChrome || window.downloadFile.isSafari) {
-      //Creating new link node.
-        var link = document.createElement('a');
-        link.href = sUrl;
- 
-        if (link.download !== undefined){
-          //Set HTML5 download attribute. This will prevent file from opening if supported.
-          var fileName = sUrl.substring(sUrl.lastIndexOf('/') + 1, sUrl.length);
-          link.download = fileName;
-        }
- 
-        //Dispatching click event.
-        if (document.createEvent) {
-          var e = document.createEvent('MouseEvents');
-          e.initEvent('click' ,true ,true);
-          link.dispatchEvent(e);
-          return true;
-        }
-    } 
-    // Force file download (whether supported by server).
-    var query = '?download';
- 
-    window.open(sUrl + query);
-  }
- 
-  window.downloadFile.isChrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
-  window.downloadFile.isSafari = navigator.userAgent.toLowerCase().indexOf('safari') > -1;
-</script>
-</head>
-<body>
- <canvas id="sqCanvas" width="800" height="480"></canvas>
-    <div id="sqSpinner"><div></div></div>
-    <div id="sqText">
-        <h2>Your SqueakJS Files</h2>
-        You can use drag-and-drop to run a Squeak image from your machine: drop the image (perhaps together with a changes and sources file) into this page.
-        <div id="images"></div>
-        All images and related files are stored persistently in a database inside your browser.
-        The box below shows the files that are currently in your database.  Inside Squeak, you can use a FileList
-        to manage them.
-        <div id="drop">Drop Squeak images and other files here.
-            <div id="files" class="filelist"></div>
-            <div id="filestats"></div>
-        </div>
-        Clicking on a name in the box will export that file to your browser's downloads folder.
+      Caffeine :: livecode the web
+
+    </title>
+    <link rel="stylesheet" href="css/caffeine.css">
+    <script> 
+      window.onload = function () {
+        document.body.addEventListener(
+          "dblclick",
+          window.top.toggleZoom,
+          false);
+
+        var embeddedSqueak = window.document.getElementById("embeddedSqueak"),
+            summary = window.document.getElementById("summary");
+
+        embeddedSqueak.onmouseenter = function () {
+          window.document.getElementById("Caffeine").contentWindow.focus();
+          this.style.zIndex = 3;
+          this.style.boxShadow = "1px 1px 7px #999, 2px 2px 8px #999, 3px 3px 9px #999";};
+
+        embeddedSqueak.onmouseleave = function () {
+          window.focus();
+          this.style.boxShadow = "";};
+      
+        summary.onmousedown = function () {
+          embeddedSqueak.style.zIndex = 1;};
+
+        summary.onmouseover = function () {
+          embeddedSqueak.style.boxShadow = "";};
+
+        window.setTimeout(
+          function(){window.document.getElementById("backgroundPicture").style.opacity = 1;},
+          200);
+
+        window.setTimeout(
+          function(){
+            window.document.getElementById("progress").style.opacity = 1;
+            window.document.body.background = "pictures/backgrounds/6.jpg";
+            window.document.body.style.backgroundSize = "cover";
+            window.document.getElementById("backgroundPicture").remove();},
+          1000);
+
+        window.setTimeout(
+          function(){window.document.getElementById("status").style.opacity = 1;},
+          1000);
+
+        window.setTimeout(
+          function(){window.document.getElementById("banner").style.opacity = 1;},
+          1000);
+
+        window.setTimeout(
+          function(){window.document.getElementById("summary").style.opacity = 1;},
+          3500);
+      };
+    </script>
+  </head>
+  <body bgcolor="black">
+    <div>
+<!--
+      <img id="backgroundPicture" src="http://lorempixel.com/1440/900"; style="position: absolute; top: 0px; left: 0px; bottom: 100%; right: 100%; z-index: -10; background-size: cover; transition: opacity 500ms; opacity: 0;"></div>
+-->
+      <img id="backgroundPicture" src="pictures/backgrounds/6.jpg"; style="position: absolute; top: 0px; left: 0px; max-width: 100%; max-height: 100%; z-index: -10; transition: opacity 1000ms; opacity: 0;"></div>
+    <br>
+    <br>
+    <div id="banner" style="width: 464px; margin: 0 auto; transition: opacity 500ms; opacity: 0;">
+      <img src="pictures/caffeine.png" width=65 style="border-radius: 10px; opacity: 0.7;">
+    <h1 style="width: 300px; background-color: rgba(255, 255, 255, 0.6); border-radius: 10px;">Caffeine :: <i>Livecode the Web</i></h1>
+      <img src="pictures/qr.png" width=65 style="border-radius: 6px; opacity: 0.7;">
     </div>
-</body>
+    <div id="summary" style="position: absolute; left: 40px; top: 130px; z-index: 2; opacity: 0; transition: opacity 500ms;">
+      <blockquote>
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+	Caffeine is a <b><i>livecoding</i></b> environment for the
+web. After adding it to a webpage, you can use it to change that page
+live, without reloading, and to store your changes. You can interact
+with Caffeine through a full graphical interface inside your page, and
+with your favorite text editor.
+
+	<p>
+	  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+     Caffeine's underlying computation engine is <a
+href="https://github.com/bertfreudenberg/SqueakJS">SqueakJS</a>, an
+open-source <a
+href="https://en.wikipedia.org/wiki/Smalltalk">Smalltalk</a>. From the
+canvas below this one, you can interact with Squeak's traditional user
+interface, <a
+href="https://en.wikipedia.org/wiki/Morphic_(software)">Morphic</a></b>. <a
+href="http://squeak.org">Squeak</a> runs identically on all its host
+platforms, including macOS, Linux, Windows, and HTML5. You can
+snapshot a live session on any host platform, and resume it on any
+other.
+
+	<p>
+	  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+     Caffeine provides a user interface framework called <b>Hex</b>,
+which wraps several other UI frameworks, letting you mix them at will
+with a livecoding workflow. In addition to Squeak Morphic, supported
+frameworks
+include <a href="https://github.com/jmoenig/morphic.js">morphic.js</a>
+(a JavaScript implementation of Morphic from UC
+Berkeley's <a href="http://snap.berkeley.edu">Snap!</a> project which
+runs faster than Squeak
+Morphic), <a href="https://facebook.github.io/react">React</a>, and
+the traditional DOM. You can also interact with any other JavaScript
+framework you like.
+
+	<p>
+	  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+	  Caffeine is also integrated with <a
+href="https://en.wikipedia.org/wiki/WebDAV">WebDAV</a>, and with the
+<a href="https://chromedevtools.github.io/devtools-protocol">Chrome
+Debugging Protocol</a> (CDP). Eventually, Caffeine will have tools for
+inspecting, debugging, and profiling all the webpages in your web
+browser, as a full-GUI alternative to the Chrome DevTools. You'll also
+be able to interact with Caffeine and CDP from your favorite text
+editor, through a virtual WebDAV filesystem.
+
+	<p>
+	  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+	  <a href="http://blackpagedigital.com"><b>Craig Latta</b></a>
+	  
+	  <br>
+	  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+	  21 June 2017
+
+	  
+	  <br>
+	  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+	  <a
+	    href="https://twitter.com/ccrraaiigg"
+	    class="twitter-follow-button"
+	    data-show-count="false">
+
+	    Follow @ccrraaiigg
+
+	  </a>
+	  <script async
+		  src="//platform.twitter.com/widgets.js"
+		  charset="utf-8">
+	  </script>
+      </blockquote>
+    </div>
+    <div id="embeddedSqueak" style="border: 2px inset gray; position: absolute;
+    top: 280; left: 120; z-index: 1; opacity: 0; transition: opacity 500ms, box-shadow 300ms;"
+      <center>
+	<iframe
+	  style="overflow: hidden;"
+	  src="caffeine.html?n=1"
+	  id="Caffeine"
+	  marginheight="0"
+	  marginwidth="0"
+	  width="1000"
+	  height="400"
+	  frameborder="0"
+	  scrolling="no"
+	  allowfullscreen>
+	</iframe>
+      </center>
+    </div>
+  </body>
 </html>
