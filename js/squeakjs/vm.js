@@ -25,6 +25,10 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 // shorter name for convenience
 window.Squeak = users.bert.SqueakJS.vm;
 
+var magicWindow = window;
+while ((magicWindow != window.top) && (magicWindow.document.head.id != "magic")) {
+  magicWindow = window.parent;}
+  
 // if in private mode set localStorage to a regular dict
 var localStorage = window.localStorage;
 try {
@@ -4682,7 +4686,7 @@ Object.subclass('Squeak.Primitives',
       if (!mod) return null;
       this.vm.status("loading module: " + modName);
       if (modName == "JavaScriptPlugin") {
-	var embed = window.top.magicWindow.document.getElementById('embeddedSqueak');
+	var embed = magicWindow.document.getElementById('embeddedSqueak');
 	if (embed) {embed.style.opacity = 1;}}
       if (this.patchModules[modName])
             this.patchModule(mod, modName);
