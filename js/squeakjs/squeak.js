@@ -23,7 +23,6 @@
 "use strict";
 
 var magicWindow = window;
-window.top.magicWindow = window.top;
 while ((magicWindow != window.top) && (magicWindow.document.head.id != "magic")) {
   magicWindow = window.parent;}
 if (magicWindow.document.head.id == "magic") {
