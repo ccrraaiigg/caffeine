@@ -26,7 +26,6 @@ var magicWindow = window;
 while ((magicWindow != window.top) && (magicWindow.document.head.id != "magic")) {
   magicWindow = window.parent;}
 if (magicWindow.document.head.id == "magic") {
-  window.top.magicWindow = magicWindow;
   var progress = magicWindow.document.createElement('div');
   var thestatus = magicWindow.document.createElement('div');
   progress.id = 'progress';
