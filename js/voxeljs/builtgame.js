@@ -45724,6 +45724,7 @@ function View(three, opts) {
 
 View.prototype.createRenderer = function() {
   this.renderer = new THREE.WebGLRenderer({
+    canvas: window.gameCanvas !== undefined ? window.gameCanvas : undefined,
     antialias: true
   })
   this.renderer.setSize(this.width, this.height)
