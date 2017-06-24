@@ -43856,7 +43856,7 @@ Game.prototype.initializeRendering = function(opts) {
 
   window.addEventListener('resize', self.onWindowResize.bind(self), false)
 
-  requestAnimationFrame(window).on('data', function(dt) {
+  self.ee = requestAnimationFrame(window).on('data', function(dt) {
     self.emit('prerender', dt)
     self.render(dt)
     self.emit('postrender', dt)
