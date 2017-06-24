@@ -1019,7 +1019,7 @@ SqueakJS.runImage = function(buffer, name, display, options) {
             function run() {
                 try {
                   if (display.quitFlag) self.onQuit(vm, display, options);
-                  else if (!(display.voxeljs)) {
+                  else if (!(display.suspend)) {
 		      vm.interpret(50, function runAgain(ms) {
                         if (ms == "sleep") ms = 200;
                         if (spinner) updateSpinner(spinner, ms, vm, display);
