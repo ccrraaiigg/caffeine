@@ -18,7 +18,7 @@
 
 <script>
     function runDemo(imageName) {
-        SqueakJS.runSqueak(
+        window.top.magicWindow.squeakDisplay = SqueakJS.runSqueak(
             "caffeine.image",
             squeak,
             {

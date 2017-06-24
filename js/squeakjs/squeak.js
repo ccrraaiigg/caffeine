@@ -1018,12 +1018,13 @@ SqueakJS.runImage = function(buffer, name, display, options) {
             var spinner = setupSpinner(vm, options);
             function run() {
                 try {
-                    if (display.quitFlag) self.onQuit(vm, display, options);
-                    else vm.interpret(50, function runAgain(ms) {
+                  if (display.quitFlag) self.onQuit(vm, display, options);
+                  else if (!(display.voxeljs)) {
+		      vm.interpret(50, function runAgain(ms) {
                         if (ms == "sleep") ms = 200;
                         if (spinner) updateSpinner(spinner, ms, vm, display);
                         loop = window.setTimeout(run, ms);
-                    });
+                      })};
                 } catch(error) {
                     console.error(error);
                     alert(error);
