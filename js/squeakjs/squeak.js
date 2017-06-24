@@ -1002,7 +1002,7 @@ SqueakJS.runImage = function(buffer, name, display, options) {
     window.clearTimeout(loop);
     display.reset();
     display.clear();
-    display.showBanner("Loading " + SqueakJS.appName);
+    display.showBanner("loading " + SqueakJS.appName);
     display.showProgress(0);
     var self = this;
     window.setTimeout(function readImageAsync() {
@@ -1014,7 +1014,7 @@ SqueakJS.runImage = function(buffer, name, display, options) {
             localStorage["squeakImageName"] = name;
             setupSwapButtons(options);
             display.clear();
-            display.showBanner("Starting " + SqueakJS.appName);
+            display.showBanner("starting " + SqueakJS.appName);
             var spinner = setupSpinner(vm, options);
             function run() {
                 try {
@@ -1120,7 +1120,7 @@ function processZip(file, display, options, thenDo) {
         });
         if (todo.length === 0) return thenDo();
         var done = 0;
-        display.showBanner("Unzipping " + file.name);
+        display.showBanner("unzipping " + file.name);
         display.showProgress(0);
         todo.forEach(function(filename){
             console.log("Inflating " + file.name + ": " + filename);
@@ -1161,7 +1161,7 @@ function checkExisting(file, display, options, ifExists, ifNotExists) {
 }
 
 function downloadFile(file, display, options, thenDo) {
-    display.showBanner("Downloading " + file.name);
+    display.showBanner("downloading " + file.name);
     var rq = new XMLHttpRequest(),
         proxy = options.proxy || "";
     rq.open('GET', proxy + file.url);
