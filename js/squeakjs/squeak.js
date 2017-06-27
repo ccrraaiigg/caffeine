@@ -1002,7 +1002,7 @@ SqueakJS.runImage = function(buffer, name, display, options) {
     window.clearTimeout(loop);
     display.reset();
     display.clear();
-    display.showBanner("loading " + SqueakJS.appName);
+    display.showBanner("loading " + SqueakJS.appName + "...");
     display.showProgress(0);
     var self = this;
     window.setTimeout(function readImageAsync() {
