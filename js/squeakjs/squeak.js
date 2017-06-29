@@ -473,10 +473,11 @@ function createSqueakDisplay(canvas, options) {
     };
   display.showProgress = function(value, style) {
     var realValue = Math.max(value, 0.05);
-    if (realValue < 0.8) {
-      progress.style.width = (realValue * 100) + '%';}
+      if (realValue < 0.8) {
+	if (progress) {
+	  progress.style.width = (realValue * 100) + '%';}}
     
-        style = style || {};
+    style = style || {};
         var ctx = display.context,
             w = (canvas.width / 3) | 0,
             h = 24,
