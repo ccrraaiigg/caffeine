@@ -6532,7 +6532,8 @@ Object.subclass('Squeak.Primitives',
     primitiveInputSemaphore: function(argCount) {
         var semaIndex = this.stackInteger(0);
         if (!this.success) return false;
-        this.inputEventSemaIndex = semaIndex;
+      this.inputEventSemaIndex = semaIndex;
+      window.interpreter = this;
         this.display.signalInputEvent = function() {
             this.signalSemaphoreWithIndex(this.inputEventSemaIndex);
         }.bind(this);
