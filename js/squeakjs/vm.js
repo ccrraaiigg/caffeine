@@ -6537,6 +6537,7 @@ Object.subclass('Squeak.Primitives',
         this.display.signalInputEvent = function() {
             this.signalSemaphoreWithIndex(this.inputEventSemaIndex);
         }.bind(this);
+      this.display.signalInputEvent();
         return true;
     },
     primitiveInputWord: function(argCount) {
