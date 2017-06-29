@@ -1165,7 +1165,7 @@ function checkExisting(file, display, options, ifExists, ifNotExists) {
 }
 
 function downloadFile(file, display, options, thenDo) {
-    display.showBanner("downloading " + file.name);
+    display.showBanner("downloading " + file.name + "...");
     var rq = new XMLHttpRequest(),
         proxy = options.proxy || "";
     rq.open('GET', proxy + file.url);
