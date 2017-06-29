@@ -3917,7 +3917,9 @@ Object.subclass('Squeak.Interpreter',
 },
 'debugging', {
   status: function(string) {
-    magicWindow.thestatus.innerHTML = "<i>" + string + "</i>";
+    if (magicWindow.thestatus) {
+      magicWindow.thestatus.innerHTML = "<i>" + string + "</i>";
+    }
   },
 
     addMessage: function(message) {
