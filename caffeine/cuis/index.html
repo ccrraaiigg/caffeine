@@ -1,0 +1,132 @@
+<html>
+  <head id="magic">
+    <title>
+
+      Caffeine :: livecode the web
+
+    </title>
+    <link rel="stylesheet" href="css/caffeine.css">
+    <script> 
+      window.onload = function () {
+        var embeddedSqueak = window.document.getElementById("embeddedSqueak"),
+            summary = window.document.getElementById("summary");
+
+        embeddedSqueak.onmouseenter = function () {
+          window.document.getElementById("Caffeine").contentWindow.focus();
+          this.style.zIndex = 3;
+          this.style.boxShadow = "1px 1px 7px #999, 2px 2px 8px #999, 3px 3px 9px #999";};
+
+        embeddedSqueak.onmouseleave = function () {
+          window.focus();
+          this.style.boxShadow = "";};
+      
+        summary.onmousedown = function () {
+          embeddedSqueak.style.zIndex = 1;};
+
+        summary.onmouseover = function () {
+          embeddedSqueak.style.boxShadow = "";};
+
+        window.setTimeout(
+          function(){window.document.getElementById("backgroundPicture").style.opacity = 1;},
+          200);
+
+        window.setTimeout(
+          function(){
+            window.progress.style.opacity = 1;
+            window.document.body.background = "pictures/backgrounds/4.jpg";
+            window.document.body.style.backgroundSize = "cover";
+            window.document.getElementById("backgroundPicture").remove();},
+          1000);
+
+        window.setTimeout(
+          function(){window.thestatus.style.opacity = 1;},
+          1000);
+
+        window.setTimeout(
+          function(){window.document.getElementById("banner").style.opacity = 1;},
+          1000);
+
+        window.setTimeout(
+          function(){window.document.getElementById("summary").style.opacity = 1;},
+          3500);
+      };
+    </script>
+  </head>
+  <body bgcolor="black">
+    <div>
+<!--
+      <img id="backgroundPicture" src="http://lorempixel.com/1440/900"; style="position: absolute; top: 0px; left: 0px; bottom: 100%; right: 100%; z-index: -10; background-size: cover; transition: opacity 500ms; opacity: 0;"></div>
+-->
+      <img id="backgroundPicture" src="pictures/backgrounds/4.jpg"; style="position: absolute; top: 0px; left: 0px; max-width: 100%; max-height: 100%; z-index: -10; transition: opacity 1000ms; opacity: 0;"></div>
+    <br>
+    <br>
+    <div id="banner" style="width: 464px; margin: 0 auto; transition: opacity 500ms; opacity: 0;">
+      <img src="pictures/caffeine.png" width=65 style="border-radius: 10px; opacity: 0.7;">
+    <h1 style="width: 300px; background-color: rgba(255, 255, 255, 0.6); border-radius: 10px;">Caffeine :: <i>Livecode the Web</i></h1>
+      <img src="pictures/qr.png" width=65 style="border-radius: 6px; opacity: 0.7;">
+    </div>
+    <div id="summary" style="position: absolute; left: 40px; top: 130px; z-index: 2; opacity: 0; transition: opacity 500ms;">
+      <blockquote>
+	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+	Caffeine is a <b><i>livecoding</i></b> environment for the
+web. After adding it to a webpage, you can use it to change that page
+live, without reloading, and to store your changes. You can interact
+with Caffeine through a full graphical interface inside your page, and
+with your favorite text editor. Learn more
+at: <a href="https://caffeine.js.org">https://caffeine.js.org</a>.
+
+	<p>
+	  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+        This page is an early demo of
+running <a href="http://cuis-smalltalk.org">Cuis</a> with
+the <a href="https://squeak.js.org">SqueakJS</a> virtual machine.
+
+	<p>
+	  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+	  <a href="http://blackpagedigital.com"><b>Craig Latta</b></a>
+	  
+	  <br>
+	  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+	  29 June 2017
+
+	  
+	  <br>
+	  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+	  <a
+	    href="https://twitter.com/ccrraaiigg"
+	    class="twitter-follow-button"
+	    data-show-count="false">
+
+	    Follow @ccrraaiigg
+
+	  </a>
+	  <script async
+		  src="//platform.twitter.com/widgets.js"
+		  charset="utf-8">
+	  </script>
+      </blockquote>
+    </div>
+    <div id="embeddedSqueak" style="border: 2px inset gray; position: absolute;
+    top: 280; left: 120; z-index: 1; opacity: 1; transition: opacity 500ms, box-shadow 300ms;"
+      <center>
+	<iframe
+	  style="overflow: hidden;"
+	  src="squeakjscuis.html?n=1"
+	  id="Caffeine"
+	  marginheight="0"
+	  marginwidth="0"
+	  width="1000"
+	  height="400"
+	  frameborder="0"
+	  scrolling="no"
+	  allowfullscreen>
+	</iframe>
+      </center>
+    </div>
+  </body>
+</html>
