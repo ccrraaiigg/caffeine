@@ -27,7 +27,9 @@ while ((magicWindow != window.top) && (magicWindow.document.head.id != "magic"))
   magicWindow = window.parent;}
 
 try {isMagic = (magicWindow.document.head.id == "magic")}
-catch (exception) {isMagic = false}
+catch (exception) {
+  magicWindow = null;
+  isMagic = false}
 
 if (isMagic) {
   window.top.magicWindow = magicWindow;
