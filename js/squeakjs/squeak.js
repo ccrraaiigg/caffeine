@@ -470,7 +470,7 @@ function createSqueakDisplay(canvas, options) {
             ctx.font = "bold 24px sans-serif";
         ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      if (magicWindow.theStatus) {
+      if (magicWindow && magicWindow.theStatus) {
 	magicWindow.thestatus.innerHTML = "<i>" + msg + "</i>";
       }
         ctx.fillText(msg, canvas.width / 2, canvas.height / 2);
