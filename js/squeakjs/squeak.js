@@ -470,9 +470,10 @@ function createSqueakDisplay(canvas, options) {
             ctx.font = "bold 24px sans-serif";
         ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      if (magicWindow && magicWindow.theStatus) {
+      if (magicWindow) {
+	if (magicWindow.theStatus) {
 	magicWindow.thestatus.innerHTML = "<i>" + msg + "</i>";
-      }
+	}}
         ctx.fillText(msg, canvas.width / 2, canvas.height / 2);
     };
   display.showProgress = function(value, style) {
