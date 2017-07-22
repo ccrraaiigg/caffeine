@@ -5114,7 +5114,10 @@ Object.subclass('Squeak.Primitives',
         if (obj === undefined || obj === null) return this.vm.nilObj;
         if (obj === true) return this.vm.trueObj;
         if (obj === false) return this.vm.falseObj;
-        if (obj.sqClass) return obj;
+
+      try {if (obj.sqClass) return obj;}
+      catch (exception) {return this.vm.nilObj;}
+      
         if (typeof obj === "number")
             if (obj === (obj|0)) return this.makeLargeIfNeeded(obj);
             else return this.makeFloat(obj);
