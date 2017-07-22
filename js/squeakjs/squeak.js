@@ -1037,7 +1037,8 @@ SqueakJS.runImage = function(buffer, name, display, options) {
                       })};
                 } catch(error) {
                     console.error(error);
-                    alert(error);
+                  alert(error);
+		  loop = window.setTimeout(run, 200);
                 }
             }
             display.runNow = function() {
