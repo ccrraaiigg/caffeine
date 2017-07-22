@@ -17,8 +17,14 @@
 <script src="js/squeakjs/squeak.js"></script>
 
 <script>
-    function runDemo(imageName) {
-        window.top.magicWindow.squeakDisplay = SqueakJS.runSqueak(
+  function runDemo(imageName) {
+  var magicWindow;
+
+  try {magicWindow = window.top.magicWindow}
+  catch (exception) {magicWindow = null}
+
+  if (magicWindow) {
+  magicWindow.squeakDisplay = SqueakJS.runSqueak(
             "caffeine.image",
             squeak,
             {
@@ -28,9 +34,22 @@
                 appID: "4599d316-a13e-46ef-92be-c7337899038c",
                 appName: "Caffeine",
                 appServer: "demo.blackpagedigital.com:8091",
-            });
+  });}
+  else {
+  SqueakJS.runSqueak(
+            "caffeine.image",
+            squeak,
+            {
+                zip: ["memories/caffeine.zip", "sources/SqueakV46.sources.zip"],
+                swapButtons: true,
+                spinner: sqSpinner,
+                appID: "4599d316-a13e-46ef-92be-c7337899038c",
+                appName: "Caffeine",
+                appServer: "demo.blackpagedigital.com:8091",
+  });}
     }
-    function exportFile(a) {
+
+  function exportFile(a) {
         var path = Squeak.splitFilePath(a.innerText);
         Squeak.fileGet(path.fullname, function(buffer) {
             var blob = new Blob([buffer], {type: 'application/octet-stream'}),
