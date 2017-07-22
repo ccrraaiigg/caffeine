@@ -3919,8 +3919,10 @@ Object.subclass('Squeak.Interpreter',
 },
 'debugging', {
   status: function(string) {
-    if (magicWindow.thestatus) {
-      magicWindow.thestatus.innerHTML = "<i>" + string + "</i>";
+    if (magicWindow) {
+      if (magicWindow.thestatus) {
+	magicWindow.thestatus.innerHTML = "<i>" + string + "</i>";
+      }
     }
   },
 
@@ -4685,9 +4687,10 @@ Object.subclass('Squeak.Primitives',
         var mod = Squeak.externalModules[modName] || this.builtinModules[modName];
       if (!mod) return null;
       this.vm.status("loading module: " + modName);
-      if (modName == "JavaScriptPlugin") {
-	var embed = window.top.magicWindow.document.getElementById('embeddedSqueak');
-	if (embed) {embed.style.opacity = 1;}}
+      if (magicWindow) {
+	if (modName == "JavaScriptPlugin") {
+	  var embed = window.top.magicWindow.document.getElementById('embeddedSqueak');
+	  if (embed) {embed.style.opacity = 1;}}}
       if (this.patchModules[modName])
             this.patchModule(mod, modName);
         if (mod.setInterpreter) {
