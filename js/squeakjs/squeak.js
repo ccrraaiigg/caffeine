@@ -22,10 +22,14 @@
 
 "use strict";
 
-var magicWindow = window;
+var magicWindow = window, isMagic;
 while ((magicWindow != window.top) && (magicWindow.document.head.id != "magic")) {
   magicWindow = window.parent;}
-if (magicWindow.document.head.id == "magic") {
+
+try {isMagic = (magicWindow.document.head.id == "magic")}
+catch (exception) {isMagic = false}
+
+if (isMagic) {
   window.top.magicWindow = magicWindow;
   var progress = magicWindow.document.createElement('div');
   var thestatus = magicWindow.document.createElement('div');
