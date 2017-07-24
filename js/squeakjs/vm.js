@@ -6420,9 +6420,13 @@ Object.subclass('Squeak.Primitives',
     },
     primitiveScreenSize: function(argCount) {
         var display = this.display,
-            w = display.width || display.context.canvas.width,
-            h = display.height || display.context.canvas.height;
-        return this.popNandPushIfOK(argCount+1, this.makePointWithXandY(w, h));
+            w = display.context.canvas.width,
+            h = display.context.canvas.height;
+      // crl
+      
+      display.width = w;
+      display.height = h;
+      return this.popNandPushIfOK(argCount+1, this.makePointWithXandY(w, h));
     },
     primitiveSetFullScreen: function(argCount) {
         var flag = this.stackBoolean(0);
