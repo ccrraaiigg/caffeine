@@ -5116,7 +5116,7 @@ Object.subclass('Squeak.Primitives',
         if (obj === false) return this.vm.falseObj;
 
       try {if (obj.sqClass) return obj;}
-      catch (exception) {return this.vm.nilObj;}
+      catch (exception) {throw Error("cannot make Smalltalk object from prohibited JS object");}
       
         if (typeof obj === "number")
             if (obj === (obj|0)) return this.makeLargeIfNeeded(obj);
