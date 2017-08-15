@@ -18,6 +18,8 @@ this.addEventListener(
 	  '/talk/pictures/home.png',
 	  '/talk/sounds/wind.mp3',
 	  '/talk/js/squeakjs/vm.js',
+	  '/talk/js/squeakjs/lib/lz-string.js',
+	  '/talk/js/squeakjs/lib/jszip.js',
 	  '/talk/js/squeakjs/jit.js',
 	  '/talk/js/squeakjs/plugins/ADPCMCodecPlugin.js',
 	  '/talk/js/squeakjs/plugins/B2DPlugin.js',
