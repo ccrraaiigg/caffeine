@@ -41,3 +41,9 @@ this.addEventListener(
 	  '/talk/js/squeakjs/plugins/ZipPlugin.js'
 	])}))})
 
+this.addEventListener(
+  'fetch',
+  function(event) {
+    event.respondWith(
+      caches.match(event.request))})
+
