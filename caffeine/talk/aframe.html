@@ -1,0 +1,168 @@
+<html>
+  <head>
+    <!-- https://aframe.io/aframe/dist/aframe-master.min.js -->
+    <script src="js/aframe/aframe.min.js"></script>
+    <script src="https://rawgit.com/feiss/aframe-environment-component/master/dist/aframe-environment-component.min.js"></script>
+    <link href="css/squeakjs.css" rel="stylesheet" />
+  </head>
+  <body>
+    <script src="js/mousemove.js"></script>
+
+    <a-scene id="scene"
+	     raycaster="showLine: true; far: 100; objects: .squeaky"
+	     line="color: orange; opacity: 0.5"
+	     cursor="rayOrigin: mouse">
+
+      <a-assets>
+	<canvas id="squeak"
+		width="1400"
+		height="870"
+		tabindex="1"
+		crossorigin="anonymous"
+		style="cursor: default;
+		       opacity: 1;
+		       transition: opacity 500ms"></canvas>
+      </a-assets>
+
+      <a-assets>
+	<img id="logo" src="pictures/backgrounds/bootscreen1024x512.jpeg">
+      </a-assets>
+
+      <a-assets>
+	<audio id="wind-sound"
+	       src="sounds/wind.mp3"
+	       preload="auto"></audio>
+      </a-assets>
+      
+      <!-- The raycaster doesn't work properly on rotated
+	   planes. It's unclear whether the problem is with
+	   A-Frame or three.js. -->
+
+      <a-entity class="squeaky"
+		id="squeak-plane"
+		material="shader: flat;
+			  transparent: true;
+			  opacity: 0.8;
+			  src: #squeak"
+                geometry="primitive: plane;
+			  width: 14;
+			  height: 8.7"
+                position="0 5 -8"
+		mousemove></a-entity>
+
+      <div id="sqSpinner"
+	   style="opacity: 0.8;
+		  z-index: 10;
+		  margin: inherit;
+		  top: 18;
+		  left: inherit;
+		  right: 19;
+		  bottom: inherit;
+		  width: 52px;
+		  height: 52px;">
+	<div id="sqSpinnerSpokes"
+	     style="top: 21px;
+		    width: 42px;"></div></div>
+
+      <a-entity environment="preset: forest"></a-entity>
+
+      <a-plane id="logo"
+	       src="#logo"
+	       width="14"
+	       height="8.7"
+	       position="0 5 -8.1"
+	       rotation="0 180 0"></a-plane>
+
+      <a-entity id="wind"
+		position="0 5 -8"
+		sound="src: #wind-sound;
+		       loop: true"></a-entity>
+
+      <a-entity id="camera"
+		camera
+		look-controls
+		wasd-controls
+                position="0 5 -2.5"></a-entity>
+
+      <input id="home"
+	     type="image"
+	     src="pictures/home.png"
+	     tabindex="-1"
+	     width="70"
+	     height="70"
+	     style="opacity: 0.5;
+		    user-select: none;
+		    outline: none;
+		    z-index: 10;
+		    position: absolute;
+		    right: 10;
+		    top: 10"></canvas>
+
+    </a-scene>
+    <script src="js/squeakjs/squeak.js"></script>
+    <script src="js/webUtilities.js"></script>
+    <script src="js/aframeUtils.js"></script>
+    <script>
+      var canvas = document.getElementById('squeak'),
+          context = canvas.getContext('2d'),
+          wind = document.getElementById('wind'),
+          home = document.getElementById('home'),
+          camera = document.getElementById('camera'),
+          wasdControls = camera.components['wasd-controls'].data,
+          listeners
+
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('serviceWorker.js')
+          .then(function(reg) {
+            // registration worked
+              console.log('Registration succeeded. Scope is ' + reg.scope)})
+          .catch(function(error) {
+            // registration failed
+              console.log('Registration failed with ' + error)})}
+      else console.log('Service Worker API not available.')
+
+      context.fillStyle = 'black'
+      context.fillRect(0, 0, 1400, 870)
+      
+      wasdControls.fly = true
+
+      home.onclick = function (event) {
+        var positionAnimation = document.createElement('a-animation'),
+            rotationAnimation = document.createElement('a-animation')
+
+        positionAnimation.setAttribute('attribute', 'position')
+        positionAnimation.setAttribute('to', '0 5 -2.5')
+        rotationAnimation.setAttribute('attribute', 'rotation')
+        rotationAnimation.setAttribute('to', '0 0 0')
+
+        camera.appendChild(positionAnimation)
+        camera.appendChild(rotationAnimation)
+
+        home.blur()
+  
+        window.setTimeout(
+          function() {
+            positionAnimation.remove()
+            rotationAnimation.remove()},
+          1000)}
+      
+      window.forwardProjectedMouseEvents(
+        document.getElementById('camera'),
+        document.getElementById('squeak-plane'),
+        canvas)
+
+      window.setTimeout(
+        function () {
+          wind.components.sound.playSound()
+          window.startCaffeine(
+            canvas,
+            "next",
+            "SqueakV46",
+            {
+              appID: "d93ea2a2-bf59-4f59-bb21-c36c596c4488",
+              appName: "A-Frame livecoding demo",
+              appServer: "demo.blackpagedigital.com:8091"})},
+        6000)
+    </script>
+  </body>
+</html>

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>ACE in Action</title>
+    <style type="text/css" media="screen">
+      #editor { 
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="editor">
+    </div>
+    <script src="js/ace/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script>
+      var editor = ace.edit("editor"),
+          session = editor.getSession()
+      
+      editor.setTheme("ace/theme/monokai")
+      session.setMode("ace/mode/text")
+      session.setOption("indentedSoftWrap", false)
+      session.setUseWrapMode(true)
+      editor.$blockScrolling = Infinity
+      editor.setValue("\nStatic text is a convenient form for serving web content, but after a browser loads it, it becomes a living structure.")
+    </script>
+  </body>
+</html>
