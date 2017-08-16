@@ -118,7 +118,7 @@ function forwardProjectedMouseEvents(camera, plane, canvas) {
     canvasEvent.projectedY = Math.floor((selectionDistance * Math.sin(theta)) * heightFactor)
     canvas.lastProjectedEvent = canvasEvent
       
-    console.log(planarEvent.type + ' ' + canvasEvent.projectedX + ' ' + canvasEvent.projectedY)
+//  console.log(planarEvent.type + ' ' + canvasEvent.projectedX + ' ' + canvasEvent.projectedY)
     canvas.dispatchEvent(canvasEvent)}
 
   window.mousedown = false
