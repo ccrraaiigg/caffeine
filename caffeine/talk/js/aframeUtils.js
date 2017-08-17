@@ -167,7 +167,7 @@ function forwardProjectedMouseEvents(camera, plane, canvas) {
     function (event) {
       // Set the frame rate to normal.
       if (scene.timeout) clearTimeout(scene.timeout)
-      scene.render = scene.normalRender.bind(scene)
+      scene.render = normalRender.bind(scene)
 
       if (scene.editingCode) {
 	scene.timeout = setTimeout(
