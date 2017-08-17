@@ -162,6 +162,20 @@ function forwardProjectedMouseEvents(camera, plane, canvas) {
     'mouseup',
     function (event) {window.mousedown = false})
 
+  document.addEventListener(
+    'mousemove',
+    function (event) {
+      // Set the frame rate to normal.
+      if (scene.timeout) clearTimeout(scene.timeout)
+      scene.render = scene.normalRender.bind(scene)
+
+      if (scene.editingCode) {
+	scene.timeout = setTimeout(
+	  function () {
+	    // Set the frame rate to 1 per second.
+	    scene.render = slowRender.bind(scene)},
+	  2000)}})
+
   plane.movemouse = function (x, y) {
     var canvas = document.getElementById('squeak'),
 	lastProjectedEvent = canvas.lastProjectedEvent
@@ -178,6 +192,7 @@ function forwardProjectedMouseEvents(camera, plane, canvas) {
   plane.addEventListener(
     'mouseenter',
     function (event) {
+      scene.editingCode = true
       if (window.squeakVM) squeakDisplay.vm = window.squeakVM
 
       // Set the frame rate to 1 per second.
@@ -197,23 +212,11 @@ function forwardProjectedMouseEvents(camera, plane, canvas) {
 
   plane.addEventListener(
     'mousedown',
-    function (event) {
-      if (scene.timeout) clearTimeout(scene.timeout)
-
-      // Set the frame rate to normal.
-      scene.render = normalRender.bind(scene)
-
-      dispatch(event)})
+    dispatch)
 
   plane.addEventListener(
     'mouseup',
     function (event) {
-      scene.timeout = setTimeout(
-	function () {
-	  // Set the frame rate to 1 per second.
-	  scene.render = slowRender.bind(scene)},
-	2000)
-
       getCSSRule('.a-canvas.a-grab-cursor:hover').style.cssText = "cursor: normal;"
       getCSSRule('.a-canvas.a-grab-cursor:active, .a-grabbing').style.cssText = "cursor: normal;"
       disableControls('look-controls')
@@ -223,9 +226,10 @@ function forwardProjectedMouseEvents(camera, plane, canvas) {
   plane.addEventListener(
     'mouseleave',
     function (event) {
-      if (scene.timeout) clearTimeout(scene.timeout)
-      
+      scene.editingCode = false
+
       // Set the frame rate to normal.
+      if (scene.timeout) clearTimeout(scene.timeout)
       scene.render = normalRender.bind(scene)
 
       // Trick squeak.js into not queueing keyboard events.
