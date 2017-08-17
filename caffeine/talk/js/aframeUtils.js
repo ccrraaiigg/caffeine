@@ -212,7 +212,7 @@ function forwardProjectedMouseEvents(camera, plane, canvas) {
 	function () {
 	  // Set the frame rate to 1 per second.
 	  scene.render = slowRender.bind(scene)},
-	3000)
+	2000)
 
       getCSSRule('.a-canvas.a-grab-cursor:hover').style.cssText = "cursor: normal;"
       getCSSRule('.a-canvas.a-grab-cursor:active, .a-grabbing').style.cssText = "cursor: normal;"
