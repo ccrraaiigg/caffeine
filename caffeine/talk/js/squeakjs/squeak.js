@@ -787,10 +787,10 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
     };
     document.onkeydown = function(evt) {
       checkFullscreen();
+      if (canvas.otherCanvasActive) {
+	evt.preventDefault();
+	evt.stopPropagation();}
       if (!display.vm) {
-	if (canvas.otherCanvasActive) {
-	  evt.preventDefault();
-	  evt.stopPropagation();}
 	return true;}
       if (evt.shiftKey) canvas.shiftKey = true;
       recordModifiers(evt, display);
