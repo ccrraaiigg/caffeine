@@ -256,4 +256,51 @@ function forwardProjectedMouseEvents(camera, plane, canvas) {
       enableControls('look-controls')
       dispatch(event)})}
 
-window.forwardProjectedMouseEvents = forwardProjectedMouseEvents
+var canvas = document.getElementById('squeak'),
+    context = canvas.getContext('2d'),
+    wind = document.getElementById('wind'),
+    home = document.getElementById('home'),
+    camera = document.getElementById('camera'),
+    wasdControls = camera.components['wasd-controls'].data,
+    listeners
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('serviceWorker.js')
+    .then(function(reg) {
+      // registration worked
+      console.log('Registration succeeded. Scope is ' + reg.scope)})
+    .catch(function(error) {
+      // registration failed
+      console.log('Registration failed with ' + error)})}
+else console.log('Service Worker API not available.')
+
+context.fillStyle = 'black'
+context.fillRect(0, 0, 1400, 870)
+
+wasdControls.fly = true
+
+forwardProjectedMouseEvents(
+  document.getElementById('camera'),
+  document.getElementById('squeak-plane'),
+  canvas)
+
+home.onclick = function (event) {
+  var positionAnimation = document.createElement('a-animation'),
+      rotationAnimation = document.createElement('a-animation')
+
+  positionAnimation.setAttribute('attribute', 'position')
+  positionAnimation.setAttribute('to', '0 5 -2.5')
+  rotationAnimation.setAttribute('attribute', 'rotation')
+  rotationAnimation.setAttribute('to', '0 0 0')
+
+  camera.appendChild(positionAnimation)
+  camera.appendChild(rotationAnimation)
+
+  home.blur()
+  
+  window.setTimeout(
+    function() {
+      positionAnimation.remove()
+      rotationAnimation.remove()},
+    1000)}
+
