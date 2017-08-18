@@ -15,6 +15,8 @@ function slowRender () {
       this.effect.submitFrame()}).bind(this),
     1000)}
 
+slowRender.bind(scene)
+
 function normalRender () {
   var effect = this.effect
   var delta = this.clock.getDelta() * 1000
@@ -28,6 +30,8 @@ function normalRender () {
   if (this.isPlaying) {this.tock(this.time, delta)}
 
   this.effect.submitFrame()}
+
+normalRender.bind(scene)
 
 function focusMe (event) {
     event.target.focus()
@@ -167,17 +171,22 @@ function forwardProjectedMouseEvents(camera, plane, canvas) {
     function (event) {
       // Set the frame rate to normal.
       if (scene.timeout) clearTimeout(scene.timeout)
-      if (scene.animationFrameID) cancelAnimationFrame(scene.animationFrameID)
-      scene.render = normalRender.bind(scene)
-      scene.render()
+      console.log('normal')
+      scene.render = normalRender
+      if (scene.animationFrameID) {
+	cancelAnimationFrame(scene.animationFrameID)
+	scene.render()}
 
       if (scene.editingCode) {
 	scene.timeout = setTimeout(
 	  function () {
 	    // Set the frame rate to 1 per second.
-	    if (scene.animationFrameID) cancelAnimationFrame(scene.animationFrameID)
-	    scene.render = slowRender.bind(scene)
-	    scene.render()},
+	    console.log('slow')
+
+	    scene.render = slowRender
+	    if (scene.animationFrameID) {
+	      cancelAnimationFrame(scene.animationFrameID)
+	      scene.render()}},
 	  2000)}})
 
   plane.movemouse = function (x, y) {
@@ -200,9 +209,11 @@ function forwardProjectedMouseEvents(camera, plane, canvas) {
       if (window.squeakVM) squeakDisplay.vm = window.squeakVM
 
       // Set the frame rate to 1 per second.
-      if (scene.animationFrameID) cancelAnimationFrame(scene.animationFrameID)
-      scene.render = slowRender.bind(scene)
-      scene.render()
+      scene.render = slowRender
+      console.log('slow')
+      if (scene.animationFrameID) {
+	cancelAnimationFrame(scene.animationFrameID)
+	scene.render()}
 	
       disableControls('wasd-controls')
       if (!mousedown) {
@@ -236,7 +247,7 @@ function forwardProjectedMouseEvents(camera, plane, canvas) {
 
       // Set the frame rate to normal.
       if (scene.timeout) clearTimeout(scene.timeout)
-      scene.render = normalRender.bind(scene)
+      scene.render = normalRender
 
       // Trick squeak.js into not queueing keyboard events.
       if (squeakDisplay) {
