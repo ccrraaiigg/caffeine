@@ -291,7 +291,7 @@ home.onclick = function (event) {
   var positionAnimation = document.createElement('a-animation'),
       rotationAnimation = document.createElement('a-animation')
 
-  spokeRendering()
+  spikeRendering()
   
   positionAnimation.setAttribute('attribute', 'position')
   positionAnimation.setAttribute('to', '0 5 -2.5')
