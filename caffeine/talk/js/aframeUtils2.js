@@ -1,4 +1,5 @@
 scene.renderingNormally = true
+scene.renderInTransition = false
 
 function slowRender () {
   var effect = this.effect
@@ -175,24 +176,36 @@ function forwardProjectedMouseEvents(camera, plane, canvas) {
 	clearTimeout(scene.timeout)
 	scene.timeout = null}
 
+      if (scene.renderInTransition) return
+      
       if (!scene.renderingNormally) {
 	// Set the frame rate to normal.
 	console.log('normal')
 	if (scene.slowRenderTimeout) clearTimeout(scene.slowRenderTimeout)
 	cancelAnimationFrame(scene.animationFrameID)
-	scene.render = normalRender.bind(scene)
-      	scene.render()
-	scene.renderingNormally = true}
+	scene.render = function () {}
+	scene.renderInTransition = true
+	window.setTimeout(
+	  function () {
+	    scene.render = normalRender.bind(scene)
+      	    scene.render()
+	    scene.renderingNormally = true
+	    scene.renderInTransition = false},
+	  100)}
 
       if (scene.editingCode) {
-	scene.timeout = setTimeout(
+	scene.timeout = window.setTimeout(
 	  function () {
 	    // Set the frame rate to 1 per second.
 	    console.log('slow')
 	    cancelAnimationFrame(scene.animationFrameID)
-	    scene.render = slowRender.bind(scene)
-	    scene.render()
-	    scene.renderingNormally = false},
+	    scene.render = function () {}
+	    window.setTimeout(
+	      function () {
+		scene.render = slowRender.bind(scene)
+		scene.render()
+		scene.renderingNormally = false},
+	      100)},
 	  100)}})
 
   plane.movemouse = function (x, y) {
