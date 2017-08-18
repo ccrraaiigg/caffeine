@@ -31,6 +31,31 @@ function normalRender () {
 
   this.effect.submitFrame()}
 
+function spikeRendering () {
+  if (scene.timeout) {
+    clearTimeout(scene.timeout)
+    scene.timeout = null}
+
+  if (!scene.renderingNormally) {
+    // Set the frame rate to normal.
+    console.log('normal')
+    if (scene.slowRenderTimeout) clearTimeout(scene.slowRenderTimeout)
+    cancelAnimationFrame(scene.animationFrameID)
+    scene.render = normalRender.bind(scene)
+    scene.render()
+    scene.renderingNormally = true}
+
+  if (scene.editingCode) {
+    scene.timeout = setTimeout(
+      function () {
+	// Set the frame rate to 1 per second.
+	console.log('slow')
+	cancelAnimationFrame(scene.animationFrameID)
+	scene.render = slowRender.bind(scene)
+	scene.render()
+	scene.renderingNormally = false},
+      100)}}
+
 function focusMe (event) {
   event.target.focus()
   event.stopPropagation()}
@@ -171,30 +196,8 @@ function forwardProjectedMouseEvents(camera, plane, canvas) {
   document.addEventListener(
     'mousemove',
     function (event) {
-      if (scene.timeout) {
-	clearTimeout(scene.timeout)
-	scene.timeout = null}
-
-      if (!scene.renderingNormally) {
-	// Set the frame rate to normal.
-	console.log('normal')
-	if (scene.slowRenderTimeout) clearTimeout(scene.slowRenderTimeout)
-	cancelAnimationFrame(scene.animationFrameID)
-	scene.render = normalRender.bind(scene)
-      	scene.render()
-	scene.renderingNormally = true}
-
-      if (scene.editingCode) {
-	scene.timeout = setTimeout(
-	  function () {
-	    // Set the frame rate to 1 per second.
-	    console.log('slow')
-	    cancelAnimationFrame(scene.animationFrameID)
-	    scene.render = slowRender.bind(scene)
-	    scene.render()
-	    scene.renderingNormally = false},
-	  100)}})
-
+      spikeRendering()})
+    
   plane.movemouse = function (x, y) {
     var canvas = document.getElementById('squeak'),
 	lastProjectedEvent = canvas.lastProjectedEvent
@@ -288,14 +291,7 @@ home.onclick = function (event) {
   var positionAnimation = document.createElement('a-animation'),
       rotationAnimation = document.createElement('a-animation')
 
-  if (!scene.renderingNormally) {
-    // Set the frame rate to normal.
-    console.log('normal')
-    if (scene.slowRenderTimeout) clearTimeout(scene.slowRenderTimeout)
-    cancelAnimationFrame(scene.animationFrameID)
-    scene.render = normalRender.bind(scene)
-    scene.render()
-    scene.renderingNormally = true}
+  spokeRendering()
   
   positionAnimation.setAttribute('attribute', 'position')
   positionAnimation.setAttribute('to', '0 5 -2.5')
