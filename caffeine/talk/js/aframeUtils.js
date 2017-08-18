@@ -1,4 +1,5 @@
 scene.renderingNormally = true
+scene.lastMouseMove = Date.now()
 
 function slowRender () {
   var effect = this.effect
