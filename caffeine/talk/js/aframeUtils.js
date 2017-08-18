@@ -1,4 +1,5 @@
 scene.renderingNormally = true
+scene.renderInTransition = false
 
 function slowRender () {
   var effect = this.effect
@@ -171,6 +172,8 @@ function forwardProjectedMouseEvents(camera, plane, canvas) {
   document.addEventListener(
     'mousemove',
     function (event) {
+      if (scene.renderInTransition) return
+
       if (scene.timeout) {
 	clearTimeout(scene.timeout)
 	scene.timeout = null}
@@ -180,11 +183,13 @@ function forwardProjectedMouseEvents(camera, plane, canvas) {
 	console.log('normal')
 	cancelAnimationFrame(scene.animationFrameID)
 	scene.render = function () {}
+	scene.renderInTransition = true
 	setTimeout(
 	  function () {
 	    scene.render = normalRender.bind(scene)
+      	    scene.render()
 	    scene.renderingNormally = true
-      	    scene.render()},
+	    scene.renderInTransition = false},
 	  100)}
 
       if (scene.editingCode) {
@@ -194,11 +199,13 @@ function forwardProjectedMouseEvents(camera, plane, canvas) {
 	    console.log('slow')
 	    cancelAnimationFrame(scene.animationFrameID)
 	    scene.render = function () {}
+	    scene.renderInTransition = true
 	    setTimeout(
 	      function () {
 		scene.render = slowRender.bind(scene)
+		scene.render()
 		scene.renderingNormally = false
-		scene.render()},
+		scene.renderInTransition = false},
 	      100)},
 	  100)}})
 
