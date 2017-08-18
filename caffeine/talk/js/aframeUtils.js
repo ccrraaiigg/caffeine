@@ -169,13 +169,15 @@ function forwardProjectedMouseEvents(camera, plane, canvas) {
       if (scene.timeout) clearTimeout(scene.timeout)
       if (scene.animationFrameID) cancelAnimationFrame(scene.animationFrameID)
       scene.render = normalRender.bind(scene)
+      scene.render()
 
       if (scene.editingCode) {
 	scene.timeout = setTimeout(
 	  function () {
 	    // Set the frame rate to 1 per second.
 	    if (scene.animationFrameID) cancelAnimationFrame(scene.animationFrameID)
-	    scene.render = slowRender.bind(scene)},
+	    scene.render = slowRender.bind(scene)
+	    scene.render()},
 	  2000)}})
 
   plane.movemouse = function (x, y) {
@@ -200,6 +202,7 @@ function forwardProjectedMouseEvents(camera, plane, canvas) {
       // Set the frame rate to 1 per second.
       if (scene.animationFrameID) cancelAnimationFrame(scene.animationFrameID)
       scene.render = slowRender.bind(scene)
+      scene.render()
 	
       disableControls('wasd-controls')
       if (!mousedown) {
