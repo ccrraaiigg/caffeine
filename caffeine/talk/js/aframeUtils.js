@@ -185,16 +185,18 @@ function forwardProjectedMouseEvents(camera, plane, canvas) {
 	scene.renderingNormally = true}
 
       if (scene.editingCode) {
-	scene.timeout = setTimeout(
-	  function () {
-	    // Set the frame rate to 1 per second.
-	    console.log('slow')
-	    scene.render = slowRender.bind(scene)
-	    if (scene.animationFrameID) {
-	      cancelAnimationFrame(scene.animationFrameID)
-	      scene.render()}
-	    scene.renderingNormally = false},
-	  100)}})
+	if ((Date.now() - scene.lastMouseMove) > 100) {
+	  scene.timeout = setTimeout(
+	    function () {
+	      // Set the frame rate to 1 per second.
+	      console.log('slow')
+	      scene.render = slowRender.bind(scene)
+	      if (scene.animationFrameID) {
+		cancelAnimationFrame(scene.animationFrameID)
+		scene.render()}
+	      scene.renderingNormally = false},
+	    100)}}
+      scene.lastMouseMove = Date.now()})
 
   plane.movemouse = function (x, y) {
     var canvas = document.getElementById('squeak'),
