@@ -288,6 +288,15 @@ home.onclick = function (event) {
   var positionAnimation = document.createElement('a-animation'),
       rotationAnimation = document.createElement('a-animation')
 
+  if (!scene.renderingNormally) {
+    // Set the frame rate to normal.
+    console.log('normal')
+    if (scene.slowRenderTimeout) clearTimeout(scene.slowRenderTimeout)
+    cancelAnimationFrame(scene.animationFrameID)
+    scene.render = normalRender.bind(scene)
+    scene.render()
+    scene.renderingNormally = true}
+  
   positionAnimation.setAttribute('attribute', 'position')
   positionAnimation.setAttribute('to', '0 5 -2.5')
   rotationAnimation.setAttribute('attribute', 'rotation')
