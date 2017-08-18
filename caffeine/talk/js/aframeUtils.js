@@ -45,7 +45,7 @@ function spikeRendering () {
     scene.render()
     scene.renderingNormally = true}
 
-  if (scene.editingCode) {
+  if (scene.editingCode && !scene.goingHome) {
     scene.timeout = setTimeout(
       function () {
 	// Set the frame rate to 1 per second.
@@ -61,10 +61,10 @@ function focusMe (event) {
   event.stopPropagation()}
 
 function disableControls (string) {
-  document.getElementById('camera').components[string].data.enabled = false}
+  document.getElementById('camera').components[string].setAttribute('enabled', false)}
 
 function enableControls (string) {
-  document.getElementById('camera').components[string].data.enabled = true}
+  document.getElementById('camera').components[string].setAttribute('enabled', true)}
 
 function vectorFrom(object) {
   return new THREE.Vector3(
@@ -73,10 +73,10 @@ function vectorFrom(object) {
     object.z)}
 
 function centerOf(entity) {
-  return vectorFrom(entity.components.position.data)}
+  return vectorFrom(entity.components.getAttribute('position'))}
 
 function rotationOf(entity) {
-  return vectorFrom(entity.components.rotation.data)}
+  return vectorFrom(entity.components.getAttribute('rotation'))}
 
 function rotate(geometry, rotation) {
   var degreesToRadians = Math.PI / 180
@@ -264,7 +264,7 @@ var canvas = document.getElementById('squeak'),
     wind = document.getElementById('wind'),
     home = document.getElementById('home'),
     camera = document.getElementById('camera'),
-    wasdControls = camera.components['wasd-controls'].data,
+    wasdControls = camera.components['wasd-controls'],
     listeners
 
 if ('serviceWorker' in navigator) {
@@ -280,7 +280,7 @@ else console.log('Service Worker API not available.')
 context.fillStyle = 'black'
 context.fillRect(0, 0, 1400, 870)
 
-wasdControls.fly = true
+wasdControls.setAttribute('fly', true)
 
 forwardProjectedMouseEvents(
   document.getElementById('camera'),
@@ -291,6 +291,7 @@ home.onclick = function (event) {
   var positionAnimation = document.createElement('a-animation'),
       rotationAnimation = document.createElement('a-animation')
 
+  scene.goingHome = true
   spikeRendering()
   
   positionAnimation.setAttribute('attribute', 'position')
@@ -306,6 +307,7 @@ home.onclick = function (event) {
   window.setTimeout(
     function() {
       positionAnimation.remove()
-      rotationAnimation.remove()},
+      rotationAnimation.remove()
+      scene.goingHome = false},
     1000)}
 
