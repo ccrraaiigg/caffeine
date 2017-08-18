@@ -776,6 +776,11 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
     }
     // keyboard stuff
     document.onkeypress = function(evt) {
+      if (canvas.otherCanvasActive) {
+	evt.preventDefault();
+	evt.stopPropagation();
+	return true;}
+
       if (!display.vm) return true;
       // check for ctrl-x/c/v/r
       if (/[CXVR]/.test(String.fromCharCode(evt.charCode + 64)))
@@ -789,7 +794,8 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
       checkFullscreen();
       if (canvas.otherCanvasActive) {
 	evt.preventDefault();
-	evt.stopPropagation();}
+	evt.stopPropagation();
+	return true;}
       if (!display.vm) {
 	return true;}
       if (evt.shiftKey) canvas.shiftKey = true;
@@ -832,6 +838,11 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
       }
     };
     document.onkeyup = function(evt) {
+      if (canvas.otherCanvasActive) {
+	evt.preventDefault();
+	evt.stopPropagation();
+	return true;}
+
       if (!display.vm) return true;
       canvas.shiftKey = false;
       recordModifiers(evt, display);
