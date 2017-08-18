@@ -167,12 +167,14 @@ function forwardProjectedMouseEvents(camera, plane, canvas) {
     function (event) {
       // Set the frame rate to normal.
       if (scene.timeout) clearTimeout(scene.timeout)
+      if (scene.animationFrameID) cancelAnimationFrame(scene.animationFrameID)
       scene.render = normalRender.bind(scene)
 
       if (scene.editingCode) {
 	scene.timeout = setTimeout(
 	  function () {
 	    // Set the frame rate to 1 per second.
+	    if (scene.animationFrameID) cancelAnimationFrame(scene.animationFrameID)
 	    scene.render = slowRender.bind(scene)},
 	  2000)}})
 
@@ -196,6 +198,7 @@ function forwardProjectedMouseEvents(camera, plane, canvas) {
       if (window.squeakVM) squeakDisplay.vm = window.squeakVM
 
       // Set the frame rate to 1 per second.
+      if (scene.animationFrameID) cancelAnimationFrame(scene.animationFrameID)
       scene.render = slowRender.bind(scene)
 	
       disableControls('wasd-controls')
