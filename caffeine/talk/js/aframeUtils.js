@@ -32,6 +32,8 @@ function normalRender () {
   this.effect.submitFrame()}
 
 function spikeRendering () {
+  var timeout
+  
   if (scene.timeout) {
     clearTimeout(scene.timeout)
     scene.timeout = null}
@@ -45,16 +47,18 @@ function spikeRendering () {
     scene.render()
     scene.renderingNormally = true}
 
-  if (scene.editingCode && !scene.goingHome) {
-    scene.timeout = setTimeout(
-      function () {
-	// Set the frame rate to 1 per second.
-	console.log('slow')
-	cancelAnimationFrame(scene.animationFrameID)
-	scene.render = slowRender.bind(scene)
-	scene.render()
-	scene.renderingNormally = false},
-      50)}}
+  if (scene.editingCode && !scene.goingHome) timeout = 50
+  else timeout = 5000
+
+  scene.timeout = setTimeout(
+    function () {
+      // Set the frame rate to 1 per second.
+      console.log('slow')
+      cancelAnimationFrame(scene.animationFrameID)
+      scene.render = slowRender.bind(scene)
+      scene.render()
+      scene.renderingNormally = false},
+    timeout)}}
 
 function focusMe (event) {
   event.target.focus()
@@ -197,7 +201,12 @@ function forwardProjectedMouseEvents(camera, plane, canvas) {
     'mousemove',
     function (event) {
       spikeRendering()})
-    
+
+  document.addEventListener(
+    'keydown',
+    function (event) {
+      spikeRendering()})
+
   plane.movemouse = function (x, y) {
     var canvas = document.getElementById('squeak'),
 	lastProjectedEvent = canvas.lastProjectedEvent
