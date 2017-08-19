@@ -58,7 +58,7 @@ function spikeRendering () {
       scene.render = slowRender.bind(scene)
       scene.render()
       scene.renderingNormally = false},
-    timeout)}}
+    timeout)}
 
 function focusMe (event) {
   event.target.focus()
