@@ -273,8 +273,10 @@ var canvas = document.getElementById('squeak'),
     wind = document.getElementById('wind'),
     home = document.getElementById('home'),
     camera = document.getElementById('camera'),
-    wasdControls = camera.components['wasd-controls'],
+    wasdControls = 
     listeners
+
+camera.getAttribute('wasd-controls').fly = true
 
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('serviceWorker.js')
@@ -288,8 +290,6 @@ else console.log('Service Worker API not available.')
 
 context.fillStyle = 'black'
 context.fillRect(0, 0, 1400, 870)
-
-wasdControls.setAttribute('fly', true)
 
 forwardProjectedMouseEvents(
   document.getElementById('camera'),
