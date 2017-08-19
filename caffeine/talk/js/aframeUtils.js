@@ -47,7 +47,9 @@ function spikeRendering () {
     scene.render()
     scene.renderingNormally = true}
 
-  if (scene.editingCode && !scene.goingHome) timeout = 50
+  if (scene.editingCode) {
+    if (scene.goingHome) timeout = 1000
+    else timeout = 50}
   else {
     if (scene.hasAnimations) timeout = 30000
     else timeout = 50}
