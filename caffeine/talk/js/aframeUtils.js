@@ -65,10 +65,10 @@ function focusMe (event) {
   event.stopPropagation()}
 
 function disableControls (string) {
-  document.getElementById('camera').components[string].setAttribute('enabled', false)}
+  document.getElementById('camera').getAttribute(string).enabled = false}
 
 function enableControls (string) {
-  document.getElementById('camera').components[string].setAttribute('enabled', true)}
+  document.getElementById('camera').getAttribute(string).enabled = true}
 
 function vectorFrom(object) {
   return new THREE.Vector3(
