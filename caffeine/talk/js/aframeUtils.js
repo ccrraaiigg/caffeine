@@ -295,6 +295,8 @@ forwardProjectedMouseEvents(
   document.getElementById('squeak-plane'),
   canvas)
 
+spikeRendering()
+
 home.onclick = function (event) {
   var positionAnimation = document.createElement('a-animation'),
       rotationAnimation = document.createElement('a-animation')
