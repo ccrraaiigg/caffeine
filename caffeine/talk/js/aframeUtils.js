@@ -273,7 +273,6 @@ var canvas = document.getElementById('squeak'),
     wind = document.getElementById('wind'),
     home = document.getElementById('home'),
     camera = document.getElementById('camera'),
-    wasdControls = 
     listeners
 
 camera.getAttribute('wasd-controls').fly = true
