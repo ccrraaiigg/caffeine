@@ -52,7 +52,9 @@ function spikeRendering () {
     else timeout = 50}
   else {
     if (scene.hasAnimations) timeout = 30000
-    else timeout = 50}
+    else {
+      if (scene.goingHome) timeout = 1000
+      else timeout = 50}}
 
   scene.timeout = setTimeout(
     function () {
