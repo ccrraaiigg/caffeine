@@ -77,10 +77,10 @@ function vectorFrom(object) {
     object.z)}
 
 function centerOf(entity) {
-  return vectorFrom(entity.components.getAttribute('position'))}
+  return vectorFrom(entity.getAttribute('position'))}
 
 function rotationOf(entity) {
-  return vectorFrom(entity.components.getAttribute('rotation'))}
+  return vectorFrom(entity.getAttribute('rotation'))}
 
 function rotate(geometry, rotation) {
   var degreesToRadians = Math.PI / 180
