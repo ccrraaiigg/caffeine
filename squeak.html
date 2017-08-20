@@ -19,31 +19,25 @@
     <script src="js/squeakjs/squeak.js"></script>
     <script src="js/webUtilities.js"></script>
     <script>
-      function runDemo(imageName) {
+      window.onload = function () {
         // Attempt to keep this page embeddable in external non-secure origins.
         var magicWindow
         try {magicWindow = window.top.magicWindow}
         catch (exception) {magicWindow = null}
 
         if (magicWindow) {
-          magicWindow.squeakDisplay = SqueakJS.runSqueak(
-            "caffeine.image",
+          magicWindow.squeakDisplay = window.startCaffeine(
             squeak,
+            "caffeine",
             {
-                zip: ["memories/caffeine.zip", "sources/SqueakV46.sources.zip"],
-                swapButtons: true,
-                spinner: sqSpinner,
                 appID: "4599d316-a13e-46ef-92be-c7337899038c",
                 appName: "Caffeine",
                 appServer: "demo.blackpagedigital.com:8091"})}
         else {
-          SqueakJS.runSqueak(
-            "caffeine.image",
+          window.startCaffeineSqueakJS.runSqueak(
             squeak,
+            "caffeine",
             {
-                zip: ["memories/caffeine.zip", "sources/SqueakV46.sources.zip"],
-                swapButtons: true,
-                spinner: sqSpinner,
                 appID: "4599d316-a13e-46ef-92be-c7337899038c",
                 appName: "Caffeine",
                 appServer: "demo.blackpagedigital.com:8091"})}}
