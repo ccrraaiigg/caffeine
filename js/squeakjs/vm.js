@@ -7635,7 +7635,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      this.signalSemaphoreWithIndex(this.js_callbackSema);
 		      this.vm.forceInterruptCheck();
 		      // interpret until primitiveReturnFromCallback sets result
-		      var timeout = Date.now() + 500;
+		      var timeout = Date.now() + 1000;
 		      while (Date.now() < timeout && !this.js_activeCallback.result)
 			this.vm.interpret(timeout - Date.now(), function (){window.setTimeout(function (){}, timeout - Date.now());});
 		      var result = this.js_activeCallback.result;
