@@ -7,8 +7,8 @@
   </head>
   <body>
     <canvas id="squeak"
-	    width="10"
-	    height="10"
+	    width="1000"
+	    height="400"
 	    style="visibility: 'invisible' 
 		   overflow: hidden
 		   position: absolute
@@ -29,14 +29,16 @@
           magicWindow.squeakDisplay = window.startCaffeine(
             squeak,
             "caffeine",
+            "SqueakV46",
             {
                 appID: "4599d316-a13e-46ef-92be-c7337899038c",
                 appName: "Caffeine",
                 appServer: "demo.blackpagedigital.com:8091"})}
         else {
-          window.startCaffeineSqueakJS.runSqueak(
+          window.startCaffeine(
             squeak,
             "caffeine",
+            "SqueakV46",
             {
                 appID: "4599d316-a13e-46ef-92be-c7337899038c",
                 appName: "Caffeine",

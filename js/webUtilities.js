@@ -127,6 +127,8 @@ window.startCaffeine = function(canvas, imageName, sourcesName, parameters) {
   // otherwise we run with given parameters
   var squeakDisplay
 
+  window.canvas = canvas
+  
   squeakDisplay = SqueakJS.runSqueak(
     imageName + ".image",
     canvas,
