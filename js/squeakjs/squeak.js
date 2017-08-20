@@ -140,6 +140,7 @@ Function.prototype.subclass = function(classPath /* + more args */ ) {
       "plugins/BitBltPlugin.js",
       "plugins/FFTPlugin.js",
       "plugins/FloatArrayPlugin.js",
+      "plugins/Flow.js",
       "plugins/GeniePlugin.js",
       "plugins/JPEGReaderPlugin.js",
       "plugins/KedamaPlugin.js",
