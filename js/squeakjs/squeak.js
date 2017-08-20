@@ -1291,7 +1291,7 @@ SqueakJS.runSqueak = function(imageUrl, canvas, options) {
             }
         });
     }
-    if (image.url) files.push(image);
+
     if (!Squeak.fileExists(options.root + image.name)) {
       // If the image file exists, assume there's no need to check the zips.
       if (options.zip) {
@@ -1301,6 +1301,8 @@ SqueakJS.runSqueak = function(imageUrl, canvas, options) {
               files.push({url: url.full, name: url.filename, zip: true});
           });
       }}
+
+    if (image.url) files.push(image);
 
     if (options.document) {
         var url = Squeak.splitUrl(options.document, baseUrl);
