@@ -8,13 +8,16 @@ module("SqueakJS.plugins.Flow").requires("users.bert.SqueakJS.vm").toRun(
 	moduleName = "Flow v7"
 
     function numberOfMIDIPorts () {
-      navigator.requestMIDIAccess().then(function (access) {
-	interpreterProxy.popthenPush(1, access.outputs.size)})}
+      interpreterProxy.pop(1)
+      interpreterProxy.pushInteger(access.outputs.size)}
 	
     function setInterpreter(interpreter) {
       interpreterProxy = interpreter
       if ((interpreterProxy.majorVersion() == VM_PROXY_MAJOR) === false) return false
       else return (interpreterProxy.minorVersion() >= VM_PROXY_MINOR)}
+
+    navigator.requestMIDIAccess().then(function (access) {
+      window.caffeineMIDIAccess = access})
 
     Squeak.registerExternalModule(
       "Flow",
