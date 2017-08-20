@@ -1291,14 +1291,17 @@ SqueakJS.runSqueak = function(imageUrl, canvas, options) {
             }
         });
     }
-    if (options.zip) {
-        var zips = typeof options.zip === "string" ? [options.zip] : options.zip;
-        zips.forEach(function(zip) {
-            var url = Squeak.splitUrl(zip, baseUrl);
-            files.push({url: url.full, name: url.filename, zip: true});
-        });
-    }
     if (image.url) files.push(image);
+    if (!Squeak.fileExists(options.root + image.name)) {
+      // If the image file exists, assume there's no need to check the zips.
+      if (options.zip) {
+          var zips = typeof options.zip === "string" ? [options.zip] : options.zip;
+          zips.forEach(function(zip) {
+              var url = Squeak.splitUrl(zip, baseUrl);
+              files.push({url: url.full, name: url.filename, zip: true});
+          });
+      }}
+
     if (options.document) {
         var url = Squeak.splitUrl(options.document, baseUrl);
         files.push({url: url.full, name: url.filename, forceDownload: options.forceDownload !== false});

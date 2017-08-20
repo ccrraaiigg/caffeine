@@ -19,30 +19,32 @@
     <script src="js/squeakjs/squeak.js"></script>
     <script src="js/webUtilities.js"></script>
     <script>
-      window.onload = function () {
-        // Attempt to keep this page embeddable in external non-secure origins.
-        var magicWindow
-        try {magicWindow = window.top.magicWindow}
-        catch (exception) {magicWindow = null}
+        setTimeout(
+          function () {
+            // Attempt to keep this page embeddable in external non-secure origins.
+            var magicWindow
+            try {magicWindow = window.top.magicWindow}
+            catch (exception) {magicWindow = null}
 
-        if (magicWindow) {
-          magicWindow.squeakDisplay = window.startCaffeine(
-            squeak,
-            "caffeine",
-            "SqueakV46",
-            {
-                appID: "4599d316-a13e-46ef-92be-c7337899038c",
-                appName: "Caffeine",
-                appServer: "demo.blackpagedigital.com:8091"})}
-        else {
-          window.startCaffeine(
-            squeak,
-            "caffeine",
-            "SqueakV46",
-            {
-                appID: "4599d316-a13e-46ef-92be-c7337899038c",
-                appName: "Caffeine",
-                appServer: "demo.blackpagedigital.com:8091"})}}
+            if (magicWindow) {
+              magicWindow.squeakDisplay = window.startCaffeine(
+                squeak,
+                "caffeine",
+                "SqueakV46",
+                {
+                  appID: "4599d316-a13e-46ef-92be-c7337899038c",
+                  appName: "Caffeine",
+                  appServer: "demo.blackpagedigital.com:8091"})}
+            else {
+              window.startCaffeine(
+                squeak,
+                "caffeine",
+                "SqueakV46",
+                {
+                  appID: "4599d316-a13e-46ef-92be-c7337899038c",
+                  appName: "Caffeine",
+                  appServer: "demo.blackpagedigital.com:8091"})}},
+          3000)
     </script>
   </body>
 </html>
