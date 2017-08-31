@@ -1,25 +1,29 @@
 scene.renderingNormally = true
 
 function slowRender () {
-  var effect = this.effect
-  var delta = this.clock.getDelta() * 1000
-  this.time = this.clock.elapsedTime * 1000
+  var effect = this.effect,
+      delta
 
-  if (this.isPlaying) {this.tick(this.time, delta)}
+  if (this.clock) {
+    delta = this.clock.getDelta() * 1000
+    this.time = this.clock.elapsedTime * 1000
 
-  scene.slowRenderTimeout = setTimeout(
-    (function () {
-      this.animationFrameID = effect.requestAnimationFrame(this.render)
-      effect.render(this.object3D, this.camera, this.renderTarget)
+    if (this.isPlaying) {this.tick(this.time, delta)}
+
+    scene.slowRenderTimeout = setTimeout(
+      (function () {
+	this.animationFrameID = effect.requestAnimationFrame(this.render)
+	effect.render(this.object3D, this.camera, this.renderTarget)
       
-      if (this.isPlaying) {this.tock(this.time, delta)}
+	if (this.isPlaying) {this.tock(this.time, delta)}
 
-      this.effect.submitFrame()}).bind(this),
-    1000)}
+	this.effect.submitFrame()}).bind(this),
+      1000)}}
 
 function normalRender () {
-  var effect = this.effect
-  var delta = this.clock.getDelta() * 1000
+  var effect = this.effect,
+      delta = this.clock.getDelta() * 1000
+  
   this.time = this.clock.elapsedTime * 1000
 
   if (this.isPlaying) {this.tick(this.time, delta)}
@@ -34,41 +38,51 @@ function normalRender () {
 function spikeRendering () {
   var timeout
   
-  if (scene.timeout) {
-    clearTimeout(scene.timeout)
-    scene.timeout = null}
+  if (scene.slowRenderOnsetTimeout) {
+    clearTimeout(scene.slowRenderOnsetTimeout)
+    scene.slowRenderOnsetTimeout = null}
 
   if (!scene.renderingNormally) {
     // Set the frame rate to normal.
-    console.log('normal')
+    console.log('rendering normally')
     if (scene.slowRenderTimeout) clearTimeout(scene.slowRenderTimeout)
     cancelAnimationFrame(scene.animationFrameID)
     scene.render = normalRender.bind(scene)
     scene.render()
     scene.renderingNormally = true}
 
-  if (scene.editingCode) {
-    if (scene.goingHome) timeout = 1000
-    else timeout = 50}
+  if (scene.editingCode && !scene.renderingNormally) return
   else {
-    if (scene.hasAnimations) timeout = 30000
+    if (scene.editingCode) timeout = 1000
     else {
-      if (scene.goingHome) timeout = 1000
-      else timeout = 50}}
+      if (scene.hasAnimations) timeout = 30000
+      else {
+	if (scene.goingHome) timeout = 1000
+	else timeout = 50}}
 
-  scene.timeout = setTimeout(
-    function () {
-      // Set the frame rate to 1 per second.
-      console.log('slow')
-      cancelAnimationFrame(scene.animationFrameID)
-      scene.render = slowRender.bind(scene)
-      scene.render()
-      scene.renderingNormally = false},
-    timeout)}
+    scene.slowRenderOnsetTimeout = setTimeout(
+      function () {
+	// Set the frame rate to 1 per second.
+	console.log('rendering slowly')
+	cancelAnimationFrame(scene.animationFrameID)
+	scene.render = slowRender.bind(scene)
+	scene.render()
+	scene.renderingNormally = false},
+      timeout)}}
+
+function correctOrphanedLookControls () {
+  if (controlsEnabled('wasd-controls') && !controlsEnabled('look-controls')) {
+    enableControls('look-controls')
+
+    getCSSRule('.a-canvas.a-grab-cursor:hover').style.cssText = 'cursor: grab; cursor: -moz-grab; cursor: -webkit-grab;'
+    getCSSRule('.a-canvas.a-grab-cursor:active, .a-grabbing').style.cssText = 'cursor: grabbing; cursor: -moz-grabbing; cursor: -webkit-grabbing;'}}
 
 function focusMe (event) {
   event.target.focus()
   event.stopPropagation()}
+
+function controlsEnabled (string) {
+  return document.getElementById('camera').getAttribute(string).enabled}
 
 function disableControls (string) {
   document.getElementById('camera').getAttribute(string).enabled = false}
@@ -110,6 +124,7 @@ function unrotate(geometry, rotation) {
 
 function forwardProjectedMouseEvents(camera, plane, canvas) {
   var dispatch = function (planarEvent) {
+    if (!planarEvent.detail.intersection) return
     var canvasEvent = new MouseEvent(planarEvent.type),
 	cameraPoint = centerOf(camera),
 	cameraRotation = rotationOf(camera),
@@ -117,10 +132,8 @@ function forwardProjectedMouseEvents(camera, plane, canvas) {
 	translatedSelectedPoint = vectorFrom(planarEvent.detail.intersection.point),
 	planeCenter = centerOf(plane),
 	planeRotation = rotationOf(plane),
-
 	simplePlane = new THREE.PlaneGeometry().fromBufferGeometry(plane.components.geometry.geometry),
 	planeInCameraFrame = new THREE.PlaneGeometry().fromBufferGeometry(plane.components.geometry.geometry),
-
 	origin = new THREE.Vector3(0, 0, 0),
 	planeInCameraFrameVertices,
 	simplePlaneVertices,
@@ -186,7 +199,7 @@ function forwardProjectedMouseEvents(camera, plane, canvas) {
     canvasEvent.projectedY = Math.floor((selectionDistance * Math.sin(theta)) * heightFactor)
     canvas.lastProjectedEvent = canvasEvent
     
-    //  console.log(planarEvent.type + ' ' + canvasEvent.projectedX + ' ' + canvasEvent.projectedY)
+    console.log(planarEvent.type + ' ' + canvasEvent.projectedX + ' ' + canvasEvent.projectedY)
     canvas.dispatchEvent(canvasEvent)}
 
   window.mousedown = false
@@ -200,18 +213,14 @@ function forwardProjectedMouseEvents(camera, plane, canvas) {
     function (event) {window.mousedown = false})
 
   document.addEventListener(
-    'mouseup',
-    function (event) {window.mousedown = false})
-
-  document.addEventListener(
     'mousemove',
     function (event) {
+      correctOrphanedLookControls()
       spikeRendering()})
 
   document.addEventListener(
     'keydown',
-    function (event) {
-      spikeRendering()})
+    function (event) {spikeRendering()})
 
   plane.movemouse = function (x, y) {
     var canvas = document.getElementById('squeak'),
@@ -260,19 +269,18 @@ function forwardProjectedMouseEvents(camera, plane, canvas) {
   plane.addEventListener(
     'mouseleave',
     function (event) {
-      scene.editingCode = false
-
-      // Trick squeak.js into not queueing keyboard events.
-      if (squeakDisplay) {
-	window.squeakVM = squeakDisplay.vm
-	squeakDisplay.vm = null}
-      
+      enableControls('look-controls')
       enableControls('wasd-controls')
 
       getCSSRule('.a-canvas.a-grab-cursor:hover').style.cssText = 'cursor: grab; cursor: -moz-grab; cursor: -webkit-grab;'
       getCSSRule('.a-canvas.a-grab-cursor:active, .a-grabbing').style.cssText = 'cursor: grabbing; cursor: -moz-grabbing; cursor: -webkit-grabbing;'
-      enableControls('look-controls')
-      dispatch(event)})}
+
+      // Trick squeak.js into not queueing keyboard events.
+      if (window.squeakDisplay) {
+	window.squeakVM = squeakDisplay.vm
+	squeakDisplay.vm = null}
+
+      scene.editingCode = false})}
 
 var canvas = document.getElementById('squeak'),
     context = canvas.getContext('2d'),
