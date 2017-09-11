@@ -37,13 +37,12 @@ function normalRender () {
 
 function spikeRendering () {
   var timeout
-  
+
   if (scene.slowRenderOnsetTimeout) {
     clearTimeout(scene.slowRenderOnsetTimeout)
     scene.slowRenderOnsetTimeout = null}
 
   if (!scene.renderingNormally) {
-    // Set the frame rate to normal.
     console.log('rendering normally')
     if (scene.slowRenderTimeout) clearTimeout(scene.slowRenderTimeout)
     cancelAnimationFrame(scene.animationFrameID)
@@ -51,31 +50,22 @@ function spikeRendering () {
     scene.render()
     scene.renderingNormally = true}
 
-  if (scene.editingCode && !scene.renderingNormally) return
+  if (scene.editingCode) timeout = 50
   else {
-    if (scene.editingCode) timeout = 1000
+    if (scene.hasAnimations) timeout = 10000
     else {
-      if (scene.hasAnimations) timeout = 30000
-      else {
-	if (scene.goingHome) timeout = 1000
-	else timeout = 50}}
-
-    scene.slowRenderOnsetTimeout = setTimeout(
-      function () {
-	// Set the frame rate to 1 per second.
-	console.log('rendering slowly')
-	cancelAnimationFrame(scene.animationFrameID)
-	scene.render = slowRender.bind(scene)
-	scene.render()
-	scene.renderingNormally = false},
-      timeout)}}
-
-function correctOrphanedLookControls () {
-  if (controlsEnabled('wasd-controls') && !controlsEnabled('look-controls')) {
-    enableControls('look-controls')
-
-    getCSSRule('.a-canvas.a-grab-cursor:hover').style.cssText = 'cursor: grab; cursor: -moz-grab; cursor: -webkit-grab;'
-    getCSSRule('.a-canvas.a-grab-cursor:active, .a-grabbing').style.cssText = 'cursor: grabbing; cursor: -moz-grabbing; cursor: -webkit-grabbing;'}}
+      if (scene.goingHome) timeout = 1000
+      else timeout = 50}}
+  
+  scene.slowRenderOnsetTimeout = setTimeout(
+    function () {
+      // Set the frame rate to 1 per second.
+      console.log('rendering slowly')
+      cancelAnimationFrame(scene.animationFrameID)
+      scene.render = slowRender.bind(scene)
+      scene.render()
+      scene.renderingNormally = false},
+    timeout)}
 
 function focusMe (event) {
   event.target.focus()
@@ -203,20 +193,6 @@ function forwardProjectedMouseEvents(camera, plane, canvas) {
     canvas.dispatchEvent(canvasEvent)}
 
   window.mousedown = false
-  
-  document.addEventListener(
-    'mousedown',
-    function (event) {window.mousedown = true})
-
-  document.addEventListener(
-    'mouseup',
-    function (event) {window.mousedown = false})
-
-  document.addEventListener(
-    'mousemove',
-    function (event) {
-      correctOrphanedLookControls()
-      spikeRendering()})
 
   document.addEventListener(
     'keydown',
@@ -256,6 +232,10 @@ function forwardProjectedMouseEvents(camera, plane, canvas) {
   plane.addEventListener(
     'mousedown',
     dispatch)
+
+  document.addEventListener(
+    'mousemove',
+    function (event) {spikeRendering()})
 
   plane.addEventListener(
     'mouseup',

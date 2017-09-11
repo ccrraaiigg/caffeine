@@ -1,3 +1,11 @@
+document.addEventListener(
+  'mousedown',
+  function (event) {window.mousedown = true})
+
+document.addEventListener(
+  'mouseup',
+  function (event) {window.mousedown = false})
+
 window.getCSSRule = function (ruleName) {
     ruleName = ruleName.toLowerCase();
     var result = null;
@@ -142,7 +150,7 @@ window.startCaffeine = function(canvas, imageName, sourcesName, parameters) {
       parameters: parameters})
 
   try {window.top.magicWindow.squeakDisplay = squeakDisplay}
-  catch (exception) {window.top.squeakDisplay = squeakDisplay}
+  catch (exception) {window.squeakDisplay = squeakDisplay}
 
   setTimeout(function() {
     Squeak.fsck(function(stats) {})

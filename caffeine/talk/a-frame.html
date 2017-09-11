@@ -45,7 +45,7 @@
 	    id="title-workspace-canvas"
 	    data-keyboard-capture="true"
 	    tabindex="1"
-	    style="transition: all 500ms; opacity: 0;"
+	    style="opacity: 0;"
 	    width="300"
 	    height="300"></canvas>
 	</div>
@@ -87,7 +87,7 @@
 	  </p>
 	</center>
       </div>
-
+	
       <div
 	id="caffeine"
 	class="step"
@@ -97,26 +97,14 @@
 	data-rotate-x="-40"
 	data-rotate-y="10"
 	data-scale="2"
-	style="
-	       position: absolute;
+	style="position: absolute;
 	       width: 1500px;
 	       height: 950px;">
-	<center>
-	  <div id="embeddedSqueak">
-	    <div id="sqSpinner">
-	      <div id="sqSpinnerSpokes"></div></div>
-	    <canvas
-	      id="squeak"
-	      style="opacity: 0;"
-	      width="1400"
-	      height="870"
-	      data-keyboard-capture="true"
-	      tabindex="1"
-	      style="
-		     opacity: 0;
-		     transition: opacity 500ms;"></canvas>
-	  </div>
-	</center>
+	<iframe id="a-frame"
+		src="http://localhost/a-frame"
+		style="position: absolute;
+		       width: 1420px;
+		       height: 870px;"></iframe>
       </div>
 
       <div
@@ -130,45 +118,10 @@
     </div>
     <script src="js/impress.js"></script>
     <script>impress().init()</script>
-    <script src="js/squeakjs/squeak.js"></script>
     <script src="js/html5/utilities.js"></script>
     <script>
-      var canvas = document.getElementById("squeak")
-
-      window.makeCanvasEditable(canvas)
-      window.makeCanvasEditable(document.getElementById("title-workspace-canvas"))
       window.makeEditorEditable(document.getElementById("text-editor-widget"))
-      
-      window.setTimeout(
-        function () {
-          window.startCaffeine(
-            canvas,
-            "caffeine",
-            "SqueakV46",
-            {
-              appID: "9e5a5337-6b13-4e75-8936-d4e62a5500e8",
-              appName: "LivecodingTalk",
-              appServer: "demo.blackpagedigital.com:8091"})},
-          2500)
+      window.makeEditorEditable(document.getElementById("a-frame"))
     </script>
-    <!--
-      (For auto-playing the slides.)
-
-      <script>
-        var impress = impress()
-
-	impress.init()
-	document.addEventListener(
-          'impress:stepenter',
-          function (event) {
-            if (typeof timing !== 'undefined') clearInterval(timing);
-
-            var duration = (event.target.getAttribute('data-transition-duration')
-                           ? event.target.getAttribute('data-transition-duration')
-                           : 2000) // use the set duration or fallback to 2000ms
-
-            timing = setInterval(impress.next, duration)})
-      </script>
-    -->
   </body>
 </html>

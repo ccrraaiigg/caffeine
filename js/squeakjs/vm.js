@@ -4689,8 +4689,9 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      this.vm.status("loading module: " + modName);
 		      if (magicWindow) {
 			if (modName == "JavaScriptPlugin") {
-			  var embed = window.top.magicWindow.document.getElementById('embeddedSqueak');
-			  if (embed) {embed.style.opacity = 1;}}}
+			  if (window.top.magicWindow) {
+			    var embed = window.top.magicWindow.document.getElementById('embeddedSqueak');
+			    if (embed) {embed.style.opacity = 1;}}}}
 		      if (this.patchModules[modName])
 			this.patchModule(mod, modName);
 		      if (mod.setInterpreter) {
@@ -6201,6 +6202,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			}
 			var canvas = this.display.context.canvas,
 			    scale = canvas.offsetWidth / canvas.width;
+
 			cursorCanvas.style.width = (cursorCanvas.width * scale|0) + "px";
 			cursorCanvas.style.height = (cursorCanvas.height * scale|0) + "px";
 			this.display.cursorOffsetX = cursorForm.offsetX * scale|0;
@@ -7605,6 +7607,12 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			var args = [];
 			for (var i = 0; i < numArgs; i++)
 			  args.push(arguments[i]);
+
+			if (args[0]) {
+			  if (args[0].constructor.name == 'KeyboardEvent') {
+			    args[0].preventDefault();
+			    args[0].stopPropagation();}}
+
 			return new Promise(function(resolve, reject) {
 			  function evalAsync() {
 			    squeak.js_executeCallbackAsync(block, args, resolve, reject);
@@ -7639,6 +7647,8 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      while (Date.now() < timeout && !this.js_activeCallback.result)
 			this.vm.interpret(timeout - Date.now(), function (){window.setTimeout(function (){}, timeout - Date.now());});
 		      var result = this.js_activeCallback.result;
+		      if (!result) {
+			timeout = timeout + 1;}
 		      this.js_activeCallback = null;
 		      if (result) {
 			// return result to JS caller as JS object or string
