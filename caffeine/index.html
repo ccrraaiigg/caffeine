@@ -1,74 +1,65 @@
 <html>
   <head id="magic">
-    <title>
+    <title>Caffeine :: livecode the web</title>
 
-      Caffeine :: livecode the web
+    <link
+      rel="stylesheet"
+      href="css/caffeine.css">
 
-    </title>
-    <link rel="stylesheet" href="css/caffeine.css">
-    <script> 
-      window.onload = function () {
-        document.body.addEventListener(
-          "dblclick",
-          window.top.toggleZoom,
-          false);
+    <script src="js/caffeine.js"></script></head>
 
-        var embeddedSqueak = window.document.getElementById("embeddedSqueak"),
-            summary = window.document.getElementById("summary");
-
-        embeddedSqueak.onmouseenter = function () {
-          window.document.getElementById("Caffeine").contentWindow.focus();
-          this.style.zIndex = 3;
-          this.style.boxShadow = "1px 1px 7px #999, 2px 2px 8px #999, 3px 3px 9px #999";};
-
-        embeddedSqueak.onmouseleave = function () {
-          window.focus();
-          this.style.boxShadow = "";};
-      
-        summary.onmousedown = function () {
-          embeddedSqueak.style.zIndex = 1;};
-
-        summary.onmouseover = function () {
-          embeddedSqueak.style.boxShadow = "";};
-
-        window.setTimeout(
-          function(){window.document.getElementById("backgroundPicture").style.opacity = 1;},
-          200);
-
-        window.setTimeout(
-          function(){
-            window.progress.style.opacity = 1;
-            window.document.body.background = "pictures/backgrounds/6.jpg";
-            window.document.body.style.backgroundSize = "cover";
-            window.document.getElementById("backgroundPicture").remove();},
-          1000);
-
-        window.setTimeout(
-          function(){window.thestatus.style.opacity = 1;},
-          1000);
-
-        window.setTimeout(
-          function(){window.document.getElementById("banner").style.opacity = 1;},
-          1000);
-
-        window.setTimeout(
-          function(){window.document.getElementById("summary").style.opacity = 1;},
-          3500);
-      };
-    </script>
-  </head>
   <body bgcolor="black">
     <div>
-      <img id="backgroundPicture" src="pictures/backgrounds/6.jpg"; style="position: absolute; top: 0px; left: 0px; max-width: 100%; max-height: 100%; z-index: -10; transition: opacity 1000ms; opacity: 0;"></div>
+
+      <img
+	id="backgroundPicture"
+	src="pictures/backgrounds/6.jpg"
+	style="position: absolute;
+	       top: 0px;
+	       left: 0px;
+	       max-width: 100%;
+	       max-height: 100%;
+	       z-index: -10;
+	       transition: opacity 1000ms;
+	       opacity: 0;"></div>
+
     <br>
     <br>
-    <div id="banner" style="width: 464px; margin: 0 auto; transition: opacity 500ms; opacity: 0;">
-      <img src="pictures/caffeine.png" width=65 id="logo" style="border-radius: 10px; opacity: 0.7;">
-      <h1 style="width: 300px; background-color: rgba(255, 255, 255, 0.6); border-radius: 10px;">Caffeine :: <i>Livecode the Web</i></h1>
-      <img src="pictures/qr.png" width=65 style="border-radius: 6px; opacity: 0.7;">
-    </div>
-    <div id="summary" style="position: absolute; left: 40px; top: 130px; z-index: 2; opacity: 0; transition: opacity 500ms;">
+
+    <div
+      id="banner"
+      style="width: 464px;
+	     margin: 0 auto;
+	     transition: all 500ms;
+	     opacity: 0;">
+
+      <img
+	src="pictures/caffeine.png"
+	width=65
+	id="logo"
+	style="border-radius: 10px;
+	       opacity: 0.7;">
+
+      <h1 style="width: 300px;
+		 background-color: rgba(255, 255, 255, 0.6);
+		 border-radius: 10px;">Caffeine :: <i>Livecode the Web</i></h1>
+
+      <img
+	src="pictures/qr.png"
+	width=65
+	style="border-radius: 6px; opacity: 0.7;"></div>
+
+    <div
+      id="summary"
+      style="position: absolute;
+	     left: 40px;
+	     top: 130px;
+	     z-index: 2;
+	     opacity: 0;
+	     transition: all 500ms;">
+
       <blockquote>
+
 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
 	Caffeine is a <b><i>livecoding</i></b> environment for the
@@ -78,6 +69,7 @@ with Caffeine through a full graphical interface inside your page, and
 with your favorite text editor.
 
 	<p>
+
 	  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
 	  Caffeine's underlying computation engine is <a
@@ -93,6 +85,7 @@ snapshot a live session on any host platform, and resume it on any
 other.
 
 	<p>
+
 	  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
 	  Caffeine provides a user interface framework called <b>Hex</b>,
@@ -108,6 +101,7 @@ traditional DOM. You can also interact with any other JavaScript
 framework you like.
 
 	<p>
+
 	  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
 	  Caffeine is also integrated
@@ -120,16 +114,19 @@ DevTools. You'll also be able to interact with Caffeine and CDP from
 your favorite text editor, through a virtual WebDAV filesystem.
 
 	<p>
+
 	  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
 	  <a href="http://blackpagedigital.com"><b>Craig Latta</b></a>
 	  
 	  <br>
+
 	  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
 	  21 June 2017
 
 	  <br>
+
 	  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
 	  <a
@@ -137,15 +134,12 @@ your favorite text editor, through a virtual WebDAV filesystem.
 	    class="twitter-follow-button"
 	    data-show-count="false">
 
-	    Follow @ccrraaiigg
+	    Follow @ccrraaiigg</a>
 
-	  </a>
 	  <script async
 		  src="//platform.twitter.com/widgets.js"
-		  charset="utf-8">
-	  </script>
-      </blockquote>
-    </div>
+		  charset="utf-8"></script></blockquote></div>
+
     <div id="embeddedSqueak"
 	 style="border: 2px inset gray;
 		position: absolute;
@@ -154,7 +148,9 @@ your favorite text editor, through a virtual WebDAV filesystem.
 		z-index: 1;
 		opacity: 0;
 		transition: opacity 500ms, box-shadow 300ms;">
+
       <center>
+
 	<iframe
 	  style="overflow: hidden;"
 	  src="squeak.html"
@@ -165,9 +161,5 @@ your favorite text editor, through a virtual WebDAV filesystem.
 	  height="400"
 	  frameborder="0"
 	  scrolling="no"
-	  allowfullscreen>
-	</iframe>
-      </center>
-    </div>
-  </body>
-</html>
+	  allowfullscreen></iframe></center></div></body></html>
+

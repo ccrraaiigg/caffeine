@@ -1,0 +1,25 @@
+.window {
+    display: flex;
+    flex-direction: column;
+    background: gray;
+    position: absolute;
+    border-radius: 10px;}
+
+.listbox {
+    flex: 1;
+    margin-right: 3px;}
+
+.titlebar {
+    height: 20px;
+    margin-top: 6px;
+    margin-left: 6px;}
+
+.titlebartext {
+    position: absolute;
+    left: 6px;}
+
+.textarea {
+    resize: none;
+    flex: 1;
+    margin: 3px;}
+

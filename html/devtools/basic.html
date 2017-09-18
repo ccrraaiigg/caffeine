@@ -1,0 +1,133 @@
+<html>
+  <head>
+    <title>Smalltalk Development Tools :: basic</title></head>
+
+  <body style="background: lightBlue;">
+
+    <!-- styles -->
+    
+    <link
+      rel="stylesheet"
+      href="/caffeine/css/jquery/ui/jquery-ui.min.css">
+
+    <link
+      id="assets-stylesheet"
+      rel="stylesheet"
+      href="/caffeine/css/devtools/basic.css">
+
+    <!-- scripts -->
+    
+    <script src="/caffeine/js/jquery/jquery-3.2.1.min.js"></script>
+    <script src="/caffeine/js/jquery/ui/jquery-ui.min.js"></script>
+    <script src="/caffeine/js/html/devtools/basic.js"></script>
+
+    <!-- user interfaces -->
+
+    <!-- a traditional Smalltalk classes browser, with listboxes for
+         class categories, classes, method categories, and methods,
+         and a text area for method source, class definitions, and
+         class comments. -->
+
+    <div
+      id="assets">
+      
+      <div
+	id="classes-browser"
+	class="window"
+	style="width: 500px;
+	       height: 300px;
+	       top: 50px;
+	       left: 50px;">
+
+	<div
+	  id="classes-browser-title"
+	  class="titlebar">
+
+	  <div class="titlebartext"><i><b>classes browser</b></i></div></div>
+
+	<div
+	  id="listboxes"
+	  style="display: flex;
+		 flex: 1;
+		 margin-left: 3px;
+		 margin-top: 3px;">
+
+	  <select
+	    id="class-categories"
+	    class="listbox"
+	    size="2">
+	    <option value="1">class category one</option>
+	    <option value="2">class category two</option>
+	    <option value="3">class category three</option>
+	    <option value="4">class category four</option>
+	    <option value="5">class category five</option>
+	    <option value="6">class category six</option>
+	    <option value="7">class category seven</option>
+	  </select>
+
+	  <select
+	    id="classes"
+	    class="listbox"
+	    size="2">
+	    <option value="1">class one</option>
+	    <option value="2">class two</option>
+	    <option value="3">class three</option>
+	    <option value="4">class four</option>
+	    <option value="5">class five</option>
+	    <option value="6">class six</option>
+	    <option value="7">class seven</option>
+	  </select>
+
+	  <select
+	    id="method-categories"
+	    class="listbox"
+	    size="2">
+	    <option value="1">method category one</option>
+	    <option value="2">method category two</option>
+	    <option value="3">method category three</option>
+	    <option value="4">method category four</option>
+	    <option value="5">method category five</option>
+	    <option value="6">method category six</option>
+	    <option value="7">method category seven</option>
+	  </select>
+
+	  <select
+	    id="methods"
+	    class="listbox"
+	    size="2">
+	    <option value="1">method one</option>
+	    <option value="2">method two</option>
+	    <option value="3">method three</option>
+	    <option value="4">method four</option>
+	    <option value="5">method five</option>
+	    <option value="6">method six</option>
+	    <option value="7">method seven</option>
+	</select></div>
+
+	<textarea
+	  id="classes-browser-text"
+	  style="resize: none;
+		 flex: 1;
+		 margin: 3px;">method source, class definition, or class comment</textarea></div>
+
+      <!-- a Smalltalk workspace for evaluating expressions. -->
+      
+      <div
+	id="workspace"
+	class="window"
+	style="width: 500px;
+	       height: 200px;
+	       top: 100px;
+	       left: 100px;
+	       zIndex: 10;">
+
+	<div
+	  id="workspace-title"
+	  class="titlebar">
+
+	  <div class="titlebartext"><i><b>workspace</b></i></div></div>
+
+	<textarea
+	  id="workspace-text"
+	  class="textarea">expressions to evaluate</textarea></div></div></body></html>
+

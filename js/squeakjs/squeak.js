@@ -268,7 +268,9 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
         cmdPressed = evt.metaKey || (evt.altKey && !evt.ctrlKey)
 
     if (evt.shiftKey) {shiftPressed = evt.shiftKey}
-    else {shiftPressed = canvas.shiftKey}
+    else {
+      if (canvas) shiftPressed = canvas.shiftKey
+      else shiftPressed = false}
     
     modifiers =
       (shiftPressed ? Squeak.Keyboard_Shift : 0) +
