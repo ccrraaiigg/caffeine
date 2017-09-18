@@ -269,8 +269,8 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
 
     if (evt.shiftKey) {shiftPressed = evt.shiftKey}
     else {
-      if (canvas) shiftPressed = canvas.shiftKey
-      else shiftPressed = false}
+      try {shiftPressed = canvas.shiftKey}
+      catch (exception) {shiftPressed = false}}
     
     modifiers =
       (shiftPressed ? Squeak.Keyboard_Shift : 0) +
