@@ -3,20 +3,28 @@
     flex-direction: column;
     background: gray;
     position: absolute;
-    border-radius: 10px;}
+    border-radius: 10px;
+    transition: opacity 500ms;}
+
+.closebutton {
+    position: absolute;
+    left: 5;
+    top: 5;}
 
 .listbox {
     flex: 1;
     margin-right: 3px;}
 
 .titlebar {
+    display: flex;
     height: 20px;
     margin-top: 6px;
     margin-left: 6px;}
 
 .titlebartext {
     position: absolute;
-    left: 6px;}
+    top: 6;
+    left: 5;}
 
 .textarea {
     resize: none;

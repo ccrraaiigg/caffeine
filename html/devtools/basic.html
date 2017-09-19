@@ -21,28 +21,34 @@
     <script src="/caffeine/js/jquery/ui/jquery-ui.min.js"></script>
     <script src="/caffeine/js/html/devtools/basic.js"></script>
 
-    <!-- user interfaces -->
+    <!-- assets -->
 
+    <div
+      id="assets">
+      
     <!-- a traditional Smalltalk classes browser, with listboxes for
          class categories, classes, method categories, and methods,
          and a text area for method source, class definitions, and
          class comments. -->
 
-    <div
-      id="assets">
-      
       <div
 	id="classes-browser"
 	class="window"
+	smalltalkClass="HTMLSmalltalkClassesBrowser"
 	style="width: 500px;
 	       height: 300px;
 	       top: 50px;
 	       left: 50px;">
 
 	<div
-	  id="classes-browser-title"
+	  id="title"
 	  class="titlebar">
 
+	  <img
+	    id="close-button"
+	    class="closebutton"
+	    src="pictures/window icons/closeButton.png">
+	  
 	  <div class="titlebartext"><i><b>classes browser</b></i></div></div>
 
 	<div
@@ -105,7 +111,7 @@
 	</select></div>
 
 	<textarea
-	  id="classes-browser-text"
+	  id="text"
 	  style="resize: none;
 		 flex: 1;
 		 margin: 3px;">method source, class definition, or class comment</textarea></div>
@@ -115,6 +121,7 @@
       <div
 	id="workspace"
 	class="window"
+	smalltalkClass="HTMLSmalltalkWorkspace"
 	style="width: 500px;
 	       height: 200px;
 	       top: 100px;
@@ -122,12 +129,17 @@
 	       zIndex: 10;">
 
 	<div
-	  id="workspace-title"
+	  id="title"
 	  class="titlebar">
 
+	  <img
+	    id="close-button"
+	    class="closebutton"
+	    src="pictures/window icons/closeButton.png">
+	  
 	  <div class="titlebartext"><i><b>workspace</b></i></div></div>
 
 	<textarea
-	  id="workspace-text"
+	  id="text"
 	  class="textarea">expressions to evaluate</textarea></div></div></body></html>
 
