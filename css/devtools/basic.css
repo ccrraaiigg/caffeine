@@ -6,7 +6,7 @@
     border-radius: 10px;
     transition: opacity 500ms;}
 
-.closebutton {
+.close-button {
     position: absolute;
     left: 5;
     top: 5;}
@@ -15,19 +15,75 @@
     flex: 1;
     margin-right: 3px;}
 
+.button {
+    padding: 1px 5px;
+    background: lightGray;
+    margin-top: 2px;
+    border: 2px solid black;
+    font-size: small;}
+
+.button-row {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-right: 3px;
+    margin-bottom: 1px;}
+
 .titlebar {
     display: flex;
     height: 20px;
     margin-top: 6px;
     margin-left: 6px;}
 
-.titlebartext {
+.titlebar-text {
     position: absolute;
     top: 6;
-    left: 5;}
+    left: 30;}
 
 .textarea {
     resize: none;
     flex: 1;
     margin: 3px;}
+
+.menu {
+    display: flex;
+    padding: 5px;
+    border: 2px solid blue;
+    flex-direction: column;
+    background: lightGray;
+    position: absolute;
+    border-radius: 10px;
+    text-align: center;
+    transition: opacity 500ms;}
+
+.menu-item {
+    padding: 1px 5px;}
+
+.menu-separator {
+    background: white;
+    height: 2px;
+    margin-top: 2px;
+    margin-bottom: 3px;}
+
+.dialog {
+    display: flex;
+    padding: 10px;
+    border: 2px solid red;
+    flex-direction: column;
+    background: lightGray;
+    position: absolute;
+    border-radius: 10px;
+    text-align: center;
+    transition: opacity 500ms;}
+
+.dialog-question {
+    margin-bottom: 5px;}
+
+.dialog-button {
+    padding: 1px 5px;
+    background: lightGray;
+    margin-top: 2px;
+    border: 2px solid black;
+    font-size: small;}
 

@@ -1,9 +1,9 @@
-// It's not necessary to write a Flow primitives plugin for SqueakJS,
-// since we can do everything we need to do from Smalltalk over the JS
-// bridge. It's an interesting exercise, though. It's slightly less
-// awkward to implement the code here, and there's probably some
-// performance benefit, too (no fiddling about with proxies and the
-// message-not-understood code path).
+// It's not strictly necessary to write a Flow primitives plugin for
+// SqueakJS, since we can do everything we need to do from Smalltalk
+// over the JS bridge. It's an interesting exercise, though. It's
+// slightly less awkward to implement the code here, and there's
+// probably some performance benefit, too (no fiddling about with
+// proxies and the message-not-understood code path).
 
 module("SqueakJS.plugins.Flow").requires("users.bert.SqueakJS.vm").toRun(
   function () {
@@ -22,6 +22,8 @@ module("SqueakJS.plugins.Flow").requires("users.bert.SqueakJS.vm").toRun(
       if ((interpreterProxy.majorVersion() == VM_PROXY_MAJOR) === false) return false
       else return (interpreterProxy.minorVersion() >= VM_PROXY_MINOR)}
 
+    // MIDI
+    
     function numberOfMIDIPorts () {
       interpreterProxy.pop(1)
       interpreterProxy.pushInteger(window.caffeineMIDIAccess.inputs.size + window.caffeineMIDIAccess.outputs.size)}
@@ -112,7 +114,32 @@ module("SqueakJS.plugins.Flow").requires("users.bert.SqueakJS.vm").toRun(
 	wordIndex = wordIndex + 2}
 
       interpreterProxy.pop(3)}
-      
+
+    // HTML UI support
+
+    function htmlSelectElementSetOptions () {
+      var self = (interpreterProxy.stackValue(1)).pointers[0].jsObject,
+	  strings = interpreterProxy.vm.primHandler.loadedModules.JavaScriptPlugin.primitiveFromStObject(interpreterProxy.stackValue(0))
+
+      while (self.children.length > 0) {
+	var child = self.firstChild
+    
+	self.removeChild(child)}
+
+      (
+	strings.map(function (string) {
+	  var option = document.createElement('option')
+
+	  option.value = string
+	  option.innerHTML = string
+
+	  return option})
+      )
+	.forEach(function (element) {self.appendChild(element)})
+
+      interpreterProxy.pop(1)}
+
+    
     Squeak.registerExternalModule(
       "Flow",
       {
@@ -122,6 +149,7 @@ module("SqueakJS.plugins.Flow").requires("users.bert.SqueakJS.vm").toRun(
         newMIDIPortHandleInto: newMIDIPortHandleInto,
 	enableMIDIPortAtAnd: enableMIDIPortAtAnd,
 	MIDIClockValue: MIDIClockValue,
-	scheduleMIDIMessagesInQuantityOn: scheduleMIDIMessagesInQuantityOn
+	scheduleMIDIMessagesInQuantityOn: scheduleMIDIMessagesInQuantityOn,
+	htmlSelectElementSetOptions: htmlSelectElementSetOptions
       })})
 

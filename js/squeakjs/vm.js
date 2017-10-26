@@ -4687,11 +4687,6 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      var mod = Squeak.externalModules[modName] || this.builtinModules[modName];
 		      if (!mod) return null;
 		      this.vm.status("loading module: " + modName);
-		      if (magicWindow) {
-			if (modName == "JavaScriptPlugin") {
-			  if (window.top.magicWindow) {
-			    var embed = window.top.magicWindow.document.getElementById('embeddedSqueak');
-			    if (embed) {embed.style.opacity = 1;}}}}
 		      if (this.patchModules[modName])
 			this.patchModule(mod, modName);
 		      if (mod.setInterpreter) {
@@ -7573,6 +7568,12 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			  obj.sqClass === this.vm.specialObjects[Squeak.splOb_ClassBlockClosure])
 			return this.js_fromStBlock(obj);
 		      throw Error("asJSArgument needed for " + obj);
+		    },
+		    js_primitiveFromStObject: function (obj) {
+		      // Not really a primitive, just a function that
+		      // external plugins want to use.
+
+		      return this.js_fromStObject(obj);
 		    },
 		    js_fromStArray: function(objs, maybeDict) {
 		      if (objs.length > 0 && maybeDict && this.isAssociation(objs[0]))

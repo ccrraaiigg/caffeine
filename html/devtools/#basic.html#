@@ -165,7 +165,14 @@
 	  id="text"
 	  class="textarea">expressions to evaluate</textarea></div>
 
-      <!-- a modal popup dialog -->
+      <!-- a text-entry dialog -->
+
+      <div
+	id="text-entry-dialog"
+	class="dialog"
+
+      
+      <!-- a modal popup confirmation dialog -->
       
       <div
 	id="confirm-dialog"

@@ -24,7 +24,6 @@
 	       opacity: 0;"></div>
 
     <br>
-    <br>
 
     <div
       id="banner"
@@ -72,17 +71,16 @@ with your favorite text editor.
 
 	  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
-	  Caffeine's underlying computation engine is <a
-href="https://github.com/bertfreudenberg/SqueakJS">SqueakJS</a>, an
-open-source <a
-href="https://en.wikipedia.org/wiki/Smalltalk">Smalltalk</a>. From the
-canvas below this one, you can interact with Squeak's traditional user
-interface, <a
-href="https://en.wikipedia.org/wiki/Morphic_(software)"><b>Morphic</b></a>. <a
-href="http://squeak.org">Squeak</a> runs identically on all its host
-platforms, including macOS, Linux, Windows, and HTML5. You can
-snapshot a live session on any host platform, and resume it on any
-other.
+	  Caffeine's underlying computation engine
+is <a href="https://github.com/bertfreudenberg/SqueakJS">SqueakJS</a>,
+an
+open-source <a href="https://en.wikipedia.org/wiki/Smalltalk">Smalltalk</a>. From
+<span id="future-canvas">a canvas that will appear</span> below this
+one, you can interact with Squeak's traditional user
+interface, <a href="https://en.wikipedia.org/wiki/Morphic_(software)"><b>Morphic</b></a>. <a href="http://squeak.org">Squeak</a>
+runs identically on all its host platforms, including macOS, Linux,
+Windows, and the Web. You can snapshot a live session on any host
+platform, and resume it on any other.
 
 	<p>
 
@@ -141,7 +139,8 @@ your favorite text editor, through a virtual WebDAV filesystem.
 		  charset="utf-8"></script></blockquote></div>
 
     <div id="embeddedSqueak"
-	 style="border: 2px inset gray;
+	 style="pointer-events: none;
+		border: 2px inset gray;
 		position: absolute;
 		top: 280;
 		left: 120;

@@ -1,9 +1,4 @@
 window.onload = function () {
-  document.body.addEventListener(
-    "dblclick",
-    window.top.toggleZoom,
-    false)
-
   var embeddedSqueak = window.document.getElementById("embeddedSqueak"),
       summary = window.document.getElementById("summary")
 
@@ -44,5 +39,5 @@ window.onload = function () {
 
   window.setTimeout(
     function () {window.document.getElementById("summary").style.opacity = 1},
-    3500)}
+    1500)}
 
