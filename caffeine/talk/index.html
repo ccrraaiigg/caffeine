@@ -4,15 +4,27 @@
     <link rel="icon" 
 	  type="image/png" 
 	  href="favicon.png">
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=1024" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta charset="utf-8"/>
+    <meta name="viewport"
+	  content="width=1024"/>
+    <meta name="apple-mobile-web-app-capable"
+	  content="yes"/>
     <title>Livecode the Web!</title>
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:regular,semibold,italic,italicsemibold|PT+Sans:400,700,400italic,700italic|PT+Serif:400,700,400italic,700italic" rel="stylesheet" />
-    <link href="css/livecoding-talk.css" rel="stylesheet" />
-    <link href="css/squeakjs.css" rel="stylesheet" />
-    <link rel="shortcut icon" href="favicon.png" />
-    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <link
+      href="https://fonts.googleapis.com/css?family=Open+Sans:regular,semibold,italic,italicsemibold|PT+Sans:400,700,400italic,700italic|PT+Serif:400,700,400italic,700italic"
+      rel="stylesheet"/>
+    <link
+      href="css/livecoding-talk.css"
+      rel="stylesheet"/>
+    <link
+      href="css/squeakjs.css"
+      rel="stylesheet"/>
+    <link
+      rel="shortcut icon"
+      href="favicon.png"/>
+    <link
+      rel="apple-touch-icon"
+      href="apple-touch-icon.png"/>
   </head>
   <body class="impress-not-supported">
     <div class="fallback-message">
@@ -29,8 +41,8 @@
         latest <b>Chrome</b>, <b>Safari</b> or <b>Firefox</b>
         browser.
 
-      </p>
-    </div>
+      </p></div>
+
     <div id="impress">
 
       <div id="title" class="step" data-scale="4">
@@ -48,9 +60,7 @@
 	    style="transition: all 500ms;
 		   opacity: 0;"
 	    width="300"
-	    height="300"></canvas>
-	</div>
-      </div>
+	    height="300"></canvas></div></div>
 
       <div
 	id="pre-summary"
@@ -60,14 +70,14 @@
 	data-rotate="90"
 	data-scale="5"
 	style="width: 1200px;">
+
         <p>
 
 	  Web apps are <strong>dynamic media</strong> under the
           hood...<br/> They can be that way when
           we're <strong>developing and presenting</strong>, too.
 
-	</p>
-      </div>
+	</p></div>
 
       <div
 	id="text-editor"
@@ -85,9 +95,7 @@
 
 	    <i>Your Favorite Text Editor</i>
 
-	  </p>
-	</center>
-      </div>
+	  </p></center></div>
 
       <div
 	id="caffeine"
@@ -102,6 +110,7 @@
 	       position: absolute;
 	       width: 1500px;
 	       height: 950px;">
+
 	<center>
 	  <div id="embeddedSqueak">
 	    <div id="sqSpinner">
@@ -115,26 +124,22 @@
 	      tabindex="1"
 	      style="
 		     opacity: 0;
-		     transition: opacity 500ms;"></canvas>
-	  </div>
-	</center>
-      </div>
+		     transition: opacity 500ms;"></canvas></div></center></div>
 
       <div
 	id="overview"
 	class="step"
 	data-x="3000"
 	data-y="1500"
-	data-scale="10">
-      </div>
+	data-scale="10"></div></div>
 
-    </div>
     <script src="js/impress.js"></script>
-    <script>impress().init()</script>
     <script src="js/squeakjs/squeak.js"></script>
     <script src="js/html/utilities.js"></script>
     <script>
       var canvas = document.getElementById("squeak")
+
+      impress().init()
 
       window.makeCanvasEditable(canvas)
       window.makeCanvasEditable(document.getElementById("title-workspace-canvas"))
@@ -148,28 +153,10 @@
             "SqueakV46",
             {
               appID: "9e5a5337-6b13-4e75-8936-d4e62a5500e8",
-              appName: "LivecodingTalk",
+              appName: "livecoding presentation",
               appServer: "demo.blackpagedigital.com:8091"})},
-          2500)
+          3000)
     </script>
-    <!--
-      (For auto-playing the slides.)
-
-      <script>
-        var impress = impress()
-
-	impress.init()
-	document.addEventListener(
-          'impress:stepenter',
-          function (event) {
-            if (typeof timing !== 'undefined') clearInterval(timing);
-
-            var duration = (event.target.getAttribute('data-transition-duration')
-                           ? event.target.getAttribute('data-transition-duration')
-                           : 2000) // use the set duration or fallback to 2000ms
-
-            timing = setInterval(impress.next, duration)})
-      </script>
-    -->
   </body>
 </html>
+

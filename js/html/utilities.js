@@ -52,7 +52,7 @@ function makeCanvasEditable(canvas) {
   canvas.style.pointerEvents = "all"
   canvas.style.transition = "opacity 500ms"
   canvas.style.backgroundColor = "black"
-  canvas.style.backgroundImage = "url('http://blackpagedigital.com/context/pictures/backgrounds/bootscreen.jpg')"
+  canvas.style.backgroundImage = "url('pictures/backgrounds/bootscreen.jpg')"
   canvas.style.backgroundSize = "auto 100%"
   canvas.style.backgroundPosition = "center center"
   canvas.style.borderRadius = "10px"

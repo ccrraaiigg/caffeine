@@ -1053,7 +1053,7 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
     window.clearTimeout(loop);
     display.reset();
     display.clear();
-    display.showBanner("loading " + SqueakJS.appName + "...");
+    display.showBanner("loading app '" + SqueakJS.appName + "'...");
     display.showProgress(0);
     var self = this;
     window.setTimeout(function readImageAsync() {
@@ -1065,7 +1065,7 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
         localStorage["squeakImageName"] = name;
         setupSwapButtons(options);
         display.clear();
-        display.showBanner("starting " + SqueakJS.appName + "...");
+        display.showBanner("starting app '" + SqueakJS.appName + "'...");
         var spinner = setupSpinner(vm, options);
         function run() {
           try {
