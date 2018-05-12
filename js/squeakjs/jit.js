@@ -309,7 +309,7 @@ to single-step.
         var funcName = this.functionNameFor(optClass, optSel);
         if (this.singleStep) {
             if (this.debug) this.source.push("// all valid PCs have a label;\n");
-            this.source.push("default: throw Error('invalid PC');\n}"); // all PCs handled
+            this.source.push("default: debugger; throw Error('invalid PC');\n}"); // all PCs handled
         } else {
             this.sourcePos['loop-end'] = this.source.length; this.source.push("default: vm.interpretOne(true); return;\n}");
             this.deleteUnneededLabels();

@@ -4,7 +4,7 @@ window.onload = function () {
 
   embeddedSqueak.onmouseenter = function () {
     window.document.getElementById("Caffeine").contentWindow.focus()
-    this.style.zIndex = 3
+    this.style.zIndex = 1000
     this.style.boxShadow = "1px 1px 7px #999, 2px 2px 8px #999, 3px 3px 9px #999"}
 
   embeddedSqueak.onmouseleave = function () {

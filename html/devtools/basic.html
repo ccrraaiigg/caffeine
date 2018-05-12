@@ -1,14 +1,6 @@
-<!-- These are "wireframe" DOM renditions of Smalltalk development
-     tools (like a class browser and a workspace), and supporting GUI
-     widgetry, designed for activation by Caffeine.
-
-     This HTML/CSS version is meant as a first quick prototype. It
-     will probably evolve into Smalltalk code, although this medium
-     might still be useful. -->
-
 <html>
   <head>
-    <title>Smalltalk development tools :: wireframes</title></head>
+    <title>Smalltalk Development Tools :: basic</title></head>
 
   <body style="background: lightBlue;">
 
@@ -23,7 +15,7 @@
       rel="stylesheet"
       href="/caffeine/css/devtools/basic.css">
 
-    <!-- external scripts -->
+    <!-- scripts -->
     
     <script src="/caffeine/js/jquery/jquery-3.2.1.min.js"></script>
     <script src="/caffeine/js/jquery/ui/jquery-ui.min.js"></script>
@@ -173,7 +165,14 @@
 	  id="text"
 	  class="textarea">expressions to evaluate</textarea></div>
 
-      <!-- a modal confirmation dialog -->
+      <!-- a text-entry dialog -->
+
+      <div
+	id="text-entry-dialog"
+	class="dialog"
+
+      
+      <!-- a modal popup confirmation dialog -->
       
       <div
 	id="confirm-dialog"
@@ -198,28 +197,6 @@
 	    id="false"
 	    class="button">no</div></div></div>
 
-      <!-- an input dialog -->
-
-      <!-- We're already using .cloneNode when loading these assets 
-
-
-	-->
-
-      <div
-	id="input-dialog"
-	class="dialog"
-	smalltalkClass="HTMLInputDialog"
-	style="top: 350px;
-	       left: 1150px;"
-
-	<div
-	  id="question"
-	  class="dialog-question">Tell me anything.</div>
-
-	<div
-	  id="answer"
-	  class="dialog-answer"
-      
       <!-- a popup menu -->
       
       <div

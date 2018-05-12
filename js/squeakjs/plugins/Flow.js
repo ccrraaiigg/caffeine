@@ -139,7 +139,27 @@ module("SqueakJS.plugins.Flow").requires("users.bert.SqueakJS.vm").toRun(
 
       interpreterProxy.pop(1)}
 
-    
+    // VisualWorks support
+
+    function decompressVisualWorksBitmapFromByteArray () {
+	  var words = interpreterProxy.stackValue(1).words,
+	  bytes = interpreterProxy.stackValue(0).bytes,
+	  numberOfBytes = bytes.length,
+	  bytesPosition = 0,
+	  wordIndex = 0,
+	  word
+
+	  while (bytesPosition < numberOfBytes) {
+	    word = (bytes[bytesPosition++] << 24) + bytes[bytesPosition++]
+
+	    if (bytesPosition < numberOfBytes) {
+	      word = word + (bytes[bytesPosition++] << 8) + (bytes[bytesPosition++] << 16)}
+
+		words[wordIndex++] = word}
+
+      interpreterProxy.pop(1)}
+
+
     Squeak.registerExternalModule(
       "Flow",
       {
@@ -150,6 +170,7 @@ module("SqueakJS.plugins.Flow").requires("users.bert.SqueakJS.vm").toRun(
 	enableMIDIPortAtAnd: enableMIDIPortAtAnd,
 	MIDIClockValue: MIDIClockValue,
 	scheduleMIDIMessagesInQuantityOn: scheduleMIDIMessagesInQuantityOn,
-	htmlSelectElementSetOptions: htmlSelectElementSetOptions
+	htmlSelectElementSetOptions: htmlSelectElementSetOptions,
+	decompressVisualWorksBitmapFromByteArray
       })})
 
