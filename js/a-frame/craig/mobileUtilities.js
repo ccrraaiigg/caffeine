@@ -60,12 +60,11 @@ function spikeRendering () {
   scene.slowRenderOnsetTimeout = setTimeout(
     function () {
       // Set the frame rate to 1 per second.
-//      console.log('rendering slowly')
-//      cancelAnimationFrame(scene.animationFrameID)
-//      scene.render = slowRender.bind(scene)
-//      scene.render()
-      //      scene.renderingNormally = false},
-    },
+      console.log('rendering slowly')
+      cancelAnimationFrame(scene.animationFrameID)
+      scene.render = normalRender.bind(scene)
+      scene.render()
+      scene.renderingNormally = true},
     timeout)}
 
 function focusMe (event) {
