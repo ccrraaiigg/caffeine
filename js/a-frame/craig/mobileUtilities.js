@@ -22,7 +22,9 @@ function slowRender () {
 
 function normalRender () {
   var effect = this.effect,
-      delta = this.clock.getDelta() * 1000
+      delta
+
+  if (this.clock) delta = this.clock.getDelta() * 1000
   
   this.time = this.clock.elapsedTime * 1000
 
