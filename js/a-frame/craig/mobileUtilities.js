@@ -24,9 +24,9 @@ function normalRender () {
   var effect = this.effect,
       delta
 
-  if (this.clock) delta = this.clock.getDelta() * 1000
-  
-  this.time = this.clock.elapsedTime * 1000
+  if (this.clock) {
+    delta = this.clock.getDelta() * 1000
+    this.time = this.clock.elapsedTime * 1000}
 
   if (this.isPlaying) {this.tick(this.time, delta)}
 
