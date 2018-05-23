@@ -26,16 +26,16 @@ function normalRender () {
 
   if (this.clock) {
     delta = this.clock.getDelta() * 1000
-    this.time = this.clock.elapsedTime * 1000}
+    this.time = this.clock.elapsedTime * 1000
 
-  if (this.isPlaying) {this.tick(this.time, delta)}
+    if (this.isPlaying) {this.tick(this.time, delta)}
 
-  this.animationFrameID = effect.requestAnimationFrame(this.render)
-  effect.render(this.object3D, this.camera, this.renderTarget)
+    this.animationFrameID = effect.requestAnimationFrame(this.render)
+    effect.render(this.object3D, this.camera, this.renderTarget)
   
-  if (this.isPlaying) {this.tock(this.time, delta)}
+    if (this.isPlaying) {this.tock(this.time, delta)}
 
-  this.effect.submitFrame()}
+    this.effect.submitFrame()}}
 
 function spikeRendering () {
   var timeout
