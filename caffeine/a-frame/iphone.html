@@ -1,0 +1,42 @@
+<html>
+  <head>
+    <script src="js/a-frame/official/aframe.min.js"></script></head>
+    <script src="https://rawgit.com/feiss/aframe-environment-component/master/dist/aframe-environment-component.min.js"></script>
+    <link href="css/squeakjs.css"
+	  rel="stylesheet" /></head>
+  <body>
+    <a-scene>
+      <a-assets>
+	<a-asset-item id="iphone"
+		      src="models/iphone_5s/scene.gltf"></a-asset-item>
+
+	<video id="caffeine-demo" autoplay
+	       loop="true"
+	       src="movies/Caffeine 3D.mp4"></video></a-assets>
+
+      <a-entity environment="preset: forest"></a-entity>
+
+      <a-entity id="phone"
+		position="0 2 -2"
+		rotation="0 0 90"
+		gltf-model="#iphone"></a-entity>
+
+      <a-entity id="camera"
+                position="0 2 0"
+		camera
+		look-controls
+		wasd-controls></a-entity>
+
+      <a-video src="#caffeine-demo"
+	       width="16"
+	       height="9"
+	       scale="0.17 0.1675"
+	       position="0.2 2 -1.87"></a-video></a-scene>
+
+    <script>
+      setTimeout(
+        function() {
+          var camera = document.getElementById('camera')
+
+          camera.getAttribute('wasd-controls').fly = true},
+        1000)</script></body></html>

@@ -317,3 +317,16 @@ home.onclick = function (event) {
       scene.goingHome = false},
     1000)}
 
+var oscPort = new osc.WebSocketPort({
+  url: "ws://localhost:8081",
+  metadata: true
+})
+
+oscPort.open()
+
+oscPort.on(
+  "message",
+  function (oscMsg) {
+    scene.dispatchEvent(new CustomEvent(
+      "oscEvent", 
+      {detail: oscMsg}))})

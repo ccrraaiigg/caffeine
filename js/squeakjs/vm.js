@@ -7595,14 +7595,16 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      return jsDict;
 		    },
 		    js_fromStBlock: function(block) {
+		      var numArgs;
 		      // create callback function from block or closure
 		      if (!this.js_callbackSema) // image recognizes error string and will try again
 			throw Error("CallbackSemaphore not set");
 		      // block holds onto thisContext
 		      this.vm.reclaimableContextCount = 0;
-		      var numArgs = block.pointers[Squeak.BlockContext_argumentCount];
-		      if (typeof numArgs !== 'number')
-			numArgs = block.pointers[Squeak.Closure_numArgs];
+		      if (block.sqClass === SqueakJS.vm.specialObjects[Squeak.splOb_ClassBlockContext]) {numArgs = block.pointers[Squeak.BlockContext_argumentCount];}
+		      else {numArgs = block.pointers[Squeak.Closure_numArgs];}
+//		      if (typeof numArgs !== 'number')
+//			numArgs = block.pointers[Squeak.Closure_numArgs];
 		      var squeak = this;
 		      return function evalSqueakBlock(/* arguments */) {
 			var args = [];
