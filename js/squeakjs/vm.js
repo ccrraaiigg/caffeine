@@ -5818,7 +5818,8 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      var p = schedLists.pointersSize() - 1;  // index of last indexable field
 		      var processList;
 		      do {
-			if (p < 0) throw Error("scheduler could not find a runnable process");
+			if (p < 0) {
+			  throw Error("scheduler could not find a runnable process");}
 			processList = schedLists.pointers[p--];
 		      } while (this.isEmptyList(processList));
 		      return this.removeFirstLinkOfList(processList);

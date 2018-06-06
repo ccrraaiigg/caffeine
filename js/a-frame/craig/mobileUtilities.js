@@ -116,7 +116,7 @@ function unrotate(geometry, rotation) {
 
 function forwardProjectedMouseEvents(camera, plane, canvas) {
   var dispatch = function (planarEvent) {
-    if (!planarEvent.detail.intersection) return
+    if ((!planarEvent.detail) || (!planarEvent.detail.intersection)) return
     var canvasEvent = new MouseEvent(planarEvent.type),
 	cameraPoint = centerOf(camera),
 	cameraRotation = rotationOf(camera),
@@ -220,10 +220,10 @@ function forwardProjectedMouseEvents(camera, plane, canvas) {
       if (window.squeakVM) squeakDisplay.vm = window.squeakVM
 
       disableControls('wasd-controls')
+
       if (!mousedown) {
 	getCSSRule('.a-canvas.a-grab-cursor:hover').style.cssText = "cursor: normal;"
 	getCSSRule('.a-canvas.a-grab-cursor:active, .a-grabbing').style.cssText = "cursor: normal;"
-	disableControls('look-controls')
 	plane.focus()
 	dispatch(event)}})
 
@@ -233,8 +233,10 @@ function forwardProjectedMouseEvents(camera, plane, canvas) {
 
   plane.addEventListener(
     'mousedown',
-    dispatch)
-
+    function (event) {
+      if (!(document.getElementById('scene').is('vr-mode'))) disableControls('look-controls')
+      dispatch(event)})
+  
   document.addEventListener(
     'mousemove',
     function (event) {spikeRendering()})
@@ -244,7 +246,6 @@ function forwardProjectedMouseEvents(camera, plane, canvas) {
     function (event) {
       getCSSRule('.a-canvas.a-grab-cursor:hover').style.cssText = "cursor: normal;"
       getCSSRule('.a-canvas.a-grab-cursor:active, .a-grabbing').style.cssText = "cursor: normal;"
-      disableControls('look-controls')
       plane.focus()
       dispatch(event)})
 
@@ -318,7 +319,7 @@ home.onclick = function (event) {
     1000)}
 
 var oscPort = new osc.WebSocketPort({
-  url: "ws://localhost:8081",
+  url: "ws://192.168.178.54:8081",
   metadata: true
 })
 

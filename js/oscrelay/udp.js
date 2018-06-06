@@ -41,6 +41,7 @@ udpPort.on(
   function (oscMessage, info) {
     console.log('An OSC message just arrived', ':', oscMessage)
     if (socketPort) {
+      console.log('Relaying OSC message to listener')
       socketPort.send(oscMessage)}})
 
 
