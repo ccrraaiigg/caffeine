@@ -18,6 +18,7 @@ var wss = new WebSocket.Server({
 
 // Listen for Web Socket connections.
 wss.on('connection', function (socket) {
+  console.log('Connected relay.')
   socketPort = new osc.WebSocketPort({
     socket: socket,
     metadata: true

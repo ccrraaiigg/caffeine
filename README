@@ -1,2 +1,11 @@
-     These are project websites of mine, most notably https://caffeine.js.org/.
+     Caffeine is an in-browser development environment powered by <a href="https://squeak.js.org">SqueakJS</a>, with support for Squeak, Pharo, Cuis, 3D VR (via <a href="https://aframe.io">A-Frame</a> and OSC), zooming 3D presentations (via <a href="https://impress.js.org">impress.js</a>), WebMIDI, and many other JS frameworks.
+
+     This repository is the content for the Caffeine website, https://caffeine.js.org/. It provides these endpoints:
+
+     /              introduction to Caffeine
+     /talk          an impress-powered presentation about livecoding
+     /a-frame       an A-Frame-powered virtual livecoding space
+     /talk/a-frame  impress inside A-Frame... two levels of 3D!
+
+     There are issues and projects to follow; please do! Current activity is focused on making Caffeine usable as an in-world VR livecoding environment.
 

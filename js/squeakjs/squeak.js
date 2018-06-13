@@ -129,8 +129,8 @@ Function.prototype.subclass = function(classPath /* + more args */ ) {
 (function(){
   var scripts = document.getElementsByTagName("script"),
       squeakjs = scripts[scripts.length - 1],
-           vmDir = "https://caffeine.js.org/js/squeakjs/";
-//           vmDir = "http://192.168.178.54/caffeine/js/squeakjs/";
+//           vmDir = "https://caffeine.js.org/js/squeakjs/";
+           vmDir = "http://192.168.178.54/caffeine/js/squeakjs/";
   if (squeakjs.src.match(/squeak\.min\.js$/)) return;
   [   "vm.js",
       "jit.js",
