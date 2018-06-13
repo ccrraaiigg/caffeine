@@ -13,3 +13,6 @@ This repository is the content for the Caffeine website, https://caffeine.js.org
 
 There are [issues](https://github.com/ccrraaiigg/ccrraaiigg.github.io/issues) and [projects](https://github.com/ccrraaiigg/ccrraaiigg.github.io/projects) to follow; please do! Current activity is focused on [making Caffeine a productive in-world VR livecoding environment](https://github.com/ccrraaiigg/ccrraaiigg.github.io/projects/1).
 
+Craig Latta
+[@ccrraaiigg](https://twitter.com/ccrraaiigg)
+
