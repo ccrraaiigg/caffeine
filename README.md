@@ -2,7 +2,14 @@ Caffeine is an in-browser development environment powered by [SqueakJS](https://
 
 This repository is the content for the Caffeine website, https://caffeine.js.org/. It provides these endpoints:
 
-<table><tr><td>/</td><td>introduction to Caffeine</tr><tr><td>/talk</td><td>an impress-powered presentation about livecoding</td></tr><tr><td>/a-frame</td><td>an A-Frame-powered virtual livecoding space</td></tr><tr><td>/talk/a-frame</td><td>impress inside A-Frame... two levels of 3D!</td></tr></table>
+<table>
+<tr><td>/</td><td>introduction to Caffeine</tr>
+<tr><td>/pharo</td><td>a demo of Pharo</tr>
+<tr><td>/cuis</td><td>a demo of Cuis</tr>
+<tr><td>/talk</td><td>an impress-powered presentation about livecoding</td></tr>
+<tr><td>/a-frame</td><td>an A-Frame-powered virtual livecoding space</td></tr>
+<tr><td>/talk/a-frame</td><td>impress inside A-Frame... two levels of 3D!</td></tr>
+</table>
 
 There are [issues](https://github.com/ccrraaiigg/ccrraaiigg.github.io/issues) and [projects](https://github.com/ccrraaiigg/ccrraaiigg.github.io/projects) to follow; please do! Current activity is focused on [making Caffeine a productive in-world VR livecoding environment](https://github.com/ccrraaiigg/ccrraaiigg.github.io/projects/1).
 
