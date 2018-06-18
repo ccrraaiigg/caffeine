@@ -45,7 +45,7 @@ function spikeRendering () {
     scene.slowRenderOnsetTimeout = null}
 
   if (!scene.renderingNormally) {
-    console.log('rendering normally')
+//    console.log('rendering normally')
     if (scene.slowRenderTimeout) clearTimeout(scene.slowRenderTimeout)
     cancelAnimationFrame(scene.animationFrameID)
     scene.render = normalRender.bind(scene)
@@ -62,7 +62,7 @@ function spikeRendering () {
   scene.slowRenderOnsetTimeout = setTimeout(
     function () {
       // Set the frame rate to 1 per second.
-      console.log('rendering slowly')
+//      console.log('rendering slowly')
       cancelAnimationFrame(scene.animationFrameID)
       scene.render = normalRender.bind(scene)
       scene.render()
@@ -191,7 +191,7 @@ function forwardProjectedMouseEvents(camera, plane, canvas) {
     canvasEvent.projectedY = Math.floor((selectionDistance * Math.sin(theta)) * heightFactor)
     canvas.lastProjectedEvent = canvasEvent
     
-    console.log(planarEvent.type + ' ' + canvasEvent.projectedX + ' ' + canvasEvent.projectedY)
+//    console.log(planarEvent.type + ' ' + canvasEvent.projectedX + ' ' + canvasEvent.projectedY)
     canvas.dispatchEvent(canvasEvent)}
 
   window.mousedown = false
