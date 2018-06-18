@@ -11,11 +11,15 @@
 
     <a-scene id="scene"
 	     keyboard-shortcuts="enterVR: false"
-	     raycaster="showLine: true; far: 100; objects: .squeaky"
-	     line="color: orange; opacity: 0.5"
+	     raycaster="showLine: false;
+			far: 100;
+			objects: .squeaky"
+	     line="color: orange;
+		   opacity: 0.5"
 	     cursor="rayOrigin: mouse">
 
       <a-assets>
+
 	<canvas id="squeak"
 		width="1400"
 		height="870"
@@ -24,17 +28,12 @@
 		style="cursor: default;
 		       opacity: 1;
 		       transition: opacity 500ms"></canvas>
-      </a-assets>
 
-      <a-assets>
 	<img id="logo" src="pictures/backgrounds/bootscreen1024x512.jpeg">
-      </a-assets>
 
-      <a-assets>
 	<audio id="wind-sound"
 	       src="sounds/wind.mp3"
-	       preload="auto"></audio>
-      </a-assets>
+	       preload="auto"></audio></a-assets>
       
       <!-- The raycaster doesn't work properly on rotated
 	   planes. It's unclear whether the problem is with
@@ -99,9 +98,8 @@
 		    z-index: 10;
 		    position: absolute;
 		    right: 10;
-		    top: 10"></canvas>
+		    top: 10"></canvas></a-scene>
 
-    </a-scene>
     <script src="js/squeakjs/squeak.js"></script>
     <script src="js/html/utilities.js"></script>
     <script src="js/oscrelay/node_modules/osc/dist/osc-browser.min.js"></script>
@@ -119,6 +117,4 @@
               appName: "A-Frame livecoding demo",
               appServer: "demo.blackpagedigital.com:8091"})},
         6000)
-    </script>
-  </body>
-</html>
+    </script></body></html>
