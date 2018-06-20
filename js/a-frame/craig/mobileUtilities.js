@@ -13,7 +13,7 @@ window.mouseleave = function (event) {
 
   scene.editingCode = false}
 
-window.mouseenter = function (event) {
+window.mouseenter = function (plane, event) {
   scene.editingCode = true
   if (window.squeakVM) squeakDisplay.vm = window.squeakVM
 
@@ -245,7 +245,7 @@ function forwardProjectedMouseEvents(camera, plane, canvas) {
 
   plane.addEventListener(
     'mouseenter',
-    window.mouseenter(event))
+    window.mouseenter(plane, event))
   
   plane.addEventListener(
     'hovered',
