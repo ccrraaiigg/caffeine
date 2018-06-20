@@ -1,10 +1,13 @@
 scene.renderingNormally = true
 
+window.mouseenter = function (event) {
+  scene.editingCode = true
+  if (window.squeakVM) squeakDisplay.vm = window.squeakVM
+
+  disableControls('wasd-controls')}
+
 window.mouseleave = function (event) {
   enableControls('wasd-controls')
-
-  getCSSRule('.a-canvas.a-grab-cursor:hover').style.cssText = 'cursor: grab; cursor: -moz-grab; cursor: -webkit-grab;'
-  getCSSRule('.a-canvas.a-grab-cursor:active, .a-grabbing').style.cssText = 'cursor: grabbing; cursor: -moz-grabbing; cursor: -webkit-grabbing;'
 
   // Trick squeak.js into not queueing keyboard events.
   if (window.squeakDisplay) {
@@ -12,18 +15,6 @@ window.mouseleave = function (event) {
     squeakDisplay.vm = null}
 
   scene.editingCode = false}
-
-window.mouseenter = function (plane, event) {
-  scene.editingCode = true
-  if (window.squeakVM) squeakDisplay.vm = window.squeakVM
-
-  disableControls('wasd-controls')
-
-  if (!mousedown) {
-    getCSSRule('.a-canvas.a-grab-cursor:hover').style.cssText = "cursor: normal;"
-    getCSSRule('.a-canvas.a-grab-cursor:active, .a-grabbing').style.cssText = "cursor: normal;"
-    plane.focus()
-    dispatch(event)}}
 
 window.mobilecheck = function() {
   var check = false;
@@ -245,7 +236,14 @@ function forwardProjectedMouseEvents(camera, plane, canvas) {
 
   plane.addEventListener(
     'mouseenter',
-    window.mouseenter(plane, event))
+    function(event) {
+      window.mouseenter(event)
+
+      if (!mousedown) {
+	getCSSRule('.a-canvas.a-grab-cursor:hover').style.cssText = "cursor: normal;"
+	getCSSRule('.a-canvas.a-grab-cursor:active, .a-grabbing').style.cssText = "cursor: normal;"
+	plane.focus()
+	dispatch(event)}})
   
   plane.addEventListener(
     'hovered',
@@ -273,6 +271,10 @@ function forwardProjectedMouseEvents(camera, plane, canvas) {
     'mouseleave',
     function (event) {
       enableControls('look-controls')
+
+      getCSSRule('.a-canvas.a-grab-cursor:hover').style.cssText = 'cursor: grab; cursor: -moz-grab; cursor: -webkit-grab;'
+      getCSSRule('.a-canvas.a-grab-cursor:active, .a-grabbing').style.cssText = 'cursor: grabbing; cursor: -moz-grabbing; cursor: -webkit-grabbing;'
+
       window.mouseleave(event)})}
 
 var canvas = document.getElementById('squeak'),
