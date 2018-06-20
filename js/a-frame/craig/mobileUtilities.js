@@ -2,17 +2,14 @@ scene.renderingNormally = true
 
 window.mouseenter = function (event) {
   scene.editingCode = true
-  if (window.squeakVM) squeakDisplay.vm = window.squeakVM
-
+  squeakDisplay.vm = SqueakJS.vm
   disableControls('wasd-controls')}
 
 window.mouseleave = function (event) {
   enableControls('wasd-controls')
 
   // Trick squeak.js into not queueing keyboard events.
-  if (window.squeakDisplay) {
-    window.squeakVM = squeakDisplay.vm
-    squeakDisplay.vm = null}
+  if (window.squeakDisplay) squeakDisplay.vm = null
 
   scene.editingCode = false}
 
