@@ -273,7 +273,7 @@ function forwardProjectedMouseEvents(camera, plane, canvas) {
     'mouseleave',
     function (event) {
       enableControls('look-controls')
-      window.mouseleave(event))}
+      window.mouseleave(event)})}
 
 var canvas = document.getElementById('squeak'),
     context = canvas.getContext('2d'),
