@@ -343,3 +343,26 @@ oscPort.on(
     scene.dispatchEvent(new CustomEvent(
       "oscEvent", 
       {detail: oscMsg}))})
+
+// iOS doesn't do keyup events properly.
+document.body.addEventListener(
+  "keydown",
+  f => {
+    document.body.addEventListener(
+      "keyup",
+      function keyUp(e) {
+	document.body.removeEventListener(
+	  "keyup",
+	  keyUp,
+	  false) // Memory clean-up
+	window.setTimeout(
+	  function () {
+	    var event = document.createEvent("Events")
+	    
+	    event.initEvent('keyup', true, true)
+	    event.which = f.which 
+	    event.keyCode = f.which
+	    document.body.dispatchEvent(event)},
+	  200)},
+      false)},
+  false)
