@@ -11,7 +11,7 @@ This repository is the content for the Caffeine website, https://caffeine.js.org
 <tr><td>/talk/a-frame</td><td>impress inside A-Frame... two levels of 3D!</td></tr>
 </table>
 
-There are [issues](https://github.com/ccrraaiigg/ccrraaiigg.github.io/issues) and [projects](https://github.com/ccrraaiigg/ccrraaiigg.github.io/projects) to follow; please do! Current activity is focused on [making Caffeine a productive in-world VR livecoding environment](https://github.com/ccrraaiigg/ccrraaiigg.github.io/projects/1).
+There are [issues](https://github.com/ccrraaiigg/ccrraaiigg.github.io/issues) and [projects](https://github.com/ccrraaiigg/ccrraaiigg.github.io/projects) to follow; please do! Current activity is focused on [making Caffeine a productive in-world VR livecoding environment](https://github.com/ccrraaiigg/ccrraaiigg.github.io/projects/1). 
 
 Craig Latta
 <br>
