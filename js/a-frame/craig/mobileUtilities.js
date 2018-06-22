@@ -2,7 +2,7 @@ scene.renderingNormally = true
 
 window.mouseenter = function (event) {
   scene.editingCode = true
-  squeakDisplay.vm = SqueakJS.vm
+  window.squeakDisplay.vm = SqueakJS.vm
   disableControls('wasd-controls')}
 
 window.mouseleave = function (event) {
