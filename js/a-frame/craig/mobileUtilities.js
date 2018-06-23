@@ -358,7 +358,7 @@ document.addEventListener(
       camera.components['look-controls'].init()
       window.setTimeout(
 	() => {camera.setAttribute('rotation', {x: rotxdeg, y: -(roty * 180 / Math.PI), z: 0})},
-        20)}
+        20)} 
     else {
       camera.components['wasd-controls'].data.fly = true
       if (f.which === 69) goHome()}})
