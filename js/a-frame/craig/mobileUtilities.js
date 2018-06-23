@@ -327,20 +327,6 @@ home.onclick = function (event) {
       scene.goingHome = false},
     1000)}
 
-var oscPort = new osc.WebSocketPort({
-  url: "ws://192.168.178.54:8081",
-  metadata: true
-})
-
-oscPort.open()
-
-oscPort.on(
-  "message",
-  function (oscMsg) {
-    scene.dispatchEvent(new CustomEvent(
-      "oscEvent", 
-      {detail: oscMsg}))})
-
 document.addEventListener(
   "keydown",
   f => {
@@ -373,4 +359,18 @@ document.body.addEventListener(
 	  200)},
       false)},
   false)
+
+var oscPort = new osc.WebSocketPort({
+  url: "ws://192.168.178.54:8081",
+  metadata: true
+})
+
+oscPort.on(
+  "message",
+  function (oscMsg) {
+    scene.dispatchEvent(new CustomEvent(
+      "oscEvent", 
+      {detail: oscMsg}))})
+
+oscPort.open()
 
