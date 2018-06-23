@@ -345,6 +345,13 @@ oscPort.on(
 document.body.addEventListener(
   "keydown",
   f => {
+    if (f.which = 82) {
+      // Turn off the look controls and face the squeak plane.
+      var camera = document.getElementById('camera')
+
+      camera.components['look-controls'].data.enabled = false
+      camera.setAttribute('rotation', {x: 0, y: 0, z: 0})}
+    
     document.body.addEventListener(
       "keyup",
       function keyUp(e) {
