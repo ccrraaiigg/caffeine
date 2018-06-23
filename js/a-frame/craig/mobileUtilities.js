@@ -341,8 +341,7 @@ oscPort.on(
       "oscEvent", 
       {detail: oscMsg}))})
 
-// iOS doesn't do keyup events properly.
-document.body.addEventListener(
+document.addEventListener(
   "keydown",
   f => {
     if (f.which = 82) {
@@ -350,8 +349,12 @@ document.body.addEventListener(
       var camera = document.getElementById('camera')
 
       camera.components['look-controls'].data.enabled = false
-      camera.setAttribute('rotation', {x: 0, y: 0, z: 0})}
-    
+      camera.setAttribute('rotation', {x: 0, y: 0, z: 0})}})
+
+// iOS doesn't do keyup events properly.
+document.body.addEventListener(
+  "keydown",
+  f => {
     document.body.addEventListener(
       "keyup",
       function keyUp(e) {
