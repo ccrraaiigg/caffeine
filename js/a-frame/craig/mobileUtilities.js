@@ -355,9 +355,10 @@ document.addEventListener(
       if (rotxdeg < -89) rotxdeg = rotxdeg + 180
       if (rotxdeg > 0) rotxdeg = -rotxdeg
 
-      camera.components['wasd-controls'].data.enabled = false
-      camera.setAttribute('rotation', {x: rotxdeg, y: -(roty * 180 / Math.PI), z: 0})
-      camera.components['wasd-controls'].data.enabled = true}
+      camera.components['look-controls'].init()
+      window.setTimeout(
+	() => {camera.setAttribute('rotation', {x: rotxdeg, y: -(roty * 180 / Math.PI), z: 0})},
+        20)}
     else {
       camera.components['wasd-controls'].data.fly = true
       if (f.which === 69) goHome()}})
