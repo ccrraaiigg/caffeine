@@ -303,7 +303,7 @@ forwardProjectedMouseEvents(
 
 spikeRendering()
 
-home.onclick = function (event) {
+goHome = function (event) {
   var positionAnimation = document.createElement('a-animation'),
       rotationAnimation = document.createElement('a-animation')
 
@@ -327,15 +327,40 @@ home.onclick = function (event) {
       scene.goingHome = false},
     1000)}
 
+home.onclick = goHome
+  
 document.addEventListener(
   "keydown",
   f => {
-    if (f.which = 82) {
-      // Turn off the look controls and face the squeak plane.
-      var camera = document.getElementById('camera')
+    var camera = document.getElementById('camera')
 
-      camera.components['look-controls'].data.enabled = false
-      camera.setAttribute('rotation', {x: 0, y: 0, z: 0})}})
+    if (f.which === 82) {
+      var rotx,
+	  roty,
+	  rotxdeg,
+	  position = camera.getAttribute('position'),
+	  plane = document.getElementById('squeak-plane'),
+	  posz = position.z - plane.getAttribute('position').z
+      
+      if (window.mobilecheck()) camera.components['look-controls'].data.enabled = false
+
+      rotx = Math.atan2(-(position.y - plane.getAttribute('position').y), posz)
+
+      if (posz >= 0) {
+	roty = -Math.atan2(position.x * Math.cos(rotx), posz)}
+      else {
+	roty = Math.atan2(position.x * Math.cos(rotx), posz)}
+
+      rotxdeg = rotx * 180 / Math.PI
+      if (rotxdeg < -89) rotxdeg = rotxdeg + 180
+      if (rotxdeg > 0) rotxdeg = -rotxdeg
+
+      camera.components['wasd-controls'].data.enabled = false
+      camera.setAttribute('rotation', {x: rotxdeg, y: -(roty * 180 / Math.PI), z: 0})
+      camera.components['wasd-controls'].data.enabled = true}
+    else {
+      camera.components['wasd-controls'].data.fly = true
+      if (f.which === 69) goHome()}})
 
 // iOS doesn't do keyup events properly.
 document.body.addEventListener(
