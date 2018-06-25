@@ -287,7 +287,18 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('serviceWorker.js')
     .then(function(reg) {
       // registration worked
-      console.log('Registration succeeded. Scope is ' + reg.scope)})
+      console.log('Registration succeeded. Scope is ' + reg.scope)
+      reg.addEventListener(
+	'push',
+	function(event) {
+	  debugger
+	  console.log('Received a push message', event)
+          caches.keys().then(function(keyList) {
+	    return Promise.all(keyList.map(function(key) {
+	      return caches.delete(key)}))})})
+      
+      window.onbeforeunload = () => {
+	reg.emitEvent('push')}})
     .catch(function(error) {
       // registration failed
       console.log('Registration failed with ' + error)})}
@@ -334,7 +345,7 @@ document.addEventListener(
   f => {
     var camera = document.getElementById('camera')
 
-    if (f.which === 82) {
+    if ((f.which === 82) && !(window.mobilecheck())) {
       var rotx,
 	  roty,
 	  rotxdeg,
