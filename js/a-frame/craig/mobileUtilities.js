@@ -343,36 +343,37 @@ home.onclick = goHome
 document.addEventListener(
   "keydown",
   f => {
-    var camera = document.getElementById('camera')
+    if !window.mobileCheck() {
+      var camera = document.getElementById('camera')
 
-    if ((f.which === 82) && !(window.mobilecheck())) {
-      var rotx,
-	  roty,
-	  rotxdeg,
-	  position = camera.getAttribute('position'),
-	  plane = document.getElementById('squeak-plane'),
-	  posz = position.z - plane.getAttribute('position').z
+      if (f.which === 82) {
+	var rotx,
+	    roty,
+	    rotxdeg,
+	    position = camera.getAttribute('position'),
+	    plane = document.getElementById('squeak-plane'),
+	    posz = position.z - plane.getAttribute('position').z
       
-      if (window.mobilecheck()) camera.components['look-controls'].data.enabled = false
+	if (window.mobilecheck()) camera.components['look-controls'].data.enabled = false
 
-      rotx = Math.atan2(-(position.y - plane.getAttribute('position').y), posz)
+	rotx = Math.atan2(-(position.y - plane.getAttribute('position').y), posz)
 
-      if (posz >= 0) {
-	roty = -Math.atan2(position.x * Math.cos(rotx), posz)}
+	if (posz >= 0) {
+	  roty = -Math.atan2(position.x * Math.cos(rotx), posz)}
+	else {
+	  roty = Math.atan2(position.x * Math.cos(rotx), posz)}
+
+	rotxdeg = rotx * 180 / Math.PI
+	if (rotxdeg < -89) rotxdeg = rotxdeg + 180
+	if (rotxdeg > 0) rotxdeg = -rotxdeg
+	
+	camera.components['look-controls'].init()
+	window.setTimeout(
+	  () => {camera.setAttribute('rotation', {x: rotxdeg, y: -(roty * 180 / Math.PI), z: 0})},
+          20)} 
       else {
-	roty = Math.atan2(position.x * Math.cos(rotx), posz)}
-
-      rotxdeg = rotx * 180 / Math.PI
-      if (rotxdeg < -89) rotxdeg = rotxdeg + 180
-      if (rotxdeg > 0) rotxdeg = -rotxdeg
-
-      camera.components['look-controls'].init()
-      window.setTimeout(
-	() => {camera.setAttribute('rotation', {x: rotxdeg, y: -(roty * 180 / Math.PI), z: 0})},
-        20)} 
-    else {
-      camera.components['wasd-controls'].data.fly = true
-      if (f.which === 69) goHome()}})
+	camera.components['wasd-controls'].data.fly = true
+	if (f.which === 69) goHome()}}})
 
 // iOS doesn't do keyup events properly.
 document.body.addEventListener(
