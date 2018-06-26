@@ -343,7 +343,7 @@ home.onclick = goHome
 document.addEventListener(
   "keydown",
   f => {
-    if !window.mobileCheck() {
+    if (!window.mobileCheck()) {
       var camera = document.getElementById('camera')
 
       if (f.which === 82) {
