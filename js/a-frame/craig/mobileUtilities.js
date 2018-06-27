@@ -7,7 +7,8 @@ window.mouseenter = function (event) {
 
 window.mouseleave = function (event) {
   enableControls('wasd-controls')
-
+  document.getElementById('camera').components['wasd-controls'].data.fly = true
+    
   // Trick squeak.js into not queueing keyboard events.
   if (window.squeakDisplay) squeakDisplay.vm = null
 
