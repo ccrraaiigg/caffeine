@@ -355,8 +355,6 @@ document.addEventListener(
 	    plane = document.getElementById('squeak-plane'),
 	    posz = position.z - plane.getAttribute('position').z
       
-	if (window.mobilecheck()) camera.components['look-controls'].data.enabled = false
-
 	rotx = Math.atan2(-(position.y - plane.getAttribute('position').y), posz)
 
 	if (posz >= 0) {
