@@ -49,7 +49,7 @@
 			  height: 8.7"
                 position="0 5 -8"
 		mousemove></a-entity>
-
+		
       <div id="sqSpinner"
 	   style="opacity: 0.8;
 		  z-index: 10;
@@ -97,13 +97,16 @@
 		    z-index: 10;
 		    position: absolute;
 		    right: 10;
-		    top: 10"></canvas></a-scene>
+		    top: 10"></canvas>
+<a-text value="Hello, World!"></a-text>
+</a-scene>
 
     <script src="js/squeakjs/squeak.js"></script>
     <script src="js/html/utilities.js"></script>
     <script src="js/oscrelay/node_modules/osc/dist/osc-browser.min.js"></script>
     <script src="js/a-frame/craig/mobileUtilities.js"></script>
     <script>
+      // canvas is set by mobileUtilities.js.
       setTimeout(
         function () {
           wind.components.sound.playSound()

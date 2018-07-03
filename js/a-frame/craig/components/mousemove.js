@@ -32,8 +32,8 @@ AFRAME.registerComponent(
       // position and viewport size. The factors used here are for the
       // home position in fullscreen on a 16x9 Retina laptop.
       this.el.movemouse(
-	Math.round(((event.clientX - this.x) * 1)),
-	Math.round(((event.clientY - this.y) * 1.03)))
+	Math.round(((event.clientX - this.x) * 1.1)),
+	Math.round(((event.clientY - this.y) * 1.1)))
 
       this.x = event.clientX
       this.y = event.clientY}})
