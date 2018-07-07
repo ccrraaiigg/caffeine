@@ -1,5 +1,4 @@
 // fake enough of the HTML5 environment to get squeak.js to load
-debugger
 var window = this,
     document = new Object
 
