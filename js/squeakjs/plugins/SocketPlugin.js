@@ -481,9 +481,9 @@ function SocketPlugin() {
 }
 
 function registerSocketPlugin() {
-    if (typeof Squeak === "object" && Squeak.registerExternalModule) {
-        Squeak.registerExternalModule('SocketPlugin', SocketPlugin());
-    } else window.setTimeout(registerSocketPlugin, 100);
+    if (typeof Squeak === "object" && window.Squeak.registerExternalModule) {
+        window.Squeak.registerExternalModule('SocketPlugin', SocketPlugin());
+    } else setTimeout(registerSocketPlugin, 100);
 };
 
 registerSocketPlugin();

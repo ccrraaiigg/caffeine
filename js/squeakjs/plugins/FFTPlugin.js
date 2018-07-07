@@ -5,7 +5,7 @@
 	FFTPlugin VMMaker-bf.353 uuid: 8ae25e7e-8d2c-451e-8277-598b30e9c002
  */
 
-module("users.bert.SqueakJS.plugins.FFTPlugin").requires("users.bert.SqueakJS.vm").toRun(function() {
+window.module("users.bert.SqueakJS.plugins.FFTPlugin").requires("users.bert.SqueakJS.vm").toRun(function() {
 "use strict";
 
 var VM_PROXY_MAJOR = 1;
@@ -268,7 +268,7 @@ function transformForward(forward) {
 }
 
 
-Squeak.registerExternalModule("FFTPlugin", {
+window.Squeak.registerExternalModule("FFTPlugin", {
 	primitiveFFTTransformData: primitiveFFTTransformData,
 	setInterpreter: setInterpreter,
 	primitiveFFTPermuteData: primitiveFFTPermuteData,

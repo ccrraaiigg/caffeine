@@ -1,4 +1,4 @@
-module('users.bert.SqueakJS.vm').requires().toRun(function() {
+window.module('users.bert.SqueakJS.vm').requires().toRun(function() {
   "use strict";
   /*
    * Copyright (c) 2013-2016 Bert Freudenberg
@@ -23,7 +23,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
    */
 
   // shorter name for convenience
-  window.Squeak = users.bert.SqueakJS.vm;
+  window.Squeak = window.users.bert.SqueakJS.vm;
 
   // if in private mode set localStorage to a regular dict
   var localStorage = window.localStorage;
@@ -36,7 +36,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
     localStorage = {};
   }
 
-  Object.extend(Squeak,
+  Object.extend(window.Squeak,
 		"version", {
 		  // system attributes
 		  vmVersion: "SqueakJS 0.9.5",
@@ -262,7 +262,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		},
 		"modules", {
 		  // don't clobber registered modules
-		  externalModules: Squeak.externalModules || {},
+		  externalModules: window.Squeak.externalModules || {},
 		  registerExternalModule: function(name, module) {
 		    this.externalModules[name] = module;
 		  },
@@ -287,7 +287,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
                               files[cursor.key] = true;
                               cursor.continue();
                             } else { // done
-                              Squeak.fsck(whenDone, dir, files, stats);
+                              window.Squeak.fsck(whenDone, dir, files, stats);
                             }
 			  }
 			  cursorReq.onerror = function(e) {
@@ -297,24 +297,24 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      }
 		    }
 		    // check directories
-		    var entries = Squeak.dirList(dir);
+		    var entries = window.Squeak.dirList(dir);
 		    for (var name in entries) {
 		      var path = dir + "/" + name,
 			  isDir = entries[name][3];
 		      if (isDir) {
 			var exists = "squeak:" + path in localStorage;
 			if (exists) {
-			  Squeak.fsck(null, path, files, stats);
+			  window.Squeak.fsck(null, path, files, stats);
 			  stats.dirs++;
 			} else {
 			  console.log("Deleting stale directory " + path);
-			  Squeak.dirDelete(path);
+			  window.Squeak.dirDelete(path);
 			  stats.deleted++;
 			}
 		      } else {
 			if (!files[path]) {
 			  console.log("Deleting stale file entry " + path);
-			  Squeak.fileDelete(path, true);
+			  window.Squeak.fileDelete(path, true);
 			  stats.deleted++;
 			} else {
 			  files[path] = false; // mark as visited
@@ -354,7 +354,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    // File contents is stored in the IndexedDB named "squeak" in object store "files"
 		    // and directory entries in localStorage with prefix "squeak:"
 		    function fakeTransaction() {
-		      transactionFunc(Squeak.dbFake());
+		      transactionFunc(window.Squeak.dbFake());
 		      if (completionFunc) completionFunc();
 		    }
 
@@ -363,7 +363,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    }
 
 		    function startTransaction() {
-		      var trans = SqueakDB.transaction("files", mode),
+		      var trans = window.SqueakDB.transaction("files", mode),
 			  fileStore = trans.objectStore("files");
 		      trans.oncomplete = function(e) {
 			if (completionFunc) completionFunc(); }
@@ -372,7 +372,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      trans.onabort = function(e) {
 			console.error(e.target.error.name + ": aborting " + description);
 			// fall back to local/memory storage
-			transactionFunc(Squeak.dbFake());
+			transactionFunc(window.Squeak.dbFake());
 			if (completionFunc) completionFunc();
 		      }
 		      transactionFunc(fileStore);
@@ -393,11 +393,11 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    openReq.onsuccess = function(e) {
 		      console.log("Opened files database.");
 		      window.SqueakDB = this.result;
-		      SqueakDB.onversionchange = function(e) {
+		      window.SqueakDB.onversionchange = function(e) {
 			delete window.SqueakDB;
 			this.close();
 		      };
-		      SqueakDB.onerror = function(e) {
+		      window.SqueakDB.onerror = function(e) {
 			console.error("Error accessing database: " + e.target.error.name);
 		      };
 		      startTransaction();
@@ -425,14 +425,14 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    // indexedDB is not supported by this browser, fake it using localStorage
 		    // since localStorage space is severly limited, use LZString if loaded
 		    // see https://github.com/pieroxy/lz-string
-		    if (typeof SqueakDBFake == "undefined") {
+		    if (typeof window.SqueakDBFake == "undefined") {
 		      if (typeof indexedDB == "undefined")
 			console.warn("IndexedDB not supported by this browser, using localStorage");
 		      window.SqueakDBFake = {
 			bigFiles: {},
 			bigFileThreshold: 100000,
 			get: function(filename) {
-			  var buffer = SqueakDBFake.bigFiles[filename];
+			  var buffer = window.SqueakDBFake.bigFiles[filename];
 			  if (!buffer) {
                             var string = localStorage["squeak-file:" + filename];
                             if (!string) {
@@ -459,12 +459,12 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			  return req;
 			},
 			put: function(buffer, filename) {
-			  if (buffer.byteLength > SqueakDBFake.bigFileThreshold) {
-                            if (!SqueakDBFake.bigFiles[filename])
+			  if (buffer.byteLength > window.SqueakDBFake.bigFileThreshold) {
+                            if (!window.SqueakDBFake.bigFiles[filename])
                               console.log("File " + filename + " (" + buffer.byteLength + " bytes) too large, storing in memory only");
-                            SqueakDBFake.bigFiles[filename] = buffer;
+                            window.SqueakDBFake.bigFiles[filename] = buffer;
 			  } else {
-                            var string = Squeak.bytesAsString(new Uint8Array(buffer));
+                            var string = window.Squeak.bytesAsString(new Uint8Array(buffer));
                             if (typeof LZString == "object") {
                               var compressed = LZString.compressToUTF16(string);
                               localStorage["squeak-file.lz:" + filename] = compressed;
@@ -480,7 +480,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			delete: function(filename) {
 			  delete localStorage["squeak-file:" + filename];
 			  delete localStorage["squeak-file.lz:" + filename];
-			  delete SqueakDBFake.bigFiles[filename];
+			  delete window.SqueakDBFake.bigFiles[filename];
 			  var req = {};
 			  setTimeout(function(){if (req.onsuccess) req.onsuccess()}, 0);
 			  return req;
@@ -492,15 +492,15 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			},
 		      }
 		    }
-		    return SqueakDBFake;
+		    return window.SqueakDBFake;
 		  },
 		  fileGet: function(filepath, thenDo, errorDo) {
 		    if (!errorDo) errorDo = function(err) { console.log(err) };
 		    var path = this.splitFilePath(filepath);
 		    if (!path.basename) return errorDo("Invalid path: " + filepath);
 		    // if we have been writing to memory, return that version
-		    if (window.SqueakDBFake && SqueakDBFake.bigFiles[path.fullname])
-		      return thenDo(SqueakDBFake.bigFiles[path.fullname]);
+		    if (window.SqueakDBFake && window.SqueakDBFake.bigFiles[path.fullname])
+		      return thenDo(window.SqueakDBFake.bigFiles[path.fullname]);
 		    this.dbTransaction("readonly", "get " + filepath, function(fileStore) {
 		      var getReq = fileStore.get(path.fullname);
 		      getReq.onerror = function(e) {
@@ -508,13 +508,13 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      getReq.onsuccess = function(e) {
 			if (this.result !== undefined) return thenDo(this.result);
 			// might be a template
-			Squeak.fetchTemplateFile(path.fullname,
+			window.Squeak.fetchTemplateFile(path.fullname,
 						 function gotTemplate(template) {thenDo(template)},
 						 function noTemplate() {
 						   // if no indexedDB then we have checked fake db already
 						   if (typeof indexedDB == "undefined") return errorDo("file not found: " + path.fullname);
 						   // fall back on fake db, may be file is there
-						   var fakeReq = Squeak.dbFake().get(path.fullname);
+						   var fakeReq = window.Squeak.dbFake().get(path.fullname);
 						   fakeReq.onerror = function(e) {
 						     errorDo("file not found: " + path.fullname) };
 						   fakeReq.onsuccess = function(e) { thenDo(this.result); }
@@ -596,7 +596,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		  },
 		  dirCreate: function(dirpath, withParents) {
 		    var path = this.splitFilePath(dirpath); if (!path.basename) return false;
-		    if (withParents && !localStorage["squeak:" + path.dirname]) Squeak.dirCreate(path.dirname, true);
+		    if (withParents && !localStorage["squeak:" + path.dirname]) window.Squeak.dirCreate(path.dirname, true);
 		    var directory = this.dirList(path.dirname); if (!directory) return false;
 		    if (directory[path.basename]) return false;
 		    var now = this.totalSeconds(),
@@ -669,9 +669,9 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			buffer = new ArrayBuffer(file.size);
 			(new Uint8Array(buffer)).set(file.contents.subarray(0, file.size));
 		      }
-		      Squeak.filePut(file.name, buffer);
+		      window.Squeak.filePut(file.name, buffer);
 		      // if (/SqueakDebug.log/.test(file.name)) {
-		      //     var chars = Squeak.bytesAsString(new Uint8Array(buffer));
+		      //     var chars = window.Squeak.bytesAsString(new Uint8Array(buffer));
 		      //     console.warn(chars.replace(/\r/g, '\n'));
 		      // }
 		      file.modified = false;
@@ -684,20 +684,20 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		  },
 		  closeAllFiles: function() {
 		    // close the files held open in memory
-		    Squeak.flushAllFiles();
+		    window.Squeak.flushAllFiles();
 		    delete window.SqueakFiles;
 		  },
 		  fetchTemplateDir: function(path, url) {
 		    // Called on app startup. Fetch url/sqindex.json and
 		    // cache all subdirectory entries in localStorage.
 		    // File contents is only fetched on demand
-		    path = Squeak.splitFilePath(path).fullname;
+		    path = window.Squeak.splitFilePath(path).fullname;
 		    function ensureTemplateParent(template) {
-		      var path = Squeak.splitFilePath(template);
+		      var path = window.Squeak.splitFilePath(template);
 		      if (path.dirname !== "/") ensureTemplateParent(path.dirname);
 		      var template = JSON.parse(localStorage["squeak-template:" + path.dirname] || '{"entries": {}}');
 		      if (!template.entries[path.basename]) {
-			var now = Squeak.totalSeconds();
+			var now = window.Squeak.totalSeconds();
 			template.entries[path.basename] = [path.basename, now, now, true, 0];
 			localStorage["squeak-template:" + path.dirname] = JSON.stringify(template);
 		      }
@@ -706,7 +706,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      var template = JSON.parse(localStorage["squeak-template:" + path]);
 		      for (var key in template.entries) {
 			var entry = template.entries[key];
-			if (entry[3]) Squeak.fetchTemplateDir(path + "/" + entry[0], url + "/" + entry[0]);
+			if (entry[3]) window.Squeak.fetchTemplateDir(path + "/" + entry[0], url + "/" + entry[0]);
 		      };
 		    }
 		    if (localStorage["squeak-template:" + path]) {
@@ -737,7 +737,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    }
 		  },
 		  fetchTemplateFile: function(path, ifFound, ifNotFound) {
-		    path = Squeak.splitFilePath(path);
+		    path = window.Squeak.splitFilePath(path);
 		    var template = localStorage["squeak-template:" + path.dirname];
 		    if (!template) return ifNotFound();
 		    var url = JSON.parse(template).url;
@@ -752,8 +752,8 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      if (this.status == 200) {
 			var buffer = this.response;
 			console.log("Got " + buffer.byteLength + " bytes from " + url);
-			Squeak.dirCreate(path.dirname, true);
-			Squeak.filePut(path.fullname, buffer);
+			window.Squeak.dirCreate(path.dirname, true);
+			window.Squeak.filePut(path.fullname, buffer);
 			ifFound(buffer);
 		      } else {
 			console.error("Download failed (" + this.status + ") " + url);
@@ -803,7 +803,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		  EpochUTC: Date.UTC(1901,0,1),
 		  totalSeconds: function() {
 		    // seconds since 1901-01-01, local time
-		    return Math.floor((Date.now() - Squeak.Epoch) / 1000);
+		    return Math.floor((Date.now() - window.Squeak.Epoch) / 1000);
 		  },
 		},
 		"utils", {
@@ -822,9 +822,9 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      /*
 			Object Format
 			=============
-			Each Squeak object is a Squeak.Object instance, only SmallIntegers are JS numbers.
+			Each Squeak object is a window.Squeak.Object instance, only SmallIntegers are JS numbers.
 			Instance variables/fields reference other objects directly via the "pointers" property.
-			A Spur image uses Squeak.ObjectSpur instances instead. Characters are not immediate,
+			A Spur image uses window.Squeak.ObjectSpur instances instead. Characters are not immediate,
 			but made identical using a character table. They are created with their mark bit set to
 			true, so are ignored by the GC.
 			{
@@ -936,23 +936,23 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			  var nWords = 0;
 			  var classInt = 0;
 			  var header = readWord();
-			  switch (header & Squeak.HeaderTypeMask) {
-			  case Squeak.HeaderTypeSizeAndClass:
+			  switch (header & window.Squeak.HeaderTypeMask) {
+			  case window.Squeak.HeaderTypeSizeAndClass:
                             nWords = header >>> 2;
                             classInt = readWord();
                             header = readWord();
                             break;
-			  case Squeak.HeaderTypeClass:
-                            classInt = header - Squeak.HeaderTypeClass;
+			  case window.Squeak.HeaderTypeClass:
+                            classInt = header - window.Squeak.HeaderTypeClass;
                             header = readWord();
                             nWords = (header >>> 2) & 63;
                             break;
-			  case Squeak.HeaderTypeShort:
+			  case window.Squeak.HeaderTypeShort:
                             nWords = (header >>> 2) & 63;
                             classInt = (header >>> 12) & 31; //compact class index
                             //Note classInt<32 implies compact class index
                             break;
-			  case Squeak.HeaderTypeFree:
+			  case window.Squeak.HeaderTypeFree:
                             throw Error("Unexpected free block");
 			  }
 			  nWords--;  //length includes base header which we have already read
@@ -960,7 +960,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			      format = (header>>>8) & 15,
 			      hash = (header>>>17) & 4095,
 			      bits = readBits(nWords, format < 5);
-			  var object = new Squeak.Object();
+			  var object = new window.Squeak.Object();
 			  object.initFromImage(oop, classInt, format, hash);
 			  if (classInt < 32) object.hash |= 0x10000000;    // see fixCompactOops()
 			  if (prevObj) prevObj.nextObject = object;
@@ -1003,7 +1003,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			    pos += (size < 2 ? 2 - size : size & 1) * 4; // align on 8 bytes, 16 min
 			    // low class ids are internal to Spur
 			    if (classID >= 32) {
-                              var object = new Squeak.ObjectSpur();
+                              var object = new window.Squeak.ObjectSpur();
                               object.initFromImage(oop, classID, format, hash);
                               if (prevObj) prevObj.nextObject = object;
                               this.oldSpaceCount++;
@@ -1044,7 +1044,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			// For debugging: re-create all objects from named prototypes
 			var _splObs = oopMap[specialObjectsOopInt],
 			    cc = this.isSpur ? this.spurClassTable(oopMap, rawBits, classPages, _splObs)
-			    : rawBits[oopMap[rawBits[_splObs.oop][Squeak.splOb_CompactClasses]].oop];
+			    : rawBits[oopMap[rawBits[_splObs.oop][window.Squeak.splOb_CompactClasses]].oop];
 			var renamedObj = null;
 			object = this.firstOldObject;
 			prevObj = null;
@@ -1061,11 +1061,11 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 
 		      // properly link objects by mapping via oopMap
 		      var splObs         = oopMap[specialObjectsOopInt];
-		      var compactClasses = rawBits[oopMap[rawBits[splObs.oop][Squeak.splOb_CompactClasses]].oop];
-		      var floatClass     = oopMap[rawBits[splObs.oop][Squeak.splOb_ClassFloat]];
+		      var compactClasses = rawBits[oopMap[rawBits[splObs.oop][window.Squeak.splOb_CompactClasses]].oop];
+		      var floatClass     = oopMap[rawBits[splObs.oop][window.Squeak.splOb_ClassFloat]];
 		      // Spur needs different arguments for installFromImage()
 		      if (this.isSpur) {
-			var charClass = oopMap[rawBits[splObs.oop][Squeak.splOb_ClassCharacter]];
+			var charClass = oopMap[rawBits[splObs.oop][window.Squeak.splOb_ClassCharacter]];
 			this.initCharacterTable(charClass);
 			compactClasses = this.spurClassTable(oopMap, rawBits, classPages, splObs);
 			nativeFloats = this.getCharacter.bind(this);
@@ -1112,12 +1112,12 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    },
 		    decorateKnownObjects: function() {
 		      var splObjs = this.specialObjectsArray.pointers;
-		      splObjs[Squeak.splOb_NilObject].isNil = true;
-		      splObjs[Squeak.splOb_TrueObject].isTrue = true;
-		      splObjs[Squeak.splOb_FalseObject].isFalse = true;
-		      splObjs[Squeak.splOb_ClassFloat].isFloatClass = true;
+		      splObjs[window.Squeak.splOb_NilObject].isNil = true;
+		      splObjs[window.Squeak.splOb_TrueObject].isTrue = true;
+		      splObjs[window.Squeak.splOb_FalseObject].isFalse = true;
+		      splObjs[window.Squeak.splOb_ClassFloat].isFloatClass = true;
 		      if (!this.isSpur) {
-			this.compactClasses = this.specialObjectsArray.pointers[Squeak.splOb_CompactClasses].pointers;
+			this.compactClasses = this.specialObjectsArray.pointers[window.Squeak.splOb_CompactClasses].pointers;
 			for (var i = 0; i < this.compactClasses.length; i++)
 			  if (!this.compactClasses[i].isNil)
 			    this.compactClasses[i].isCompact = true;
@@ -1154,7 +1154,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      // do not have the proper class
 		      if (this.version >= 6502) return;
 		      var obj = this.firstOldObject,
-			  compiledMethodClass = this.specialObjectsArray.pointers[Squeak.splOb_ClassCompiledMethod];
+			  compiledMethodClass = this.specialObjectsArray.pointers[window.Squeak.splOb_ClassCompiledMethod];
 		      while (obj) {
 			if (obj.isMethod()) obj.sqClass = compiledMethodClass;
 			obj = obj.nextObject;
@@ -1315,12 +1315,12 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			if (finalized) {
 			  this.vm.pendingFinalizationSignals++;
 			  if (firstWeak >= 2) { // check if weak obj is a finalizer item
-			    var list = weakObj.pointers[Squeak.WeakFinalizerItem_list];
-			    if (list.sqClass == this.vm.specialObjects[Squeak.splOb_ClassWeakFinalizer]) {
+			    var list = weakObj.pointers[window.Squeak.WeakFinalizerItem_list];
+			    if (list.sqClass == this.vm.specialObjects[window.Squeak.splOb_ClassWeakFinalizer]) {
                               // add weak obj as first in the finalization list
-                              var items = list.pointers[Squeak.WeakFinalizationList_first];
-                              weakObj.pointers[Squeak.WeakFinalizerItem_next] = items;
-                              list.pointers[Squeak.WeakFinalizationList_first] = weakObj;
+                              var items = list.pointers[window.Squeak.WeakFinalizationList_first];
+                              weakObj.pointers[window.Squeak.WeakFinalizerItem_next] = items;
+                              list.pointers[window.Squeak.WeakFinalizationList_first] = weakObj;
 			    }
 			  }
 			}
@@ -1451,14 +1451,14 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      return 0; // actual hash created on demand
 		    },
 		    instantiateClass: function(aClass, indexableSize, filler) {
-		      var newObject = new (aClass.classInstProto()); // Squeak.Object
+		      var newObject = new (aClass.classInstProto()); // window.Squeak.Object
 		      var hash = this.registerObject(newObject);
 		      newObject.initInstanceOf(aClass, indexableSize, hash, filler);
 		      this.hasNewInstances[aClass.oop] = true;   // need GC to find all instances
 		      return newObject;
 		    },
 		    clone: function(object) {
-		      var newObject = new (object.sqClass.classInstProto()); // Squeak.Object
+		      var newObject = new (object.sqClass.classInstProto()); // window.Squeak.Object
 		      var hash = this.registerObject(newObject);
 		      newObject.initAsClone(object, hash);
 		      this.hasNewInstances[newObject.sqClass.oop] = true;   // need GC to find all instances
@@ -1615,7 +1615,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      return this.isSpur ? 6521 : this.hasClosures ? 6504 : 6502;
 		    },
 		    segmentVersion: function() {
-		      var dnu = this.specialObjectsArray.pointers[Squeak.splOb_SelectorDoesNotUnderstand],
+		      var dnu = this.specialObjectsArray.pointers[window.Squeak.splOb_SelectorDoesNotUnderstand],
 			  wholeWord = new Uint32Array(dnu.bytes.buffer, 0, 1);
 		      return this.formatVersion() | (wholeWord[0] & 0xFF000000);
 		    },
@@ -1665,23 +1665,23 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			var nWords = 0,
 			    classInt = 0,
 			    header = readWord();
-			switch (header & Squeak.HeaderTypeMask) {
-			case Squeak.HeaderTypeSizeAndClass:
+			switch (header & window.Squeak.HeaderTypeMask) {
+			case window.Squeak.HeaderTypeSizeAndClass:
 			  nWords = header >>> 2;
 			  classInt = readWord();
 			  header = readWord();
 			  break;
-			case Squeak.HeaderTypeClass:
-			  classInt = header - Squeak.HeaderTypeClass;
+			case window.Squeak.HeaderTypeClass:
+			  classInt = header - window.Squeak.HeaderTypeClass;
 			  header = readWord();
 			  nWords = (header >>> 2) & 63;
 			  break;
-			case Squeak.HeaderTypeShort:
+			case window.Squeak.HeaderTypeShort:
 			  nWords = (header >>> 2) & 63;
 			  classInt = (header >>> 12) & 31; //compact class index
 			  //Note classInt<32 implies compact class index
 			  break;
-			case Squeak.HeaderTypeFree:
+			case window.Squeak.HeaderTypeFree:
 			  throw Error("Unexpected free block");
 			}
 			nWords--;  //length includes base header which we have already read
@@ -1690,7 +1690,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			    hash = (header>>>17) & 4095,
 			    bits = readBits(nWords, format);
 
-			var object = new Squeak.Object();
+			var object = new window.Squeak.Object();
 			object.initFromImage(oop + oopOffset, classInt, format, hash);
 			prevObj.nextObject = object;
 			this.oldSpaceCount++;
@@ -1703,7 +1703,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      for (var i = 0; i < outPointerArray.pointers.length; i++)
 			oopMap[0x80000004 + i * 4] = outPointerArray.pointers[i];
 		      // add compactClasses to oopMap
-		      var compactClasses = this.specialObjectsArray.pointers[Squeak.splOb_CompactClasses].pointers,
+		      var compactClasses = this.specialObjectsArray.pointers[window.Squeak.splOb_CompactClasses].pointers,
 			  fakeClsOop = 0, // make up a compact-classes array with oops, as if loading an image
 			  compactClassOops = compactClasses.map(function(cls) {
 			    oopMap[--fakeClsOop] = cls; return fakeClsOop; });
@@ -1711,7 +1711,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      segmentWordArray.words = new Uint32Array([segmentWordArray.words[0]]);
 		      // map objects using oopMap
 		      var roots = segmentWordArray.nextObject,
-			  floatClass = this.specialObjectsArray.pointers[Squeak.splOb_ClassFloat],
+			  floatClass = this.specialObjectsArray.pointers[window.Squeak.splOb_ClassFloat],
 			  obj = roots;
 		      do {
 			obj.installFromImage(oopMap, rawBits, compactClassOops, floatClass, littleEndian, nativeFloats);
@@ -1921,7 +1921,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    initInstanceOf: function(aClass, indexableSize, hash, nilObj) {
 		      this.sqClass = aClass;
 		      this.hash = hash;
-		      var instSpec = aClass.pointers[Squeak.Class_format],
+		      var instSpec = aClass.pointers[window.Squeak.Class_format],
 			  instSize = ((instSpec>>1) & 0x3F) + ((instSpec>>10) & 0xC0) - 1; //0-255
 		      this._format = (instSpec>>7) & 0xF; //This is the 0-15 code
 
@@ -1981,11 +1981,11 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      this.hash = hsh;
 		    },
 		    classNameFromImage: function(oopMap, rawBits) {
-		      var name = oopMap[rawBits[this.oop][Squeak.Class_name]];
+		      var name = oopMap[rawBits[this.oop][window.Squeak.Class_name]];
 		      if (name && name._format >= 8 && name._format < 12) {
 			var bits = rawBits[name.oop],
 			    bytes = name.decodeBytes(bits.length, bits, 0, name._format & 3);
-			return Squeak.bytesAsString(bytes);
+			return window.Squeak.bytesAsString(bytes);
 		      }
 		      return "Class";
 		    },
@@ -1994,7 +1994,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      if (!classObj) return this;
 		      var instProto = classObj.instProto || classObj.classInstProto(classObj.classNameFromImage(oopMap, rawBits));
 		      if (!instProto) return this;
-		      var renamedObj = new instProto; // Squeak.Object
+		      var renamedObj = new instProto; // window.Squeak.Object
 		      renamedObj.oop = this.oop;
 		      renamedObj.sqClass = this.sqClass;
 		      renamedObj._format = this._format;
@@ -2150,7 +2150,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    },
 		    bytesAsString: function() {
 		      if (!this.bytes) return '';
-		      return Squeak.bytesAsString(this.bytes);
+		      return window.Squeak.bytesAsString(this.bytes);
 		    },
 		    bytesAsNumberString: function(negative) {
 		      if (!this.bytes) return '';
@@ -2167,7 +2167,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      return sign + '16r' + digits.join('') + ' (' + approx + sign + value + 'L)';
 		    },
 		    assnKeyAsString: function() {
-		      return this.pointers[Squeak.Assn_key].bytesAsString();
+		      return this.pointers[window.Squeak.Assn_key].bytesAsString();
 		    },
 		    slotNameAt: function(index) {
 		      // one-based index
@@ -2222,7 +2222,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      var fmt = this._format;
 		      if (fmt < 2) return -1; //not indexable
 		      if (fmt === 3 && primHandler.vm.isContext(this) && !primHandler.allowAccessBeyondSP)
-			return this.pointers[Squeak.Context_stackPointer]; // no access beyond top of stacks
+			return this.pointers[window.Squeak.Context_stackPointer]; // no access beyond top of stacks
 		      if (fmt < 6) return this.pointersSize() - this.instSize(); // pointers
 		      if (fmt < 8) return this.wordsSize(); // words
 		      if (fmt < 12) return this.bytesSize(); // bytes
@@ -2304,17 +2304,17 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      // write header words first
 		      switch (size.header) {
 		      case 2:
-			data.setUint32(pos, size.body << 2 | Squeak.HeaderTypeSizeAndClass); pos += 4;
-			data.setUint32(pos, this.sqClass.oop | Squeak.HeaderTypeSizeAndClass); pos += 4;
-			data.setUint32(pos, formatAndHash | Squeak.HeaderTypeSizeAndClass); pos += 4;
+			data.setUint32(pos, size.body << 2 | window.Squeak.HeaderTypeSizeAndClass); pos += 4;
+			data.setUint32(pos, this.sqClass.oop | window.Squeak.HeaderTypeSizeAndClass); pos += 4;
+			data.setUint32(pos, formatAndHash | window.Squeak.HeaderTypeSizeAndClass); pos += 4;
 			break;
 		      case 1:
-			data.setUint32(pos, this.sqClass.oop | Squeak.HeaderTypeClass); pos += 4;
-			data.setUint32(pos, formatAndHash | size.body << 2 | Squeak.HeaderTypeClass); pos += 4;
+			data.setUint32(pos, this.sqClass.oop | window.Squeak.HeaderTypeClass); pos += 4;
+			data.setUint32(pos, formatAndHash | size.body << 2 | window.Squeak.HeaderTypeClass); pos += 4;
 			break;
 		      case 0:
 			var classIndex = image.compactClasses.indexOf(this.sqClass) + 1;
-			data.setUint32(pos, formatAndHash | classIndex << 12 | size.body << 2 | Squeak.HeaderTypeShort); pos += 4;
+			data.setUint32(pos, formatAndHash | classIndex << 12 | size.body << 2 | window.Squeak.HeaderTypeShort); pos += 4;
 		      }
 		      // now write body, if any
 		      if (this.isFloat) {
@@ -2342,11 +2342,11 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		  },
 		  'as class', {
 		    classInstFormat: function() {
-		      return (this.pointers[Squeak.Class_format] >> 7) & 0xF;
+		      return (this.pointers[window.Squeak.Class_format] >> 7) & 0xF;
 		    },
 		    classInstSize: function() {
 		      // this is a class, answer number of named inst vars
-		      var spec = this.pointers[Squeak.Class_format];
+		      var spec = this.pointers[window.Squeak.Class_format];
 		      return ((spec >> 10) & 0xC0) + ((spec >> 1) & 0x3F) - 1;
 		    },
 		    instVarNames: function() {
@@ -2390,7 +2390,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      return "_SOMECLASS_";
 		    },
 		    defaultInst: function() {
-		      return Squeak.Object;
+		      return window.Squeak.Object;
 		    },
 		    classInstProto: function(className) {
 		      if (this.instProto) return this.instProto;
@@ -2426,7 +2426,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    },
 		    methodClassForSuper: function() {//assn found in last literal
 		      var assn = this.pointers[this.methodNumLits()];
-		      return assn.pointers[Squeak.Assn_value];
+		      return assn.pointers[window.Squeak.Assn_value];
 		    },
 		    methodNeedsLargeFrame: function() {
 		      return (this.pointers[0] & 0x20000) > 0;
@@ -2447,16 +2447,16 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		  'as context',
 		  {
 		    contextHome: function() {
-		      return this.contextIsBlock() ? this.pointers[Squeak.BlockContext_home] : this;
+		      return this.contextIsBlock() ? this.pointers[window.Squeak.BlockContext_home] : this;
 		    },
 		    contextIsBlock: function() {
-		      return typeof this.pointers[Squeak.BlockContext_argumentCount] === 'number';
+		      return typeof this.pointers[window.Squeak.BlockContext_argumentCount] === 'number';
 		    },
 		    contextMethod: function() {
-		      return this.contextHome().pointers[Squeak.Context_method];
+		      return this.contextHome().pointers[window.Squeak.Context_method];
 		    },
 		    contextSender: function() {
-		      return this.pointers[Squeak.Context_sender];
+		      return this.pointers[window.Squeak.Context_sender];
 		    },
 		    contextSizeWithStack: function(vm) {
 		      // Actual context size is inst vars + stack size. Slots beyond that may contain garbage.
@@ -2464,18 +2464,18 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      if (vm && vm.activeContext === this)
 			return vm.sp + 1;
 		      // following is same as decodeSqueakSP() but works without vm ref
-		      var sp = this.pointers[Squeak.Context_stackPointer];
-		      return Squeak.Context_tempFrameStart + (typeof sp === "number" ? sp : 0);
+		      var sp = this.pointers[window.Squeak.Context_stackPointer];
+		      return window.Squeak.Context_tempFrameStart + (typeof sp === "number" ? sp : 0);
 		    },
 		  });
 
-  Squeak.Object.subclass('Squeak.ObjectSpur',
+  window.Squeak.Object.subclass('Squeak.ObjectSpur',
 			 'initialization',
 			 {
 			   initInstanceOf: function(aClass, indexableSize, hash, nilObj) {
 			     this.sqClass = aClass;
 			     this.hash = hash;
-			     var instSpec = aClass.pointers[Squeak.Class_format],
+			     var instSpec = aClass.pointers[window.Squeak.Class_format],
 				 instSize = instSpec & 0xFFFF,
 				 format = (instSpec>>16) & 0x1F
 			     this._format = format;
@@ -2608,11 +2608,11 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			     this.mark = true;   // stays always marked so not traced by GC
 			   },
 			   classNameFromImage: function(oopMap, rawBits) {
-			     var name = oopMap[rawBits[this.oop][Squeak.Class_name]];
+			     var name = oopMap[rawBits[this.oop][window.Squeak.Class_name]];
 			     if (name && name._format >= 16 && name._format < 24) {
 			       var bits = rawBits[name.oop],
 				   bytes = name.decodeBytes(bits.length, bits, 0, name._format & 7);
-			       return Squeak.bytesAsString(bytes);
+			       return window.Squeak.bytesAsString(bytes);
 			     }
 			     return "Class";
 			   },
@@ -2621,7 +2621,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			     if (!classObj) return this;
 			     var instProto = classObj.instProto || classObj.classInstProto(classObj.classNameFromImage(oopMap, rawBits));
 			     if (!instProto) return this;
-			     var renamedObj = new instProto; // Squeak.SpurObject
+			     var renamedObj = new instProto; // window.Squeak.SpurObject
 			     renamedObj.oop = this.oop;
 			     renamedObj.sqClass = this.sqClass;
 			     renamedObj._format = this._format;
@@ -2638,7 +2638,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			     var fmt = this._format;
 			     if (fmt < 2) return -1; //not indexable
 			     if (fmt === 3 && primHandler.vm.isContext(this))
-			       return this.pointers[Squeak.Context_stackPointer]; // no access beyond top of stacks
+			       return this.pointers[window.Squeak.Context_stackPointer]; // no access beyond top of stacks
 			     if (fmt < 6) return this.pointersSize() - this.instSize(); // pointers
 			     if (fmt < 12) return this.wordsSize(); // words
 			     if (fmt < 16) return this.shortsSize(); // shorts
@@ -2735,14 +2735,14 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			 },
 			 'as class', {
 			   defaultInst: function() {
-			     return Squeak.ObjectSpur;
+			     return window.Squeak.ObjectSpur;
 			   },
 			   classInstFormat: function() {
-			     return (this.pointers[Squeak.Class_format] >> 16) & 0x1F;
+			     return (this.pointers[window.Squeak.Class_format] >> 16) & 0x1F;
 			   },
 			   classInstSize: function() {
 			     // this is a class, answer number of named inst vars
-			     return this.pointers[Squeak.Class_format] & 0xFFFF;
+			     return this.pointers[window.Squeak.Class_format] & 0xFFFF;
 			   },
 			   classByteSizeOfInstance: function(nElements) {
 			     var format = this.classInstFormat(),
@@ -2771,12 +2771,12 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
   Object.subclass('Squeak.Interpreter',
 		  'initialization', {
 		    initialize: function(image, display) {
-		      this.status('squeak: initializing interpreter ' + Squeak.vmVersion);
-		      console.log('squeak: initializing interpreter ' + Squeak.vmVersion);
+		      this.status('squeak: initializing interpreter ' + window.Squeak.vmVersion);
+		      console.log('squeak: initializing interpreter ' + window.Squeak.vmVersion);
 		      this.Squeak = Squeak;   // store locally to avoid dynamic lookup in Lively
 		      this.image = image;
 		      this.image.vm = this;
-		      this.primHandler = new Squeak.Primitives(this, display);
+		      this.primHandler = new window.Squeak.Primitives(this, display);
 		      this.loadImageState();
 		      this.hackImage();
 		      this.initVMState();
@@ -2786,10 +2786,10 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    },
 		    loadImageState: function() {
 		      this.specialObjects = this.image.specialObjectsArray.pointers;
-		      this.specialSelectors = this.specialObjects[Squeak.splOb_SpecialSelectors].pointers;
-		      this.nilObj = this.specialObjects[Squeak.splOb_NilObject];
-		      this.falseObj = this.specialObjects[Squeak.splOb_FalseObject];
-		      this.trueObj = this.specialObjects[Squeak.splOb_TrueObject];
+		      this.specialSelectors = this.specialObjects[window.Squeak.splOb_SpecialSelectors].pointers;
+		      this.nilObj = this.specialObjects[window.Squeak.splOb_NilObject];
+		      this.falseObj = this.specialObjects[window.Squeak.splOb_FalseObject];
+		      this.trueObj = this.specialObjects[window.Squeak.splOb_TrueObject];
 		      this.hasClosures = this.image.hasClosures;
 		      this.globals = this.findGlobals();
 		      // hack for old image that does not support Unix files
@@ -2832,16 +2832,16 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      this.startupTime = Date.now(); // base for millisecond clock
 		    },
 		    loadInitialContext: function() {
-		      var schedAssn = this.specialObjects[Squeak.splOb_SchedulerAssociation];
-		      var sched = schedAssn.pointers[Squeak.Assn_value];
-		      var proc = sched.pointers[Squeak.ProcSched_activeProcess];
-		      this.activeContext = proc.pointers[Squeak.Proc_suspendedContext];
+		      var schedAssn = this.specialObjects[window.Squeak.splOb_SchedulerAssociation];
+		      var sched = schedAssn.pointers[window.Squeak.Assn_value];
+		      var proc = sched.pointers[window.Squeak.ProcSched_activeProcess];
+		      this.activeContext = proc.pointers[window.Squeak.Proc_suspendedContext];
 		      this.activeContext.dirty = true;
 		      this.fetchContextRegisters(this.activeContext);
 		      this.reclaimableContextCount = 0;
 		    },
 		    findGlobals: function() {
-		      var smalltalk = this.specialObjects[Squeak.splOb_SmalltalkDictionary],
+		      var smalltalk = this.specialObjects[window.Squeak.splOb_SmalltalkDictionary],
 			  smalltalkClass = smalltalk.sqClass.className();
 		      if (smalltalkClass === "Association") {
 			smalltalk = smalltalk.pointers[1];
@@ -2861,8 +2861,8 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      return [];
 		    },
 		    initCompiler: function() {
-		      if (!Squeak.Compiler)
-			return console.warn("Squeak.Compiler not loaded, using interpreter only");
+		      if (!window.Squeak.Compiler)
+			return console.warn("window.Squeak.Compiler not loaded, using interpreter only");
 		      // some JS environments disallow creating functions at runtime (e.g. FireFox OS apps)
 		      try {
 			if (new Function("return 42")() !== 42)
@@ -2878,7 +2878,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      try {
 			console.log("squeak: initializing JIT compiler");
 			this.status("squeak: initializing JIT compiler");
-			this.compiler = new Squeak.Compiler(this);
+			this.compiler = new window.Squeak.Compiler(this);
 		      } catch(e) {
 			console.warn("Compiler " + e);
 		      }
@@ -2906,7 +2906,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      }, this);
 		      // Pharo
 		      if (this.findMethod("PharoClassInstaller>>initialize")) {
-			Squeak.platformName = "unix";
+			window.Squeak.platformName = "unix";
 		      }
 		    },
 		  },
@@ -2938,7 +2938,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			  // load temporary variable
 			case 0x10: case 0x11: case 0x12: case 0x13: case 0x14: case 0x15: case 0x16: case 0x17:
 			case 0x18: case 0x19: case 0x1A: case 0x1B: case 0x1C: case 0x1D: case 0x1E: case 0x1F:
-			  this.push(this.homeContext.pointers[Squeak.Context_tempFrameStart+(b&0xF)]); return;
+			  this.push(this.homeContext.pointers[window.Squeak.Context_tempFrameStart+(b&0xF)]); return;
 
 			  // loadLiteral
 			case 0x20: case 0x21: case 0x22: case 0x23: case 0x24: case 0x25: case 0x26: case 0x27:
@@ -2952,14 +2952,14 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			case 0x48: case 0x49: case 0x4A: case 0x4B: case 0x4C: case 0x4D: case 0x4E: case 0x4F:
 			case 0x50: case 0x51: case 0x52: case 0x53: case 0x54: case 0x55: case 0x56: case 0x57:
 			case 0x58: case 0x59: case 0x5A: case 0x5B: case 0x5C: case 0x5D: case 0x5E: case 0x5F:
-			  this.push((this.method.methodGetLiteral(b&0x1F)).pointers[Squeak.Assn_value]); return;
+			  this.push((this.method.methodGetLiteral(b&0x1F)).pointers[window.Squeak.Assn_value]); return;
 
 			  // storeAndPop rcvr, temp
 			case 0x60: case 0x61: case 0x62: case 0x63: case 0x64: case 0x65: case 0x66: case 0x67:
 			  this.receiver.dirty = true;
 			  this.receiver.pointers[b&7] = this.pop(); return;
 			case 0x68: case 0x69: case 0x6A: case 0x6B: case 0x6C: case 0x6D: case 0x6E: case 0x6F:
-			  this.homeContext.pointers[Squeak.Context_tempFrameStart+(b&7)] = this.pop(); return;
+			  this.homeContext.pointers[window.Squeak.Context_tempFrameStart+(b&7)] = this.pop(); return;
 
 			  // Quick push
 			case 0x70: this.push(this.receiver); return;
@@ -2977,7 +2977,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			case 0x7A: this.doReturn(this.falseObj); return;
 			case 0x7B: this.doReturn(this.nilObj); return;
 			case 0x7C: this.doReturn(this.pop()); return;
-			case 0x7D: this.doReturn(this.pop(), this.activeContext.pointers[Squeak.BlockContext_caller]); return; // blockReturn
+			case 0x7D: this.doReturn(this.pop(), this.activeContext.pointers[window.Squeak.BlockContext_caller]); return; // blockReturn
 			case 0x7E: this.nono(); return;
 			case 0x7F: this.nono(); return;
 			} else switch (b) { // Chrome only optimized up to 128 cases
@@ -3003,13 +3003,13 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			  case 0x8B: this.callPrimBytecode();
 			  return;
 			  case 0x8C: b2 = this.nextByte(); // remote push from temp vector
-			  this.push(this.homeContext.pointers[Squeak.Context_tempFrameStart+this.nextByte()].pointers[b2]);
+			  this.push(this.homeContext.pointers[window.Squeak.Context_tempFrameStart+this.nextByte()].pointers[b2]);
 			  return;
 			  case 0x8D: b2 = this.nextByte(); // remote store into temp vector
-			  this.homeContext.pointers[Squeak.Context_tempFrameStart+this.nextByte()].pointers[b2] = this.top();
+			  this.homeContext.pointers[window.Squeak.Context_tempFrameStart+this.nextByte()].pointers[b2] = this.top();
 			  return;
 			  case 0x8E: b2 = this.nextByte(); // remote store and pop into temp vector
-			  this.homeContext.pointers[Squeak.Context_tempFrameStart+this.nextByte()].pointers[b2] = this.pop();
+			  this.homeContext.pointers[window.Squeak.Context_tempFrameStart+this.nextByte()].pointers[b2] = this.pop();
 			  return;
 			  case 0x8F: this.pushClosureCopy(); return;
 
@@ -3179,23 +3179,23 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      this.lastTick = now; //used to detect wraparound of millisecond clock
 		      //  if(signalLowSpace) {
 		      //            signalLowSpace= false; //reset flag
-		      //            sema= getSpecialObject(Squeak.splOb_TheLowSpaceSemaphore);
+		      //            sema= getSpecialObject(window.Squeak.splOb_TheLowSpaceSemaphore);
 		      //            if(sema != nilObj) synchronousSignal(sema); }
 		      //  if(now >= nextPollTick) {
 		      //            ioProcessEvents(); //sets interruptPending if interrupt key pressed
 		      //            nextPollTick= now + 500; } //msecs to wait before next call to ioProcessEvents"
 		      if (this.interruptPending) {
 			this.interruptPending = false; //reset interrupt flag
-			var sema = this.specialObjects[Squeak.splOb_TheInterruptSemaphore];
+			var sema = this.specialObjects[window.Squeak.splOb_TheInterruptSemaphore];
 			if (!sema.isNil) this.primHandler.synchronousSignal(sema);
 		      }
 		      if ((this.nextWakeupTick !== 0) && (now >= this.nextWakeupTick)) {
 			this.nextWakeupTick = 0; //reset timer interrupt
-			var sema = this.specialObjects[Squeak.splOb_TheTimerSemaphore];
+			var sema = this.specialObjects[window.Squeak.splOb_TheTimerSemaphore];
 			if (!sema.isNil) this.primHandler.synchronousSignal(sema);
 		      }
 		      if (this.pendingFinalizationSignals > 0) { //signal any pending finalizations
-			var sema = this.specialObjects[Squeak.splOb_TheFinalizationSemaphore];
+			var sema = this.specialObjects[window.Squeak.splOb_TheFinalizationSemaphore];
 			this.pendingFinalizationSignals = 0;
 			if (!sema.isNil) this.primHandler.synchronousSignal(sema);
 		      }
@@ -3212,9 +3212,9 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      var lobits = nextByte & 63;
 		      switch (nextByte>>6) {
 		      case 0: this.push(this.receiver.pointers[lobits]);break;
-		      case 1: this.push(this.homeContext.pointers[Squeak.Context_tempFrameStart+lobits]); break;
+		      case 1: this.push(this.homeContext.pointers[window.Squeak.Context_tempFrameStart+lobits]); break;
 		      case 2: this.push(this.method.methodGetLiteral(lobits)); break;
-		      case 3: this.push(this.method.methodGetLiteral(lobits).pointers[Squeak.Assn_value]); break;
+		      case 3: this.push(this.method.methodGetLiteral(lobits).pointers[window.Squeak.Assn_value]); break;
 		      }
 		    },
 		    extendedStore: function( nextByte) {
@@ -3225,7 +3225,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			this.receiver.pointers[lobits] = this.top();
 			break;
 		      case 1:
-			this.homeContext.pointers[Squeak.Context_tempFrameStart+lobits] = this.top();
+			this.homeContext.pointers[window.Squeak.Context_tempFrameStart+lobits] = this.top();
 			break;
 		      case 2:
 			this.nono();
@@ -3233,7 +3233,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      case 3:
 			var assoc = this.method.methodGetLiteral(lobits);
 			assoc.dirty = true;
-			assoc.pointers[Squeak.Assn_value] = this.top();
+			assoc.pointers[window.Squeak.Assn_value] = this.top();
 			break;
 		      }
 		    },
@@ -3245,7 +3245,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			this.receiver.pointers[lobits] = this.pop();
 			break;
 		      case 1:
-			this.homeContext.pointers[Squeak.Context_tempFrameStart+lobits] = this.pop();
+			this.homeContext.pointers[window.Squeak.Context_tempFrameStart+lobits] = this.pop();
 			break;
 		      case 2:
 			this.nono();
@@ -3253,7 +3253,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      case 3:
 			var assoc = this.method.methodGetLiteral(lobits);
 			assoc.dirty = true;
-			assoc.pointers[Squeak.Assn_value] = this.pop();
+			assoc.pointers[window.Squeak.Assn_value] = this.pop();
 			break;
 		      }
 		    },
@@ -3264,12 +3264,12 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      case 1: this.send(this.method.methodGetSelector(byte3), byte2&31, true); break;
 		      case 2: this.push(this.receiver.pointers[byte3]); break;
 		      case 3: this.push(this.method.methodGetLiteral(byte3)); break;
-		      case 4: this.push(this.method.methodGetLiteral(byte3).pointers[Squeak.Assn_value]); break;
+		      case 4: this.push(this.method.methodGetLiteral(byte3).pointers[window.Squeak.Assn_value]); break;
 		      case 5: this.receiver.dirty = true; this.receiver.pointers[byte3] = this.top(); break;
 		      case 6: this.receiver.dirty = true; this.receiver.pointers[byte3] = this.pop(); break;
 		      case 7: var assoc = this.method.methodGetLiteral(byte3);
 			assoc.dirty = true;
-			assoc.pointers[Squeak.Assn_value] = this.top(); break;
+			assoc.pointers[window.Squeak.Assn_value] = this.top(); break;
 		      }
 		    },
 		    jumpIfTrue: function(delta) {
@@ -3277,14 +3277,14 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      if (top.isTrue) {this.pc += delta; return;}
 		      if (top.isFalse) return;
 		      this.push(top); //Uh-oh it's not even a boolean (that we know of ;-).  Restore stack...
-		      this.send(this.specialObjects[Squeak.splOb_SelectorMustBeBoolean], 0, false);
+		      this.send(this.specialObjects[window.Squeak.splOb_SelectorMustBeBoolean], 0, false);
 		    },
 		    jumpIfFalse: function(delta) {
 		      var top = this.pop();
 		      if (top.isFalse) {this.pc += delta; return;}
 		      if (top.isTrue) return;
 		      this.push(top); //Uh-oh it's not even a boolean (that we know of ;-).  Restore stack...
-		      this.send(this.specialObjects[Squeak.splOb_SelectorMustBeBoolean], 0, false);
+		      this.send(this.specialObjects[window.Squeak.splOb_SelectorMustBeBoolean], 0, false);
 		    },
 		    sendSpecial: function(lobits) {
 		      this.send(this.specialSelectors[lobits*2],
@@ -3300,7 +3300,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      }
 		    },
 		    getErrorObjectFromPrimFailCode: function() {
-		      var primErrTable = this.specialObjects[Squeak.splOb_PrimErrTableIndex];
+		      var primErrTable = this.specialObjects[window.Squeak.splOb_PrimErrTableIndex];
 		      if (primErrTable && primErrTable.pointers) {
 			var errorObject = primErrTable.pointers[this.primFailCode - 1];
 			if (errorObject) return errorObject;
@@ -3312,7 +3312,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    pushNewArray: function(nextByte) {
 		      var popValues = nextByte > 127,
 			  count = nextByte & 127,
-			  array = this.instantiateClass(this.specialObjects[Squeak.splOb_ClassArray], count);
+			  array = this.instantiateClass(this.specialObjects[window.Squeak.splOb_ClassArray], count);
 		      if (popValues) {
 			for (var i = 0; i < count; i++)
 			  array.pointers[i] = this.stackValue(count - i - 1);
@@ -3331,20 +3331,20 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			  blockSize = blockSizeHigh * 256 + this.nextByte(),
 			  initialPC = this.encodeSqueakPC(this.pc, this.method),
 			  closure = this.newClosure(numArgs, initialPC, numCopied);
-		      closure.pointers[Squeak.Closure_outerContext] = this.activeContext;
+		      closure.pointers[window.Squeak.Closure_outerContext] = this.activeContext;
 		      this.reclaimableContextCount = 0; // The closure refers to thisContext so it can't be reclaimed
 		      if (numCopied > 0) {
 			for (var i = 0; i < numCopied; i++)
-			  closure.pointers[Squeak.Closure_firstCopiedValue + i] = this.stackValue(numCopied - i - 1);
+			  closure.pointers[window.Squeak.Closure_firstCopiedValue + i] = this.stackValue(numCopied - i - 1);
 			this.popN(numCopied);
 		      }
 		      this.pc += blockSize;
 		      this.push(closure);
 		    },
 		    newClosure: function(numArgs, initialPC, numCopied) {
-		      var closure = this.instantiateClass(this.specialObjects[Squeak.splOb_ClassBlockClosure], numCopied);
-		      closure.pointers[Squeak.Closure_startpc] = initialPC;
-		      closure.pointers[Squeak.Closure_numArgs] = numArgs;
+		      var closure = this.instantiateClass(this.specialObjects[window.Squeak.splOb_ClassBlockClosure], numCopied);
+		      closure.pointers[window.Squeak.Closure_startpc] = initialPC;
+		      closure.pointers[window.Squeak.Closure_numArgs] = numArgs;
 		      return closure;
 		    },
 		  },
@@ -3354,7 +3354,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      var lookupClass = this.getClass(newRcvr);
 		      if (doSuper) {
 			lookupClass = this.method.methodClassForSuper();
-			lookupClass = lookupClass.pointers[Squeak.Class_superclass];
+			lookupClass = lookupClass.pointers[window.Squeak.Class_superclass];
 		      }
 		      var entry = this.findSelectorInClass(selector, argCount, lookupClass);
 		      if (entry.primIndex) {
@@ -3373,11 +3373,11 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      var currentClass = startingClass;
 		      var mDict;
 		      while (!currentClass.isNil) {
-			mDict = currentClass.pointers[Squeak.Class_mdict];
+			mDict = currentClass.pointers[window.Squeak.Class_mdict];
 			if (mDict.isNil) {
 			  // MethodDict pointer is nil (hopefully due a swapped out stub)
 			  //        -- send #cannotInterpret:
-			  var cantInterpSel = this.specialObjects[Squeak.splOb_SelectorCannotInterpret],
+			  var cantInterpSel = this.specialObjects[window.Squeak.splOb_SelectorCannotInterpret],
 			      cantInterpMsg = this.createActualMessage(selector, argCount, startingClass);
 			  this.popNandPush(argCount, cantInterpMsg);
 			  return this.findSelectorInClass(cantInterpSel, 1, currentClass.superclass());
@@ -3396,7 +3396,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			currentClass = currentClass.superclass();
 		      }
 		      //Cound not find a normal message -- send #doesNotUnderstand:
-		      var dnuSel = this.specialObjects[Squeak.splOb_SelectorDoesNotUnderstand];
+		      var dnuSel = this.specialObjects[window.Squeak.splOb_SelectorDoesNotUnderstand];
 		      if (selector === dnuSel) // Cannot find #doesNotUnderstand: -- unrecoverable error.
 			throw Error("Recursive not understood error encountered");
 		      var dnuMsg = this.createActualMessage(selector, argCount, startingClass); //The argument to doesNotUnderstand:
@@ -3406,20 +3406,20 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    lookupSelectorInDict: function(mDict, messageSelector) {
 		      //Returns a method or nilObject
 		      var dictSize = mDict.pointersSize();
-		      var mask = (dictSize - Squeak.MethodDict_selectorStart) - 1;
-		      var index = (mask & messageSelector.hash) + Squeak.MethodDict_selectorStart;
+		      var mask = (dictSize - window.Squeak.MethodDict_selectorStart) - 1;
+		      var index = (mask & messageSelector.hash) + window.Squeak.MethodDict_selectorStart;
 		      // If there are no nils (should always be), then stop looping on second wrap.
 		      var hasWrapped = false;
 		      while (true) {
 			var nextSelector = mDict.pointers[index];
 			if (nextSelector === messageSelector) {
-			  var methArray = mDict.pointers[Squeak.MethodDict_array];
-			  return methArray.pointers[index - Squeak.MethodDict_selectorStart];
+			  var methArray = mDict.pointers[window.Squeak.MethodDict_array];
+			  return methArray.pointers[index - window.Squeak.MethodDict_selectorStart];
 			}
 			if (nextSelector.isNil) return this.nilObj;
 			if (++index === dictSize) {
 			  if (hasWrapped) return this.nilObj;
-			  index = Squeak.MethodDict_selectorStart;
+			  index = window.Squeak.MethodDict_selectorStart;
 			  hasWrapped = true;
 			}
 		      }
@@ -3438,16 +3438,16 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      var newContext = this.allocateOrRecycleContext(newMethod.methodNeedsLargeFrame());
 		      var tempCount = newMethod.methodTempCount();
 		      var newPC = 0; // direct zero-based index into byte codes
-		      var newSP = Squeak.Context_tempFrameStart + tempCount - 1; // direct zero-based index into context pointers
-		      newContext.pointers[Squeak.Context_method] = newMethod;
+		      var newSP = window.Squeak.Context_tempFrameStart + tempCount - 1; // direct zero-based index into context pointers
+		      newContext.pointers[window.Squeak.Context_method] = newMethod;
 		      //Following store is in case we alloc without init; all other fields get stored
-		      newContext.pointers[Squeak.BlockContext_initialIP] = this.nilObj;
-		      newContext.pointers[Squeak.Context_sender] = this.activeContext;
+		      newContext.pointers[window.Squeak.BlockContext_initialIP] = this.nilObj;
+		      newContext.pointers[window.Squeak.Context_sender] = this.activeContext;
 		      //Copy receiver and args to new context
 		      //Note this statement relies on the receiver slot being contiguous with args...
-		      this.arrayCopy(this.activeContext.pointers, this.sp-argumentCount, newContext.pointers, Squeak.Context_tempFrameStart-1, argumentCount+1);
+		      this.arrayCopy(this.activeContext.pointers, this.sp-argumentCount, newContext.pointers, window.Squeak.Context_tempFrameStart-1, argumentCount+1);
 		      //...and fill the remaining temps with nil
-		      this.arrayFill(newContext.pointers, Squeak.Context_tempFrameStart+argumentCount, Squeak.Context_tempFrameStart+tempCount, this.nilObj);
+		      this.arrayFill(newContext.pointers, window.Squeak.Context_tempFrameStart+argumentCount, window.Squeak.Context_tempFrameStart+tempCount, this.nilObj);
 		      this.popN(argumentCount+1);
 		      this.reclaimableContextCount++;
 		      this.storeContextRegisters();
@@ -3459,7 +3459,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      this.method = newMethod;
 		      this.pc = newPC;
 		      this.sp = newSP;
-		      this.receiver = newContext.pointers[Squeak.Context_receiver];
+		      this.receiver = newContext.pointers[window.Squeak.Context_receiver];
 		      if (this.receiver !== newRcvr)
 			throw Error("receivers don't match");
 		      if (!newMethod.compiled && this.compiler)
@@ -3473,21 +3473,21 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			var ctx = this.homeContext;
 			if (this.hasClosures) {
 			  var closure;
-			  while (!(closure = ctx.pointers[Squeak.Context_closure]).isNil)
-			    ctx = closure.pointers[Squeak.Closure_outerContext];
+			  while (!(closure = ctx.pointers[window.Squeak.Context_closure]).isNil)
+			    ctx = closure.pointers[window.Squeak.Closure_outerContext];
 			}
-			targetContext = ctx.pointers[Squeak.Context_sender];
+			targetContext = ctx.pointers[window.Squeak.Context_sender];
 		      }
-		      if (targetContext.isNil || targetContext.pointers[Squeak.Context_instructionPointer].isNil)
+		      if (targetContext.isNil || targetContext.pointers[window.Squeak.Context_instructionPointer].isNil)
 			return this.cannotReturn(returnValue);
 		      // search up stack for unwind
-		      var thisContext = this.activeContext.pointers[Squeak.Context_sender];
+		      var thisContext = this.activeContext.pointers[window.Squeak.Context_sender];
 		      while (thisContext !== targetContext) {
 			if (thisContext.isNil)
 			  return this.cannotReturn(returnValue);
 			if (this.isUnwindMarked(thisContext))
 			  return this.aboutToReturnThrough(returnValue, thisContext);
-			thisContext = thisContext.pointers[Squeak.Context_sender];
+			thisContext = thisContext.pointers[window.Squeak.Context_sender];
 		      }
 		      // no unwind to worry about, just peel back the stack (usually just to sender)
 		      var nextContext;
@@ -3497,9 +3497,9 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			  this.breakOnContextReturned = null;
 			  this.breakNow();
 			}
-			nextContext = thisContext.pointers[Squeak.Context_sender];
-			thisContext.pointers[Squeak.Context_sender] = this.nilObj;
-			thisContext.pointers[Squeak.Context_instructionPointer] = this.nilObj;
+			nextContext = thisContext.pointers[window.Squeak.Context_sender];
+			thisContext.pointers[window.Squeak.Context_sender] = this.nilObj;
+			thisContext.pointers[window.Squeak.Context_instructionPointer] = this.nilObj;
 			if (this.reclaimableContextCount > 0) {
 			  this.reclaimableContextCount--;
 			  this.recycleIfPossible(thisContext);
@@ -3519,13 +3519,13 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      this.push(this.exportThisContext());
 		      this.push(resultObj);
 		      this.push(aContext);
-		      var aboutToReturnSel = this.specialObjects[Squeak.splOb_SelectorAboutToReturn];
+		      var aboutToReturnSel = this.specialObjects[window.Squeak.splOb_SelectorAboutToReturn];
 		      this.send(aboutToReturnSel, 2);
 		    },
 		    cannotReturn: function(resultObj) {
 		      this.push(this.exportThisContext());
 		      this.push(resultObj);
-		      var cannotReturnSel = this.specialObjects[Squeak.splOb_SelectorCannotReturn];
+		      var cannotReturnSel = this.specialObjects[window.Squeak.splOb_SelectorCannotReturn];
 		      this.send(cannotReturnSel, 1);
 		    },
 		    tryPrimitive: function(primIndex, argCount, newMethod) {
@@ -3552,13 +3552,13 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    },
 		    createActualMessage: function(selector, argCount, cls) {
 		      //Bundle up receiver, args and selector as a messageObject
-		      var message = this.instantiateClass(this.specialObjects[Squeak.splOb_ClassMessage], 0);
-		      var argArray = this.instantiateClass(this.specialObjects[Squeak.splOb_ClassArray], argCount);
+		      var message = this.instantiateClass(this.specialObjects[window.Squeak.splOb_ClassMessage], 0);
+		      var argArray = this.instantiateClass(this.specialObjects[window.Squeak.splOb_ClassArray], argCount);
 		      this.arrayCopy(this.activeContext.pointers, this.sp-argCount+1, argArray.pointers, 0, argCount); //copy args from stack
-		      message.pointers[Squeak.Message_selector] = selector;
-		      message.pointers[Squeak.Message_arguments] = argArray;
-		      if (message.pointers.length > Squeak.Message_lookupClass) //Early versions don't have lookupClass
-			message.pointers[Squeak.Message_lookupClass] = cls;
+		      message.pointers[window.Squeak.Message_selector] = selector;
+		      message.pointers[window.Squeak.Message_arguments] = argArray;
+		      if (message.pointers.length > window.Squeak.Message_lookupClass) //Early versions don't have lookupClass
+			message.pointers[window.Squeak.Message_lookupClass] = cls;
 		      return message;
 		    },
 		    primitivePerform: function(argCount) {
@@ -3579,13 +3579,13 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      var rcvr = this.stackValue(argCount);
 		      var selector = this.stackValue(argCount - 1);
 		      var args = this.stackValue(argCount - 2);
-		      if (args.sqClass !== this.specialObjects[Squeak.splOb_ClassArray])
+		      if (args.sqClass !== this.specialObjects[window.Squeak.splOb_ClassArray])
 			return false;
 		      var lookupClass = supered ? this.stackValue(argCount - 3) : this.getClass(rcvr);
 		      if (supered) { // verify that lookupClass is in fact in superclass chain of receiver;
 			var cls = this.getClass(rcvr);
 			while (cls !== lookupClass) {
-			  cls = cls.pointers[Squeak.Class_superclass];
+			  cls = cls.pointers[window.Squeak.Class_superclass];
 			  if (cls.isNil) return false;
 			}
 		      }
@@ -3599,13 +3599,13 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    },
 		    primitiveInvokeObjectAsMethod: function(argCount, method) {
 		      // invoked from VM if non-method found in lookup
-		      var orgArgs = this.instantiateClass(this.specialObjects[Squeak.splOb_ClassArray], argCount);
+		      var orgArgs = this.instantiateClass(this.specialObjects[window.Squeak.splOb_ClassArray], argCount);
 		      for (var i = 0; i < argCount; i++)
 			orgArgs.pointers[argCount - i - 1] = this.pop();
 		      var orgReceiver = this.pop(),
 			  orgSelector = this.currentSelector;
 		      // send run:with:in: to non-method object
-		      var runWithIn = this.specialObjects[Squeak.splOb_SelectorRunWithIn];
+		      var runWithIn = this.specialObjects[window.Squeak.splOb_SelectorRunWithIn];
 		      this.push(method);       // not actually a method
 		      this.push(orgSelector);
 		      this.push(orgArgs);
@@ -3668,7 +3668,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		  'contexts', {
 		    isUnwindMarked: function(ctx) {
 		      if (!this.isMethodContext(ctx)) return false;
-		      var method = ctx.pointers[Squeak.Context_method];
+		      var method = ctx.pointers[window.Squeak.Context_method];
 		      return method.methodPrimitiveIndex() == 198;
 		    },
 		    newActiveContext: function(newContext) {
@@ -3684,24 +3684,24 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      return this.activeContext;
 		    },
 		    fetchContextRegisters: function(ctxt) {
-		      var meth = ctxt.pointers[Squeak.Context_method];
+		      var meth = ctxt.pointers[window.Squeak.Context_method];
 		      if (this.isSmallInt(meth)) { //if the Method field is an integer, activeCntx is a block context
-			this.homeContext = ctxt.pointers[Squeak.BlockContext_home];
-			meth = this.homeContext.pointers[Squeak.Context_method];
+			this.homeContext = ctxt.pointers[window.Squeak.BlockContext_home];
+			meth = this.homeContext.pointers[window.Squeak.Context_method];
 		      } else { //otherwise home==ctxt
 			this.homeContext = ctxt;
 		      }
-		      this.receiver = this.homeContext.pointers[Squeak.Context_receiver];
+		      this.receiver = this.homeContext.pointers[window.Squeak.Context_receiver];
 		      this.method = meth;
-		      this.pc = this.decodeSqueakPC(ctxt.pointers[Squeak.Context_instructionPointer], meth);
-		      this.sp = this.decodeSqueakSP(ctxt.pointers[Squeak.Context_stackPointer]);
+		      this.pc = this.decodeSqueakPC(ctxt.pointers[window.Squeak.Context_instructionPointer], meth);
+		      this.sp = this.decodeSqueakSP(ctxt.pointers[window.Squeak.Context_stackPointer]);
 		    },
 		    storeContextRegisters: function() {
 		      //Save pc, sp into activeContext object, prior to change of context
 		      //   see fetchContextRegisters for symmetry
 		      //   expects activeContext, pc, sp, and method state vars to still be valid
-		      this.activeContext.pointers[Squeak.Context_instructionPointer] = this.encodeSqueakPC(this.pc, this.method);
-		      this.activeContext.pointers[Squeak.Context_stackPointer] = this.encodeSqueakSP(this.sp);
+		      this.activeContext.pointers[window.Squeak.Context_instructionPointer] = this.encodeSqueakPC(this.pc, this.method);
+		      this.activeContext.pointers[window.Squeak.Context_stackPointer] = this.encodeSqueakSP(this.sp);
 		    },
 		    encodeSqueakPC: function(intPC, method) {
 		      // Squeak pc is offset by header and literals
@@ -3713,19 +3713,19 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    },
 		    encodeSqueakSP: function(intSP) {
 		      // sp is offset by tempFrameStart, -1 for z-rel addressing
-		      return intSP - (Squeak.Context_tempFrameStart - 1);
+		      return intSP - (window.Squeak.Context_tempFrameStart - 1);
 		    },
 		    decodeSqueakSP: function(squeakSP) {
-		      return squeakSP + (Squeak.Context_tempFrameStart - 1);
+		      return squeakSP + (window.Squeak.Context_tempFrameStart - 1);
 		    },
 		    recycleIfPossible: function(ctxt) {
 		      if (!this.isMethodContext(ctxt)) return;
-		      if (ctxt.pointersSize() === (Squeak.Context_tempFrameStart+Squeak.Context_smallFrameSize)) {
+		      if (ctxt.pointersSize() === (window.Squeak.Context_tempFrameStart+window.Squeak.Context_smallFrameSize)) {
 			// Recycle small contexts
 			ctxt.pointers[0] = this.freeContexts;
 			this.freeContexts = ctxt;
 		      } else { // Recycle large contexts
-			if (ctxt.pointersSize() !== (Squeak.Context_tempFrameStart+Squeak.Context_largeFrameSize))
+			if (ctxt.pointersSize() !== (window.Squeak.Context_tempFrameStart+window.Squeak.Context_largeFrameSize))
 			  return;
 			ctxt.pointers[0] = this.freeLargeContexts;
 			this.freeLargeContexts = ctxt;
@@ -3742,7 +3742,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			  return freebie;
 			}
 			this.nAllocatedContexts++;
-			return this.instantiateClass(this.specialObjects[Squeak.splOb_ClassMethodContext], Squeak.Context_largeFrameSize);
+			return this.instantiateClass(this.specialObjects[window.Squeak.splOb_ClassMethodContext], window.Squeak.Context_largeFrameSize);
 		      } else {
 			if (!this.freeContexts.isNil) {
 			  freebie = this.freeContexts;
@@ -3751,7 +3751,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			  return freebie;
 			}
 			this.nAllocatedContexts++;
-			return this.instantiateClass(this.specialObjects[Squeak.splOb_ClassMethodContext], Squeak.Context_smallFrameSize);
+			return this.instantiateClass(this.specialObjects[window.Squeak.splOb_ClassMethodContext], window.Squeak.Context_smallFrameSize);
 		      }
 		    },
 		  },
@@ -3796,9 +3796,9 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			var value = 0;
 			for (var i = 3; i >= 0; i--)
 			  value = value * 256 + bytes[i];
-			if (num.sqClass === this.specialObjects[Squeak.splOb_ClassLargePositiveInteger])
+			if (num.sqClass === this.specialObjects[window.Squeak.splOb_ClassLargePositiveInteger])
 			  return value;
-			if (num.sqClass === this.specialObjects[Squeak.splOb_ClassLargeNegativeInteger])
+			if (num.sqClass === this.specialObjects[window.Squeak.splOb_ClassLargeNegativeInteger])
 			  return -value;
 		      }
 		      // none of the above
@@ -3818,14 +3818,14 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			  this.popNandPush(2, this.primHandler.makeFloat(numResult));
 			  return true;
 			}
-			if (numResult >= Squeak.MinSmallInt && numResult <= Squeak.MaxSmallInt) {
+			if (numResult >= window.Squeak.MinSmallInt && numResult <= window.Squeak.MaxSmallInt) {
 			  this.popNandPush(2, numResult);
 			  return true;
 			}
 			if (numResult >= -0xFFFFFFFF && numResult <= 0xFFFFFFFF) {
 			  var negative = numResult < 0,
 			      unsigned = negative ? -numResult : numResult,
-			      lgIntClass = negative ? Squeak.splOb_ClassLargeNegativeInteger : Squeak.splOb_ClassLargePositiveInteger,
+			      lgIntClass = negative ? window.Squeak.splOb_ClassLargeNegativeInteger : window.Squeak.splOb_ClassLargePositiveInteger,
 			      lgIntObj = this.instantiateClass(this.specialObjects[lgIntClass], 4),
 			      bytes = lgIntObj.bytes;
 			  bytes[0] = unsigned     & 255;
@@ -3847,11 +3847,11 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		  'numbers', {
 		    getClass: function(obj) {
 		      if (this.isSmallInt(obj))
-			return this.specialObjects[Squeak.splOb_ClassInteger];
+			return this.specialObjects[window.Squeak.splOb_ClassInteger];
 		      return obj.sqClass;
 		    },
 		    canBeSmallInt: function(anInt) {
-		      return (anInt >= Squeak.MinSmallInt) && (anInt <= Squeak.MaxSmallInt);
+		      return (anInt >= window.Squeak.MinSmallInt) && (anInt <= window.Squeak.MaxSmallInt);
 		    },
 		    isSmallInt: function(object) {
 		      return typeof object === "number";
@@ -3863,17 +3863,17 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      return 1;
 		    },
 		    quickDivide: function(rcvr, arg) { // must only handle exact case
-		      if (arg === 0) return Squeak.NonSmallInt;  // fail if divide by zero
+		      if (arg === 0) return window.Squeak.NonSmallInt;  // fail if divide by zero
 		      var result = rcvr / arg | 0;
 		      if (result * arg === rcvr) return result;
-		      return Squeak.NonSmallInt;     // fail if result is not exact
+		      return window.Squeak.NonSmallInt;     // fail if result is not exact
 		    },
 		    div: function(rcvr, arg) {
-		      if (arg === 0) return Squeak.NonSmallInt;  // fail if divide by zero
+		      if (arg === 0) return window.Squeak.NonSmallInt;  // fail if divide by zero
 		      return Math.floor(rcvr/arg);
 		    },
 		    mod: function(rcvr, arg) {
-		      if (arg === 0) return Squeak.NonSmallInt;  // fail if divide by zero
+		      if (arg === 0) return window.Squeak.NonSmallInt;  // fail if divide by zero
 		      return rcvr - Math.floor(rcvr/arg) * arg;
 		    },
 		    safeShift: function(smallInt, shiftCount) {
@@ -3882,22 +3882,22 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			if (shiftCount < -31) return smallInt < 0 ? -1 : 0;
 			return smallInt >> -shiftCount; // OK to lose bits shifting right
 		      }
-		      if (shiftCount > 31) return smallInt == 0 ? 0 : Squeak.NonSmallInt;
+		      if (shiftCount > 31) return smallInt == 0 ? 0 : window.Squeak.NonSmallInt;
 		      // check for lost bits by seeing if computation is reversible
 		      var shifted = smallInt << shiftCount;
 		      if  ((shifted>>shiftCount) === smallInt) return shifted;
-		      return Squeak.NonSmallInt;  //non-small result will cause failure
+		      return window.Squeak.NonSmallInt;  //non-small result will cause failure
 		    },
 		  },
 		  'utils',
 		  {
 		    isContext: function(obj) {//either block or methodContext
-		      if (obj.sqClass === this.specialObjects[Squeak.splOb_ClassMethodContext]) return true;
-		      if (obj.sqClass === this.specialObjects[Squeak.splOb_ClassBlockContext]) return true;
+		      if (obj.sqClass === this.specialObjects[window.Squeak.splOb_ClassMethodContext]) return true;
+		      if (obj.sqClass === this.specialObjects[window.Squeak.splOb_ClassBlockContext]) return true;
 		      return false;
 		    },
 		    isMethodContext: function(obj) {
-		      return obj.sqClass === this.specialObjects[Squeak.splOb_ClassMethodContext];
+		      return obj.sqClass === this.specialObjects[window.Squeak.splOb_ClassMethodContext];
 		    },
 		    instantiateClass: function(aClass, indexableSize) {
 		      return this.image.instantiateClass(aClass, indexableSize, this.nilObj);
@@ -3945,7 +3945,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      });
 		      if (found) return found;
 		      if (optContext) {
-			var rcvr = optContext.pointers[Squeak.Context_receiver];
+			var rcvr = optContext.pointers[window.Squeak.Context_receiver];
 			return "(" + rcvr + ")>>?";
 		      }
 		      return "?>>?";
@@ -4007,7 +4007,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			  hardLimit = Math.max(limit, 1000000);
 		      while (!ctx.isNil && hardLimit-- > 0) {
 			contexts.push(ctx);
-			ctx = ctx.pointers[Squeak.Context_sender];
+			ctx = ctx.pointers[window.Squeak.Context_sender];
 		      }
 		      var extra = 200;
 		      if (contexts.length > limit + extra) {
@@ -4022,11 +4022,11 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			  stack.push('...\n');
 			} else {
 			  var block = '',
-			      method = ctx.pointers[Squeak.Context_method];
+			      method = ctx.pointers[window.Squeak.Context_method];
 			  if (typeof method === 'number') { // it's a block context, fetch home
-			    method = ctx.pointers[Squeak.BlockContext_home].pointers[Squeak.Context_method];
+			    method = ctx.pointers[window.Squeak.BlockContext_home].pointers[window.Squeak.Context_method];
 			    block = '[] in ';
-			  } else if (!ctx.pointers[Squeak.Context_closure].isNil) {
+			  } else if (!ctx.pointers[window.Squeak.Context_closure].isNil) {
 			    block = '[] in '; // it's a closure activation
 			  }
 			  stack.push(block + this.printMethod(method, ctx) + '\n');
@@ -4073,13 +4073,13 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      }
 		      // temps and stack in current context
 		      var ctx = this.activeContext;
-		      var isBlock = typeof ctx.pointers[Squeak.BlockContext_argumentCount] === 'number';
-		      var closure = ctx.pointers[Squeak.Context_closure];
+		      var isBlock = typeof ctx.pointers[window.Squeak.BlockContext_argumentCount] === 'number';
+		      var closure = ctx.pointers[window.Squeak.Context_closure];
 		      var isClosure = !isBlock && !closure.isNil;
-		      var homeCtx = isBlock ? ctx.pointers[Squeak.BlockContext_home] : ctx;
+		      var homeCtx = isBlock ? ctx.pointers[window.Squeak.BlockContext_home] : ctx;
 		      var tempCount = isClosure
-			  ? closure.pointers[Squeak.Closure_numArgs]
-			  : homeCtx.pointers[Squeak.Context_method].methodTempCount();
+			  ? closure.pointers[window.Squeak.Closure_numArgs]
+			  : homeCtx.pointers[window.Squeak.Context_method].methodTempCount();
 		      var stackBottom = this.decodeSqueakSP(0);
 		      var stackTop = homeCtx.contextSizeWithStack(this) - 1;
 		      var firstTemp = stackBottom + 1;
@@ -4107,42 +4107,42 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      return stack;
 		    },
 		    printAllProcesses: function() {
-		      var schedAssn = this.specialObjects[Squeak.splOb_SchedulerAssociation],
-			  sched = schedAssn.pointers[Squeak.Assn_value];
+		      var schedAssn = this.specialObjects[window.Squeak.splOb_SchedulerAssociation],
+			  sched = schedAssn.pointers[window.Squeak.Assn_value];
 		      // print active process
-		      var activeProc = sched.pointers[Squeak.ProcSched_activeProcess],
+		      var activeProc = sched.pointers[window.Squeak.ProcSched_activeProcess],
 			  result = "Active: " + this.printProcess(activeProc, true);
 		      // print other runnable processes
-		      var lists = sched.pointers[Squeak.ProcSched_processLists].pointers;
+		      var lists = sched.pointers[window.Squeak.ProcSched_processLists].pointers;
 		      for (var priority = lists.length - 1; priority >= 0; priority--) {
-			var process = lists[priority].pointers[Squeak.LinkedList_firstLink];
+			var process = lists[priority].pointers[window.Squeak.LinkedList_firstLink];
 			while (!process.isNil) {
 			  result += "\nRunnable: " + this.printProcess(process);
-			  process = process.pointers[Squeak.Link_nextLink];
+			  process = process.pointers[window.Squeak.Link_nextLink];
 			}
 		      }
 		      // print all processes waiting on a semaphore
-		      var semaClass = this.specialObjects[Squeak.splOb_ClassSemaphore],
+		      var semaClass = this.specialObjects[window.Squeak.splOb_ClassSemaphore],
 			  sema = this.image.someInstanceOf(semaClass);
 		      while (sema) {
-			var process = sema.pointers[Squeak.LinkedList_firstLink];
+			var process = sema.pointers[window.Squeak.LinkedList_firstLink];
 			while (!process.isNil) {
 			  result += "\nWaiting: " + this.printProcess(process);
-			  process = process.pointers[Squeak.Link_nextLink];
+			  process = process.pointers[window.Squeak.Link_nextLink];
 			}
 			sema = this.image.nextInstanceAfter(sema);
 		      }
 		      return result;
 		    },
 		    printProcess: function(process, active) {
-		      var context = process.pointers[Squeak.Proc_suspendedContext],
-			  priority = process.pointers[Squeak.Proc_priority],
+		      var context = process.pointers[window.Squeak.Proc_suspendedContext],
+			  priority = process.pointers[window.Squeak.Proc_priority],
 			  stack = this.printStack(active ? null : context);
 		      return process.toString() +" at priority " + priority + "\n" + stack;
 		    },
 		    printByteCodes: function(aMethod, optionalIndent, optionalHighlight, optionalPC) {
 		      if (!aMethod) aMethod = this.method;
-		      var printer = new Squeak.InstructionPrinter(aMethod, this);
+		      var printer = new window.Squeak.InstructionPrinter(aMethod, this);
 		      return printer.printInstructions(optionalIndent, optionalHighlight, optionalPC);
 		    },
 		    willSendOrReturn: function() {
@@ -4227,7 +4227,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      this.patchModules = {
 			ScratchPlugin:          this.findPluginFunctions("scratch_"),
 		      };
-		      this.interpreterProxy = new Squeak.InterpreterProxy(this.vm);
+		      this.interpreterProxy = new window.Squeak.InterpreterProxy(this.vm);
 		    },
 		    findPluginFunctions: function(prefix, match, bindLate) {
 		      match = match || "(initialise|shutdown|prim)";
@@ -4438,7 +4438,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			case 121: return this.primitiveImageName(argCount); //get+set imageName
 			case 122: return this.primitiveReverseDisplay(argCount); // Blue Book: primitiveImageVolume
 			  //case 123: return false; //TODO primitiveValueUninterruptably
-			case 124: return this.popNandPushIfOK(2, this.registerSemaphore(Squeak.splOb_TheLowSpaceSemaphore));
+			case 124: return this.popNandPushIfOK(2, this.registerSemaphore(window.Squeak.splOb_TheLowSpaceSemaphore));
 			case 125: return this.popNandPushIfOK(2, this.setLowSpaceThreshold());
 			case 126: return this.primitiveDeferDisplayUpdates(argCount);
 			case 127: return this.primitiveShowDisplayRect(argCount);
@@ -4449,7 +4449,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			  case 131: return this.primitivePartialGC(argCount);
 			  case 132: return this.pop2andPushBoolIfOK(this.pointsTo(this.stackNonInteger(1), this.vm.top())); //Object.pointsTo
 			  case 133: return true; //TODO primitiveSetInterruptKey
-			  case 134: return this.popNandPushIfOK(2, this.registerSemaphore(Squeak.splOb_TheInterruptSemaphore));
+			  case 134: return this.popNandPushIfOK(2, this.registerSemaphore(window.Squeak.splOb_TheInterruptSemaphore));
 			  case 135: return this.popNandPushIfOK(1, this.millisecondClockValue());
 			  case 136: return this.primitiveSignalAtMilliseconds(argCount); //Delay signal:atMs:());
 			  case 137: return this.popNandPushIfOK(1, this.secondClock()); // seconds since Jan 1, 1901
@@ -4457,7 +4457,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			  case 139: return this.popNandPushIfOK(argCount+1, this.nextObject(this.vm.top())); // Object.nextObject
 			  case 140: return this.primitiveBeep(argCount);
 			  case 141: return this.primitiveClipboardText(argCount);
-			  case 142: return this.popNandPushIfOK(argCount+1, this.makeStString(this.filenameToSqueak(Squeak.vmPath)));
+			  case 142: return this.popNandPushIfOK(argCount+1, this.makeStString(this.filenameToSqueak(window.Squeak.vmPath)));
 			  case 143: // short at and shortAtPut
 			  case 144: return this.primitiveShortAtAndPut(argCount);
 			  case 145: return this.primitiveConstantFill(argCount);
@@ -4684,7 +4684,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		  },
 		  'modules', {
 		    loadModule: function(modName) {
-		      var mod = Squeak.externalModules[modName] || this.builtinModules[modName];
+		      var mod = window.Squeak.externalModules[modName] || this.builtinModules[modName];
 		      if (!mod) return null;
 		      this.vm.status("loading module: " + modName);
 		      if (this.patchModules[modName])
@@ -4806,8 +4806,8 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    },
 		    pos32BitIntFor: function(signed32) {
 		      // Return the 32-bit quantity as an unsigned 32-bit integer
-		      if (signed32 >= 0 && signed32 <= Squeak.MaxSmallInt) return signed32;
-		      var lgIntClass = this.vm.specialObjects[Squeak.splOb_ClassLargePositiveInteger],
+		      if (signed32 >= 0 && signed32 <= window.Squeak.MaxSmallInt) return signed32;
+		      var lgIntClass = this.vm.specialObjects[window.Squeak.splOb_ClassLargePositiveInteger],
 			  lgIntObj = this.vm.instantiateClass(lgIntClass, 4),
 			  bytes = lgIntObj.bytes;
 		      for (var i=0; i<4; i++)
@@ -4825,7 +4825,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      var sz = longlong <= 0xFFFFFFFFFF ? 5 :
 			  longlong <= 0xFFFFFFFFFFFF ? 6 :
 			  7;
-		      var lgIntClass = this.vm.specialObjects[Squeak.splOb_ClassLargePositiveInteger],
+		      var lgIntClass = this.vm.specialObjects[window.Squeak.splOb_ClassLargePositiveInteger],
 			  lgIntObj = this.vm.instantiateClass(lgIntClass, sz),
 			  bytes = lgIntObj.bytes;
 		      for (var i = 0; i < sz; i++) {
@@ -4847,19 +4847,19 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			  value = 0;
 		      for (var i = 0, f = 1; i < 4; i++, f *= 256)
 			value += bytes[i] * f;
-		      if (this.isA(stackVal, Squeak.splOb_ClassLargePositiveInteger) && value <= 0x7FFFFFFF)
+		      if (this.isA(stackVal, window.Squeak.splOb_ClassLargePositiveInteger) && value <= 0x7FFFFFFF)
 			return value;
-		      if (this.isA(stackVal, Squeak.splOb_ClassLargeNegativeInteger) && -value >= -0x80000000)
+		      if (this.isA(stackVal, window.Squeak.splOb_ClassLargeNegativeInteger) && -value >= -0x80000000)
 			return -value;
 		      this.success = false;
 		      return 0;
 		    },
 		    signed32BitIntegerFor: function(signed32) {
 		      // Return the 32-bit quantity as a signed 32-bit integer
-		      if (signed32 >= Squeak.MinSmallInt && signed32 <= Squeak.MaxSmallInt) return signed32;
+		      if (signed32 >= window.Squeak.MinSmallInt && signed32 <= window.Squeak.MaxSmallInt) return signed32;
 		      var negative = signed32 < 0,
 			  unsigned = negative ? -signed32 : signed32,
-			  lgIntClass = negative ? Squeak.splOb_ClassLargeNegativeInteger : Squeak.splOb_ClassLargePositiveInteger,
+			  lgIntClass = negative ? window.Squeak.splOb_ClassLargeNegativeInteger : window.Squeak.splOb_ClassLargePositiveInteger,
 			  lgIntObj = this.vm.instantiateClass(this.vm.specialObjects[lgIntClass], 4),
 			  bytes = lgIntObj.bytes;
 		      for (var i=0; i<4; i++)
@@ -4884,9 +4884,9 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			for (var i = 0, f = 1; i < n; i++, f *= 256)
 			  value += bytes[i] * f;
 			if (value <= 0x1FFFFFFFFFFFFF) {
-			  if (this.isA(stackVal, Squeak.splOb_ClassLargePositiveInteger))
+			  if (this.isA(stackVal, window.Squeak.splOb_ClassLargePositiveInteger))
 			    return value;
-			  if (this.isA(stackVal, Squeak.splOb_ClassLargeNegativeInteger))
+			  if (this.isA(stackVal, window.Squeak.splOb_ClassLargeNegativeInteger))
 			    return -value;
 			}
 		      }
@@ -4993,7 +4993,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			this.success = false;
 			return 0;
 		      }
-		      if (!this.isA(obj, Squeak.splOb_ClassLargePositiveInteger) || obj.bytesSize() !== 4) {
+		      if (!this.isA(obj, window.Squeak.splOb_ClassLargePositiveInteger) || obj.bytesSize() !== 4) {
 			this.success = false;
 			return 0;
 		      }
@@ -5040,7 +5040,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      var theClass = this.vm.specialObjects[knownClass];
 		      while (!classOrSuper.isNil) {
 			if (classOrSuper === theClass) return true;
-			classOrSuper = classOrSuper.pointers[Squeak.Class_superclass];
+			classOrSuper = classOrSuper.pointers[window.Squeak.Class_superclass];
 		      }
 		      return false;
 		    },
@@ -5054,10 +5054,10 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      return 0;
 		    },
 		    charFromInt: function(ascii) {
-		      var charTable = this.vm.specialObjects[Squeak.splOb_CharacterTable];
+		      var charTable = this.vm.specialObjects[window.Squeak.splOb_CharacterTable];
 		      var char = charTable.pointers[ascii];
 		      if (char) return char;
-		      var charClass = this.vm.specialObjects[Squeak.splOb_ClassCharacter];
+		      var charClass = this.vm.specialObjects[window.Squeak.splOb_ClassCharacter];
 		      char = this.vm.instantiateClass(charClass, 0);
 		      char.pointers[0] = ascii;
 		      return char;
@@ -5072,7 +5072,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      return obj.hash;
 		    },
 		    makeFloat: function(value) {
-		      var floatClass = this.vm.specialObjects[Squeak.splOb_ClassFloat];
+		      var floatClass = this.vm.specialObjects[window.Squeak.splOb_ClassFloat];
 		      var newFloat = this.vm.instantiateClass(floatClass, 2);
 		      newFloat.float = value;
 		      return newFloat;
@@ -5086,14 +5086,14 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      return this.pos32BitIntFor(integer);
 		    },
 		    makePointWithXandY: function(x, y) {
-		      var pointClass = this.vm.specialObjects[Squeak.splOb_ClassPoint];
+		      var pointClass = this.vm.specialObjects[window.Squeak.splOb_ClassPoint];
 		      var newPoint = this.vm.instantiateClass(pointClass, 0);
-		      newPoint.pointers[Squeak.Point_x] = x;
-		      newPoint.pointers[Squeak.Point_y] = y;
+		      newPoint.pointers[window.Squeak.Point_x] = x;
+		      newPoint.pointers[window.Squeak.Point_y] = y;
 		      return newPoint;
 		    },
 		    makeStArray: function(jsArray, proxyClass) {
-		      var array = this.vm.instantiateClass(this.vm.specialObjects[Squeak.splOb_ClassArray], jsArray.length);
+		      var array = this.vm.instantiateClass(this.vm.specialObjects[window.Squeak.splOb_ClassArray], jsArray.length);
 		      for (var i = 0; i < jsArray.length; i++)
 			array.pointers[i] = this.makeStObject(jsArray[i], proxyClass);
 		      return array;
@@ -5102,7 +5102,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      var bytes = [];
 		      for (var i = 0; i < jsString.length; ++i)
 			bytes.push(jsString.charCodeAt(i) & 0xFF);
-		      var stString = this.vm.instantiateClass(this.vm.specialObjects[Squeak.splOb_ClassString], bytes.length);
+		      var stString = this.vm.instantiateClass(this.vm.specialObjects[window.Squeak.splOb_ClassString], bytes.length);
 		      stString.bytes = bytes;
 		      return stString;
 		    },
@@ -5229,7 +5229,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      if (array.isWords()) {  // words...
 			if (convertChars) {
 			  // put a character...
-			  if (objToPut.sqClass !== this.vm.specialObjects[Squeak.splOb_ClassCharacter])
+			  if (objToPut.sqClass !== this.vm.specialObjects[window.Squeak.splOb_ClassCharacter])
 			  {this.success = false; return objToPut;}
 			  intToPut = this.charToInt(objToPut);
 			  if (typeof intToPut !== "number") {this.success = false; return objToPut;}
@@ -5242,7 +5242,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      // bytes...
 		      if (convertChars) {
 			// put a character...
-			if (objToPut.sqClass !== this.vm.specialObjects[Squeak.splOb_ClassCharacter])
+			if (objToPut.sqClass !== this.vm.specialObjects[window.Squeak.splOb_ClassCharacter])
 			{this.success = false; return objToPut;}
 			intToPut = this.charToInt(objToPut);
 			if (typeof intToPut !== "number") {this.success = false; return objToPut;}
@@ -5264,9 +5264,9 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			  size = -1;
 		      if (cameFromBytecode) {
 			// must only handle classes with size == basicSize, fail otherwise
-			if (rcvr.sqClass === this.vm.specialObjects[Squeak.splOb_ClassArray]) {
+			if (rcvr.sqClass === this.vm.specialObjects[window.Squeak.splOb_ClassArray]) {
 			  size = rcvr.pointersSize();
-			} else if (rcvr.sqClass === this.vm.specialObjects[Squeak.splOb_ClassString]) {
+			} else if (rcvr.sqClass === this.vm.specialObjects[window.Squeak.splOb_ClassString]) {
 			  size = rcvr.bytesSize();
 			}
 		      } else { // basicSize
@@ -5319,7 +5319,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			// but we need to stop runaway allocations
 			console.warn("squeak: out of memory");
 			this.success = false;
-			this.vm.primFailCode = Squeak.PrimErrNoMemory;
+			this.vm.primFailCode = window.Squeak.PrimErrNoMemory;
 			return null;
 		      } else {
 			return this.vm.instantiateClass(clsObj, indexableSize);
@@ -5345,7 +5345,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    },
 		    allInstancesOf: function(clsObj) {
 		      var instances = this.vm.image.allInstancesOf(clsObj);
-		      var array = this.vm.instantiateClass(this.vm.specialObjects[Squeak.splOb_ClassArray], instances.length);
+		      var array = this.vm.instantiateClass(this.vm.specialObjects[window.Squeak.splOb_ClassArray], instances.length);
 		      array.pointers = instances;
 		      return array;
 		    },
@@ -5410,10 +5410,10 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			  newStackp = this.stackInteger(0);
 		      if (!this.success || newStackp < 0 || this.vm.decodeSqueakSP(newStackp) >= ctxt.pointers.length)
 			return false;
-		      var stackp = ctxt.pointers[Squeak.Context_stackPointer];
+		      var stackp = ctxt.pointers[window.Squeak.Context_stackPointer];
 		      while (stackp < newStackp)
 			ctxt.pointers[this.vm.decodeSqueakSP(++stackp)] = this.vm.nilObj;
-		      ctxt.pointers[Squeak.Context_stackPointer] = newStackp;
+		      ctxt.pointers[window.Squeak.Context_stackPointer] = newStackp;
 		      this.vm.popN(argCount);
 		      return true;
 		    },
@@ -5652,33 +5652,33 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      var homeCtxt = rcvr;
 		      if(!this.vm.isContext(homeCtxt)) this.success = false;
 		      if(!this.success) return rcvr;
-		      if (typeof homeCtxt.pointers[Squeak.Context_method] === "number")
+		      if (typeof homeCtxt.pointers[window.Squeak.Context_method] === "number")
 			// ctxt is itself a block; get the context for its enclosing method
-			homeCtxt = homeCtxt.pointers[Squeak.BlockContext_home];
+			homeCtxt = homeCtxt.pointers[window.Squeak.BlockContext_home];
 		      var blockSize = homeCtxt.pointersSize() - homeCtxt.instSize(); // could use a const for instSize
-		      var newBlock = this.vm.instantiateClass(this.vm.specialObjects[Squeak.splOb_ClassBlockContext], blockSize);
+		      var newBlock = this.vm.instantiateClass(this.vm.specialObjects[window.Squeak.splOb_ClassBlockContext], blockSize);
 		      var initialPC = this.vm.encodeSqueakPC(this.vm.pc + 2, this.vm.method); //*** check this...
-		      newBlock.pointers[Squeak.BlockContext_initialIP] = initialPC;
-		      newBlock.pointers[Squeak.Context_instructionPointer] = initialPC; // claim not needed; value will set it
-		      newBlock.pointers[Squeak.Context_stackPointer] = 0;
-		      newBlock.pointers[Squeak.BlockContext_argumentCount] = sqArgCount;
-		      newBlock.pointers[Squeak.BlockContext_home] = homeCtxt;
-		      newBlock.pointers[Squeak.Context_sender] = this.vm.nilObj; // claim not needed; just initialized
+		      newBlock.pointers[window.Squeak.BlockContext_initialIP] = initialPC;
+		      newBlock.pointers[window.Squeak.Context_instructionPointer] = initialPC; // claim not needed; value will set it
+		      newBlock.pointers[window.Squeak.Context_stackPointer] = 0;
+		      newBlock.pointers[window.Squeak.BlockContext_argumentCount] = sqArgCount;
+		      newBlock.pointers[window.Squeak.BlockContext_home] = homeCtxt;
+		      newBlock.pointers[window.Squeak.Context_sender] = this.vm.nilObj; // claim not needed; just initialized
 		      return newBlock;
 		    },
 		    primitiveBlockValue: function(argCount) {
 		      var rcvr = this.vm.stackValue(argCount);
-		      if (!this.isA(rcvr, Squeak.splOb_ClassBlockContext)) return false;
+		      if (!this.isA(rcvr, window.Squeak.splOb_ClassBlockContext)) return false;
 		      var block = rcvr;
-		      var blockArgCount = block.pointers[Squeak.BlockContext_argumentCount];
+		      var blockArgCount = block.pointers[window.Squeak.BlockContext_argumentCount];
 		      if (typeof blockArgCount !== "number") return false;
 		      if (blockArgCount != argCount) return false;
-		      if (!block.pointers[Squeak.BlockContext_caller].isNil) return false;
-		      this.vm.arrayCopy(this.vm.activeContext.pointers, this.vm.sp-argCount+1, block.pointers, Squeak.Context_tempFrameStart, argCount);
-		      var initialIP = block.pointers[Squeak.BlockContext_initialIP];
-		      block.pointers[Squeak.Context_instructionPointer] = initialIP;
-		      block.pointers[Squeak.Context_stackPointer] = argCount;
-		      block.pointers[Squeak.BlockContext_caller] = this.vm.activeContext;
+		      if (!block.pointers[window.Squeak.BlockContext_caller].isNil) return false;
+		      this.vm.arrayCopy(this.vm.activeContext.pointers, this.vm.sp-argCount+1, block.pointers, window.Squeak.Context_tempFrameStart, argCount);
+		      var initialIP = block.pointers[window.Squeak.BlockContext_initialIP];
+		      block.pointers[window.Squeak.Context_instructionPointer] = initialIP;
+		      block.pointers[window.Squeak.Context_stackPointer] = argCount;
+		      block.pointers[window.Squeak.BlockContext_caller] = this.vm.activeContext;
 		      this.vm.popN(argCount+1);
 		      this.vm.newActiveContext(block);
 		      return true;
@@ -5686,17 +5686,17 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    primitiveBlockValueWithArgs: function(argCount) {
 		      var block = this.vm.stackValue(1);
 		      var array = this.vm.stackValue(0);
-		      if (!this.isA(block, Squeak.splOb_ClassBlockContext)) return false;
-		      if (!this.isA(array, Squeak.splOb_ClassArray)) return false;
-		      var blockArgCount = block.pointers[Squeak.BlockContext_argumentCount];
+		      if (!this.isA(block, window.Squeak.splOb_ClassBlockContext)) return false;
+		      if (!this.isA(array, window.Squeak.splOb_ClassArray)) return false;
+		      var blockArgCount = block.pointers[window.Squeak.BlockContext_argumentCount];
 		      if (typeof blockArgCount !== "number") return false;
 		      if (blockArgCount != array.pointersSize()) return false;
-		      if (!block.pointers[Squeak.BlockContext_caller].isNil) return false;
-		      this.vm.arrayCopy(array.pointers, 0, block.pointers, Squeak.Context_tempFrameStart, blockArgCount);
-		      var initialIP = block.pointers[Squeak.BlockContext_initialIP];
-		      block.pointers[Squeak.Context_instructionPointer] = initialIP;
-		      block.pointers[Squeak.Context_stackPointer] = blockArgCount;
-		      block.pointers[Squeak.BlockContext_caller] = this.vm.activeContext;
+		      if (!block.pointers[window.Squeak.BlockContext_caller].isNil) return false;
+		      this.vm.arrayCopy(array.pointers, 0, block.pointers, window.Squeak.Context_tempFrameStart, blockArgCount);
+		      var initialIP = block.pointers[window.Squeak.BlockContext_initialIP];
+		      block.pointers[window.Squeak.Context_instructionPointer] = initialIP;
+		      block.pointers[window.Squeak.Context_stackPointer] = blockArgCount;
+		      block.pointers[window.Squeak.BlockContext_caller] = this.vm.activeContext;
 		      this.vm.popN(argCount+1);
 		      this.vm.newActiveContext(block);
 		      return true;
@@ -5708,7 +5708,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    },
 		    primitiveClosureValue: function(argCount) {
 		      var blockClosure = this.vm.stackValue(argCount),
-			  blockArgCount = blockClosure.pointers[Squeak.Closure_numArgs];
+			  blockArgCount = blockClosure.pointers[window.Squeak.Closure_numArgs];
 		      if (argCount !== blockArgCount) return false;
 		      return this.activateNewClosureMethod(blockClosure, argCount);
 		    },
@@ -5716,7 +5716,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      var array = this.vm.top(),
 			  arraySize = array.pointersSize(),
 			  blockClosure = this.vm.stackValue(argCount),
-			  blockArgCount = blockClosure.pointers[Squeak.Closure_numArgs];
+			  blockArgCount = blockClosure.pointers[window.Squeak.Closure_numArgs];
 		      if (arraySize !== blockArgCount) return false;
 		      this.vm.pop();
 		      for (var i = 0; i < arraySize; i++)
@@ -5727,22 +5727,22 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      return this.primitiveClosureValue(argCount);
 		    },
 		    activateNewClosureMethod: function(blockClosure, argCount) {
-		      var outerContext = blockClosure.pointers[Squeak.Closure_outerContext],
-			  method = outerContext.pointers[Squeak.Context_method],
+		      var outerContext = blockClosure.pointers[window.Squeak.Closure_outerContext],
+			  method = outerContext.pointers[window.Squeak.Context_method],
 			  newContext = this.vm.allocateOrRecycleContext(method.methodNeedsLargeFrame()),
-			  numCopied = blockClosure.pointers.length - Squeak.Closure_firstCopiedValue;
-		      newContext.pointers[Squeak.Context_sender] = this.vm.activeContext;
-		      newContext.pointers[Squeak.Context_instructionPointer] = blockClosure.pointers[Squeak.Closure_startpc];
-		      newContext.pointers[Squeak.Context_stackPointer] = argCount + numCopied;
-		      newContext.pointers[Squeak.Context_method] = outerContext.pointers[Squeak.Context_method];
-		      newContext.pointers[Squeak.Context_closure] = blockClosure;
-		      newContext.pointers[Squeak.Context_receiver] = outerContext.pointers[Squeak.Context_receiver];
+			  numCopied = blockClosure.pointers.length - window.Squeak.Closure_firstCopiedValue;
+		      newContext.pointers[window.Squeak.Context_sender] = this.vm.activeContext;
+		      newContext.pointers[window.Squeak.Context_instructionPointer] = blockClosure.pointers[window.Squeak.Closure_startpc];
+		      newContext.pointers[window.Squeak.Context_stackPointer] = argCount + numCopied;
+		      newContext.pointers[window.Squeak.Context_method] = outerContext.pointers[window.Squeak.Context_method];
+		      newContext.pointers[window.Squeak.Context_closure] = blockClosure;
+		      newContext.pointers[window.Squeak.Context_receiver] = outerContext.pointers[window.Squeak.Context_receiver];
 		      // Copy the arguments and copied values ...
-		      var where = Squeak.Context_tempFrameStart;
+		      var where = window.Squeak.Context_tempFrameStart;
 		      for (var i = 0; i < argCount; i++)
 			newContext.pointers[where++] = this.vm.stackValue(argCount - i - 1);
 		      for (var i = 0; i < numCopied; i++)
-			newContext.pointers[where++] = blockClosure.pointers[Squeak.Closure_firstCopiedValue + i];
+			newContext.pointers[where++] = blockClosure.pointers[window.Squeak.Closure_firstCopiedValue + i];
 		      // The initial instructions in the block nil-out remaining temps.
 		      this.vm.popN(argCount + 1);
 		      this.vm.newActiveContext(newContext);
@@ -5761,26 +5761,26 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			this.vm.popNandPush(1, this.vm.nilObj);
 			this.transferTo(this.wakeHighestPriority());
 		      } else {
-			var oldList = process.pointers[Squeak.Proc_myList];
+			var oldList = process.pointers[window.Squeak.Proc_myList];
 			if (oldList.isNil) return false;
 			this.removeProcessFromList(process, oldList);
 			if (!this.success) return false;
-			process.pointers[Squeak.Proc_myList] = this.vm.nilObj;
+			process.pointers[window.Squeak.Proc_myList] = this.vm.nilObj;
 			this.vm.popNandPush(1, oldList);
 		      }
 		      return true;
 		    },
 		    getScheduler: function() {
-		      var assn = this.vm.specialObjects[Squeak.splOb_SchedulerAssociation];
-		      return assn.pointers[Squeak.Assn_value];
+		      var assn = this.vm.specialObjects[window.Squeak.splOb_SchedulerAssociation];
+		      return assn.pointers[window.Squeak.Assn_value];
 		    },
 		    activeProcess: function() {
-		      return this.getScheduler().pointers[Squeak.ProcSched_activeProcess];
+		      return this.getScheduler().pointers[window.Squeak.ProcSched_activeProcess];
 		    },
 		    resume: function(newProc) {
 		      var activeProc = this.activeProcess();
-		      var activePriority = activeProc.pointers[Squeak.Proc_priority];
-		      var newPriority = newProc.pointers[Squeak.Proc_priority];
+		      var activePriority = activeProc.pointers[window.Squeak.Proc_priority];
+		      var newPriority = newProc.pointers[window.Squeak.Proc_priority];
 		      if (newPriority > activePriority) {
 			this.putToSleep(activeProc);
 			this.transferTo(newProc);
@@ -5790,21 +5790,21 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    },
 		    putToSleep: function(aProcess) {
 		      //Save the given process on the scheduler process list for its priority.
-		      var priority = aProcess.pointers[Squeak.Proc_priority];
-		      var processLists = this.getScheduler().pointers[Squeak.ProcSched_processLists];
+		      var priority = aProcess.pointers[window.Squeak.Proc_priority];
+		      var processLists = this.getScheduler().pointers[window.Squeak.ProcSched_processLists];
 		      var processList = processLists.pointers[priority - 1];
 		      this.linkProcessToList(aProcess, processList);
 		    },
 		    transferTo: function(newProc) {
 		      //Record a process to be awakened on the next interpreter cycle.
 		      var sched = this.getScheduler();
-		      var oldProc = sched.pointers[Squeak.ProcSched_activeProcess];
-		      sched.pointers[Squeak.ProcSched_activeProcess] = newProc;
+		      var oldProc = sched.pointers[window.Squeak.ProcSched_activeProcess];
+		      sched.pointers[window.Squeak.ProcSched_activeProcess] = newProc;
 		      sched.dirty = true;
-		      oldProc.pointers[Squeak.Proc_suspendedContext] = this.vm.activeContext;
+		      oldProc.pointers[window.Squeak.Proc_suspendedContext] = this.vm.activeContext;
 		      oldProc.dirty = true;
-		      this.vm.newActiveContext(newProc.pointers[Squeak.Proc_suspendedContext]);
-		      newProc.pointers[Squeak.Proc_suspendedContext] = this.vm.nilObj;
+		      this.vm.newActiveContext(newProc.pointers[window.Squeak.Proc_suspendedContext]);
+		      newProc.pointers[window.Squeak.Proc_suspendedContext] = this.vm.nilObj;
 		      this.vm.reclaimableContextCount = 0;
 		      if (this.vm.breakOnContextChanged) {
 			this.vm.breakOnContextChanged = false;
@@ -5814,7 +5814,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    wakeHighestPriority: function() {
 		      //Return the highest priority process that is ready to run.
 		      //Note: It is a fatal VM error if there is no runnable process.
-		      var schedLists = this.getScheduler().pointers[Squeak.ProcSched_processLists];
+		      var schedLists = this.getScheduler().pointers[window.Squeak.ProcSched_processLists];
 		      var p = schedLists.pointersSize() - 1;  // index of last indexable field
 		      var processList;
 		      do {
@@ -5828,63 +5828,63 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      // Add the given process to the given linked list and set the backpointer
 		      // of process to its new list.
 		      if (this.isEmptyList(aList)) {
-			aList.pointers[Squeak.LinkedList_firstLink] = proc;
+			aList.pointers[window.Squeak.LinkedList_firstLink] = proc;
 		      } else {
-			var lastLink = aList.pointers[Squeak.LinkedList_lastLink];
-			lastLink.pointers[Squeak.Link_nextLink] = proc;
+			var lastLink = aList.pointers[window.Squeak.LinkedList_lastLink];
+			lastLink.pointers[window.Squeak.Link_nextLink] = proc;
 			lastLink.dirty = true;
 		      }
-		      aList.pointers[Squeak.LinkedList_lastLink] = proc;
+		      aList.pointers[window.Squeak.LinkedList_lastLink] = proc;
 		      aList.dirty = true;
-		      proc.pointers[Squeak.Proc_myList] = aList;
+		      proc.pointers[window.Squeak.Proc_myList] = aList;
 		      proc.dirty = true;
 		    },
 		    isEmptyList: function(aLinkedList) {
-		      return aLinkedList.pointers[Squeak.LinkedList_firstLink].isNil;
+		      return aLinkedList.pointers[window.Squeak.LinkedList_firstLink].isNil;
 		    },
 		    removeFirstLinkOfList: function(aList) {
 		      //Remove the first process from the given linked list.
-		      var first = aList.pointers[Squeak.LinkedList_firstLink];
-		      var last = aList.pointers[Squeak.LinkedList_lastLink];
+		      var first = aList.pointers[window.Squeak.LinkedList_firstLink];
+		      var last = aList.pointers[window.Squeak.LinkedList_lastLink];
 		      if (first === last) {
-			aList.pointers[Squeak.LinkedList_firstLink] = this.vm.nilObj;
-			aList.pointers[Squeak.LinkedList_lastLink] = this.vm.nilObj;
+			aList.pointers[window.Squeak.LinkedList_firstLink] = this.vm.nilObj;
+			aList.pointers[window.Squeak.LinkedList_lastLink] = this.vm.nilObj;
 		      } else {
-			var next = first.pointers[Squeak.Link_nextLink];
-			aList.pointers[Squeak.LinkedList_firstLink] = next;
+			var next = first.pointers[window.Squeak.Link_nextLink];
+			aList.pointers[window.Squeak.LinkedList_firstLink] = next;
 			aList.dirty = true;
 		      }
-		      first.pointers[Squeak.Link_nextLink] = this.vm.nilObj;
+		      first.pointers[window.Squeak.Link_nextLink] = this.vm.nilObj;
 		      return first;
 		    },
 		    removeProcessFromList: function(process, list) {
-		      var first = list.pointers[Squeak.LinkedList_firstLink];
-		      var last = list.pointers[Squeak.LinkedList_lastLink];
+		      var first = list.pointers[window.Squeak.LinkedList_firstLink];
+		      var last = list.pointers[window.Squeak.LinkedList_lastLink];
 		      if (process === first) {
-			var next = process.pointers[Squeak.Link_nextLink];
-			list.pointers[Squeak.LinkedList_firstLink] = next;
+			var next = process.pointers[window.Squeak.Link_nextLink];
+			list.pointers[window.Squeak.LinkedList_firstLink] = next;
 			if (process === last) {
-			  list.pointers[Squeak.LinkedList_lastLink] = this.vm.nilObj;
+			  list.pointers[window.Squeak.LinkedList_lastLink] = this.vm.nilObj;
 			}
 		      } else {
 			var temp = first;
 			while (true) {
 			  if (temp.isNil) return this.success = false;
-			  next = temp.pointers[Squeak.Link_nextLink];
+			  next = temp.pointers[window.Squeak.Link_nextLink];
 			  if (next === process) break;
 			  temp = next;
 			}
-			next = process.pointers[Squeak.Link_nextLink];
-			temp.pointers[Squeak.Link_nextLink] = next;
+			next = process.pointers[window.Squeak.Link_nextLink];
+			temp.pointers[window.Squeak.Link_nextLink] = next;
 			if (process === last) {
-			  list.pointers[Squeak.LinkedList_lastLink] = temp;
+			  list.pointers[window.Squeak.LinkedList_lastLink] = temp;
 			}
 		      }
-		      process.pointers[Squeak.Link_nextLink] = this.vm.nilObj;
+		      process.pointers[window.Squeak.Link_nextLink] = this.vm.nilObj;
 		    },
 		    registerSemaphore: function(specialObjIndex) {
 		      var sema = this.vm.top();
-		      if (this.isA(sema, Squeak.splOb_ClassSemaphore))
+		      if (this.isA(sema, window.Squeak.splOb_ClassSemaphore))
 			this.vm.specialObjects[specialObjIndex] = sema;
 		      else
 			this.vm.specialObjects[specialObjIndex] = this.vm.nilObj;
@@ -5892,10 +5892,10 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    },
 		    primitiveWait: function() {
 		      var sema = this.vm.top();
-		      if (!this.isA(sema, Squeak.splOb_ClassSemaphore)) return false;
-		      var excessSignals = sema.pointers[Squeak.Semaphore_excessSignals];
+		      if (!this.isA(sema, window.Squeak.splOb_ClassSemaphore)) return false;
+		      var excessSignals = sema.pointers[window.Squeak.Semaphore_excessSignals];
 		      if (excessSignals > 0)
-			sema.pointers[Squeak.Semaphore_excessSignals] = excessSignals - 1;
+			sema.pointers[window.Squeak.Semaphore_excessSignals] = excessSignals - 1;
 		      else {
 			this.linkProcessToList(this.activeProcess(), sema);
 			this.transferTo(this.wakeHighestPriority());
@@ -5904,24 +5904,24 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    },
 		    primitiveSignal: function() {
 		      var sema = this.vm.top();
-		      if (!this.isA(sema, Squeak.splOb_ClassSemaphore)) return false;
+		      if (!this.isA(sema, window.Squeak.splOb_ClassSemaphore)) return false;
 		      this.synchronousSignal(sema);
 		      return true;
 		    },
 		    synchronousSignal: function(sema) {
 		      if (this.isEmptyList(sema)) {
 			// no process is waiting on this semaphore
-			sema.pointers[Squeak.Semaphore_excessSignals]++;
+			sema.pointers[window.Squeak.Semaphore_excessSignals]++;
 		      } else
 			this.resume(this.removeFirstLinkOfList(sema));
 		      return;
 		    },
 		    signalAtMilliseconds: function(sema, msTime) {
-		      if (this.isA(sema, Squeak.splOb_ClassSemaphore)) {
-			this.vm.specialObjects[Squeak.splOb_TheTimerSemaphore] = sema;
+		      if (this.isA(sema, window.Squeak.splOb_ClassSemaphore)) {
+			this.vm.specialObjects[window.Squeak.splOb_TheTimerSemaphore] = sema;
 			this.vm.nextWakeupTick = msTime;
 		      } else {
-			this.vm.specialObjects[Squeak.splOb_TheTimerSemaphore] = this.vm.nilObj;
+			this.vm.specialObjects[window.Squeak.splOb_TheTimerSemaphore] = this.vm.nilObj;
 			this.vm.nextWakeupTick = 0;
 		      }
 		    },
@@ -5937,7 +5937,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      var usecsUTC = this.stackSigned53BitInt(0);
 		      var sema = this.stackNonInteger(1);
 		      if (!this.success) return false;
-		      var msTime = (usecsUTC / 1000 + Squeak.EpochUTC - this.vm.startupTime) & Squeak.MillisecondClockMask;
+		      var msTime = (usecsUTC / 1000 + window.Squeak.EpochUTC - this.vm.startupTime) & window.Squeak.MillisecondClockMask;
 		      this.signalAtMilliseconds(sema, msTime);
 		      this.vm.popN(argCount); // return self
 		      return true;
@@ -5947,8 +5947,8 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      this.semaphoresToSignal.push(semaIndex);
 		    },
 		    signalExternalSemaphores: function() {
-		      var semaphores = this.vm.specialObjects[Squeak.splOb_ExternalObjectsArray].pointers,
-			  semaClass = this.vm.specialObjects[Squeak.splOb_ClassSemaphore];
+		      var semaphores = this.vm.specialObjects[window.Squeak.splOb_ExternalObjectsArray].pointers,
+			  semaClass = this.vm.specialObjects[window.Squeak.splOb_ClassSemaphore];
 		      while (this.semaphoresToSignal.length) {
 			var semaIndex = this.semaphoresToSignal.shift(),
 			    sema = semaphores[semaIndex - 1];
@@ -5960,9 +5960,9 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      if (argCount > 1) return false;
 		      var mutex = this.vm.stackValue(argCount);
 		      var activeProc = argCount ? this.vm.top() : this.activeProcess();
-		      var owningProcess = mutex.pointers[Squeak.Mutex_owner];
+		      var owningProcess = mutex.pointers[window.Squeak.Mutex_owner];
 		      if (owningProcess.isNil) {
-			mutex.pointers[Squeak.Mutex_owner] = activeProc;
+			mutex.pointers[window.Squeak.Mutex_owner] = activeProc;
 			mutex.dirty = true;
 			this.popNandPushIfOK(argCount + 1, this.vm.falseObj);
 		      } else if (owningProcess === activeProc) {
@@ -5977,10 +5977,10 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    primitiveExitCriticalSection: function(argCount) {
 		      var criticalSection = this.vm.top();
 		      if (this.isEmptyList(criticalSection)) {
-			criticalSection.pointers[Squeak.Mutex_owner] = this.vm.nilObj;
+			criticalSection.pointers[window.Squeak.Mutex_owner] = this.vm.nilObj;
 		      } else {
 			var owningProcess = this.removeFirstLinkOfList(criticalSection);
-			criticalSection.pointers[Squeak.Mutex_owner] = owningProcess;
+			criticalSection.pointers[window.Squeak.Mutex_owner] = owningProcess;
 			criticalSection.dirty = true;
 			this.resume(owningProcess);
 		      }
@@ -5990,9 +5990,9 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      if (argCount > 1) return false;
 		      var mutex = this.vm.stackValue(argCount);
 		      var activeProc = argCount ? this.vm.top() : this.activeProcess();
-		      var owningProcess = mutex.pointers[Squeak.Mutex_owner];
+		      var owningProcess = mutex.pointers[window.Squeak.Mutex_owner];
 		      if (owningProcess.isNil) {
-			mutex.pointers[Squeak.Mutex_owner] = activeProc;
+			mutex.pointers[window.Squeak.Mutex_owner] = activeProc;
 			mutex.dirty = true;
 			this.popNandPushIfOK(argCount + 1, this.vm.falseObj);
 		      } else if (owningProcess === activeProc) {
@@ -6010,18 +6010,18 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      var argv = this.display.argv,
 			  value = null;
 		      switch (attr) {
-		      case 0: value = (argv && argv[0]) || this.filenameToSqueak(Squeak.vmPath + Squeak.vmFile); break;
+		      case 0: value = (argv && argv[0]) || this.filenameToSqueak(window.Squeak.vmPath + window.Squeak.vmFile); break;
 		      case 1: value = (argv && argv[1]) || this.display.documentName; break; // 1.x images want document here
 		      case 2: value = (argv && argv[2]) || this.display.documentName; break; // later images want document here
-		      case 1001: value = Squeak.platformName; break;
-		      case 1002: value = Squeak.osVersion; break;
-		      case 1003: value = Squeak.platformSubtype; break;
-		      case 1004: value = Squeak.vmVersion; break;
-		      case 1005: value = Squeak.windowSystem; break;
-		      case 1006: value = Squeak.vmBuild; break;
-		      case 1007: value = Squeak.vmVersion; break; // Interpreter class
+		      case 1001: value = window.Squeak.platformName; break;
+		      case 1002: value = window.Squeak.osVersion; break;
+		      case 1003: value = window.Squeak.platformSubtype; break;
+		      case 1004: value = window.Squeak.vmVersion; break;
+		      case 1005: value = window.Squeak.windowSystem; break;
+		      case 1006: value = window.Squeak.vmBuild; break;
+		      case 1007: value = window.Squeak.vmVersion; break; // Interpreter class
 			// case 1008: Cogit class
-		      case 1009: value = Squeak.vmVersion + ' Date: ' + Squeak.vmDate; break; // Platform source version
+		      case 1009: value = window.Squeak.vmVersion + ' Date: ' + window.Squeak.vmDate; break; // Platform source version
 		      default:
 			if (argv && argv.length > attr) {
 			  value = argv[attr];
@@ -6045,7 +6045,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      var paramsArraySize = this.vm.image.isSpur ? 54 : 44;
 		      switch (argCount) {
 		      case 0:
-			var arrayObj = this.vm.instantiateClass(this.vm.specialObjects[Squeak.splOb_ClassArray], paramsArraySize);
+			var arrayObj = this.vm.instantiateClass(this.vm.specialObjects[window.Squeak.splOb_ClassArray], paramsArraySize);
 			for (var i = 0; i < paramsArraySize; i++)
 			  arrayObj.pointers[i] = this.makeStObject(this.vmParameterAt(i+1));
 			return this.popNandPushIfOK(1, arrayObj);
@@ -6149,16 +6149,16 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    primitiveSnapshot: function(argCount) {
 		      this.vm.popNandPush(1, this.vm.trueObj);        // put true on stack for saved snapshot
 		      this.vm.storeContextRegisters();                // store current state for snapshot
-		      this.activeProcess().pointers[Squeak.Proc_suspendedContext] = this.vm.activeContext; // store initial context
+		      this.activeProcess().pointers[window.Squeak.Proc_suspendedContext] = this.vm.activeContext; // store initial context
 		      this.vm.image.fullGC("snapshot");               // before cleanup so traversal works
 		      var buffer = this.vm.image.writeToBuffer();
-		      Squeak.flushAllFiles();                         // so there are no more writes pending
-		      Squeak.filePut(this.vm.image.name, buffer);
+		      window.Squeak.flushAllFiles();                         // so there are no more writes pending
+		      window.Squeak.filePut(this.vm.image.name, buffer);
 		      this.vm.popNandPush(1, this.vm.falseObj);       // put false on stack for continuing
 		      return true;
 		    },
 		    primitiveQuit: function(argCount) {
-		      Squeak.flushAllFiles();
+		      window.Squeak.flushAllFiles();
 		      this.display.quitFlag = true;
 		      this.vm.breakNow("quit");
 		      return true;
@@ -6230,7 +6230,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    },
 		    primitiveBeDisplay: function(argCount) {
 		      var displayObj = this.vm.stackValue(0);
-		      this.vm.specialObjects[Squeak.splOb_TheDisplay] = displayObj;
+		      this.vm.specialObjects[window.Squeak.splOb_TheDisplay] = displayObj;
 		      this.vm.popN(argCount); // return self
 		      return true;
 		    },
@@ -6293,8 +6293,8 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			  bottom: bottom,
 			},
 			{
-			  x: originObj.pointers[Squeak.Point_x],
-			  y: originObj.pointers[Squeak.Point_y],
+			  x: originObj.pointers[window.Squeak.Point_x],
+			  y: originObj.pointers[window.Squeak.Point_y],
 			},
 			null);
 		      this.vm.popN(argCount);
@@ -6452,15 +6452,15 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      if (formObj.isNil) return null;
 		      var form = {
 			obj: formObj,
-			bits: formObj.pointers[Squeak.Form_bits].wordsOrBytes(),
-			depth: formObj.pointers[Squeak.Form_depth],
-			width: formObj.pointers[Squeak.Form_width],
-			height: formObj.pointers[Squeak.Form_height],
+			bits: formObj.pointers[window.Squeak.Form_bits].wordsOrBytes(),
+			depth: formObj.pointers[window.Squeak.Form_depth],
+			width: formObj.pointers[window.Squeak.Form_width],
+			height: formObj.pointers[window.Squeak.Form_height],
 		      }
 		      if (withOffset) {
-			var offset = formObj.pointers[Squeak.Form_offset];
-			form.offsetX = offset.pointers ? offset.pointers[Squeak.Point_x] : 0;
-			form.offsetY = offset.pointers ? offset.pointers[Squeak.Point_y] : 0;
+			var offset = formObj.pointers[window.Squeak.Form_offset];
+			form.offsetX = offset.pointers ? offset.pointers[window.Squeak.Point_x] : 0;
+			form.offsetY = offset.pointers ? offset.pointers[window.Squeak.Point_y] : 0;
 		      }
 		      if (form.width === 0 || form.height === 0) return form;
 		      if (!(form.width > 0 && form.height > 0)) return null;
@@ -6473,20 +6473,21 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      return form;
 		    },
 		    theDisplay: function() {
-		      return this.loadForm(this.vm.specialObjects[Squeak.splOb_TheDisplay]);
+		      return this.loadForm(this.vm.specialObjects[window.Squeak.splOb_TheDisplay]);
 		    },
 		    displayDirty: function(form, rect) {
 		      if (!this.deferDisplayUpdates
-			  && form == this.vm.specialObjects[Squeak.splOb_TheDisplay])
+			  && form == this.vm.specialObjects[window.Squeak.splOb_TheDisplay])
 			this.displayUpdate(this.theDisplay(), rect);
 		    },
 		    displayUpdate: function(form, rect) {
 		      this.showForm(this.display.context, form, rect);
+		      postMessage(this.display.context.canvas.transferToImageBitmap());
 		      this.display.lastTick = this.vm.lastTick;
 		      this.display.idle = 0;
 		    },
 		    primitiveBeep: function(argCount) {
-		      var ctx = Squeak.startAudioOut();
+		      var ctx = window.Squeak.startAudioOut();
 		      if (ctx) {
 			var beep = ctx.createOscillator();
 			beep.connect(ctx.destination);
@@ -6574,7 +6575,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      //Note that the millisecond clock wraps around periodically.
 		      //The range is limited to SmallInteger maxVal / 2 to allow
 		      //delays of up to that length without overflowing a SmallInteger.
-		      return (Date.now() - this.vm.startupTime) & Squeak.MillisecondClockMask;
+		      return (Date.now() - this.vm.startupTime) & window.Squeak.MillisecondClockMask;
 		    },
 		    millisecondClockValueSet: function(clock) {
 		      // set millisecondClock to the (previously saved) clock value
@@ -6582,7 +6583,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      this.vm.startupTime = Date.now() - clock;
 		    },
 		    secondClock: function() {
-		      return this.pos32BitIntFor(Squeak.totalSeconds()); // will overflow 32 bits in 2037
+		      return this.pos32BitIntFor(window.Squeak.totalSeconds()); // will overflow 32 bits in 2037
 		    },
 		    microsecondClock: function(state) {
 		      var millis = Date.now() - state.epoch;
@@ -6600,12 +6601,12 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    },
 		    microsecondClockUTC: function() {
 		      if (!this.microsecondClockUTCState)
-			this.microsecondClockUTCState = {epoch: Squeak.EpochUTC, millis: 0, micros: 0};
+			this.microsecondClockUTCState = {epoch: window.Squeak.EpochUTC, millis: 0, micros: 0};
 		      return this.microsecondClock(this.microsecondClockUTCState);
 		    },
 		    microsecondClockLocal: function() {
 		      if (!this.microsecondClockLocalState)
-			this.microsecondClockLocalState = {epoch: Squeak.Epoch, millis: 0, micros: 0};
+			this.microsecondClockLocalState = {epoch: window.Squeak.Epoch, millis: 0, micros: 0};
 		      return this.microsecondClock(this.microsecondClockLocalState);
 		    },
 		    primitiveUtcWithOffset: function(argCount) {
@@ -6633,9 +6634,9 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      var dirNameObj = this.stackNonInteger(0);
 		      if (!this.success) return false;
 		      var dirName = this.filenameFromSqueak(dirNameObj.bytesAsString());
-		      this.success = Squeak.dirCreate(dirName);
+		      this.success = window.Squeak.dirCreate(dirName);
 		      if (!this.success) {
-			var path = Squeak.splitFilePath(dirName);
+			var path = window.Squeak.splitFilePath(dirName);
 			console.log("Directory not created: " + path.fullname);
 		      }
 		      return this.popNIfOK(argCount);
@@ -6644,7 +6645,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      var dirNameObj = this.stackNonInteger(0);
 		      if (!this.success) return false;
 		      var dirName = this.filenameFromSqueak(dirNameObj.bytesAsString());
-		      this.success = Squeak.dirDelete(dirName);
+		      this.success = window.Squeak.dirDelete(dirName);
 		      return this.popNIfOK(argCount);
 		    },
 		    primitiveDirectoryDelimitor: function(argCount) {
@@ -6659,9 +6660,9 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      var fileName = this.filenameFromSqueak(fileNameObj.bytesAsString());
 		      var sqDirName = dirNameObj.bytesAsString();
 		      var dirName = this.filenameFromSqueak(dirNameObj.bytesAsString());
-		      var entries = Squeak.dirList(dirName, true);
+		      var entries = window.Squeak.dirList(dirName, true);
 		      if (!entries) {
-			var path = Squeak.splitFilePath(dirName);
+			var path = window.Squeak.splitFilePath(dirName);
 			console.log("Directory not found: " + path.fullname);
 			return false;
 		      }
@@ -6675,9 +6676,9 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      if (!this.success) return false;
 		      var sqDirName = dirNameObj.bytesAsString();
 		      var dirName = this.filenameFromSqueak(sqDirName);
-		      var entries = Squeak.dirList(dirName, true);
+		      var entries = window.Squeak.dirList(dirName, true);
 		      if (!entries) {
-			var path = Squeak.splitFilePath(dirName);
+			var path = window.Squeak.splitFilePath(dirName);
 			console.log("Directory not found: " + path.fullname);
 			return false;
 		      }
@@ -6719,7 +6720,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      var fileNameObj = this.stackNonInteger(0);
 		      if (!this.success) return false;
 		      var fileName = this.filenameFromSqueak(fileNameObj.bytesAsString());
-		      this.success = Squeak.fileDelete(fileName);
+		      this.success = window.Squeak.fileDelete(fileName);
 		      return this.popNIfOK(argCount);
 		    },
 		    primitiveFileFlush: function(argCount) {
@@ -6728,7 +6729,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      if (typeof handle.file === "string") {
 			this.fileConsoleFlush(handle.file);
 		      } else {
-			Squeak.flushFile(handle.file);
+			window.Squeak.flushFile(handle.file);
 			this.vm.breakOut();     // return to JS asap so async file handler can run
 		      }
 		      return this.popNIfOK(argCount);
@@ -6792,7 +6793,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      if (!this.success) return false;
 		      var oldName = this.filenameFromSqueak(oldNameObj.bytesAsString()),
 			  newName = this.filenameFromSqueak(newNameObj.bytesAsString());
-		      this.success = Squeak.fileRename(oldName, newName);
+		      this.success = window.Squeak.fileRename(oldName, newName);
 		      this.vm.breakOut();     // return to JS asap so async file handler can run
 		      return this.popNIfOK(argCount);
 		    },
@@ -6871,10 +6872,10 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      // are held in the ref-counted global SqueakFiles
 		      if (typeof SqueakFiles == 'undefined')
 			window.SqueakFiles = {};
-		      var path = Squeak.splitFilePath(filename);
+		      var path = window.Squeak.splitFilePath(filename);
 		      if (!path.basename) return null;    // malformed filename
 		      // fetch or create directory entry
-		      var directory = Squeak.dirList(path.dirname, true);
+		      var directory = window.Squeak.dirList(path.dirname, true);
 		      if (!directory) return null;
 		      var entry = directory[path.basename],
 			  contents = null;
@@ -6891,7 +6892,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			  return null;
 			}
 			contents = new Uint8Array();
-			entry = Squeak.filePut(path.fullname, contents.buffer);
+			entry = window.Squeak.filePut(path.fullname, contents.buffer);
 			if (!entry) {
 			  console.log("Cannot create file: " + path.fullname);
 			  return null;
@@ -6909,7 +6910,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      return file;
 		    },
 		    fileClose: function(file) {
-		      Squeak.flushFile(file);
+		      window.Squeak.flushFile(file);
 		      if (--file.refCount == 0)
 			delete SqueakFiles[file.name];
 		    },
@@ -6920,7 +6921,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			if (file.contents === false) // failed to get contents before
 			  return false;
 			this.vm.freeze(function(unfreeze) {
-			  Squeak.fileGet(file.name,
+			  window.Squeak.fileGet(file.name,
 					 function success(contents) {
 					   if (contents == null) return error(file.name);
 					   file.contents = this.asUint8Array(contents);
@@ -6944,7 +6945,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    fileConsoleWrite: function(logOrError, array, startIndex, count) {
 		      // buffer until there is a newline
 		      var bytes = array.subarray(startIndex, startIndex + count),
-			  buffer = this.fileConsoleBuffer[logOrError] + Squeak.bytesAsString(bytes),
+			  buffer = this.fileConsoleBuffer[logOrError] + window.Squeak.bytesAsString(bytes),
 			  lines = buffer.match('([^]*)\n(.*)');
 		      if (lines) {
 			console[logOrError](lines[1]);  // up to last newline
@@ -6991,7 +6992,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			  stereoFlag = this.stackBoolean(argCount-3),
 			  semaIndex = argCount > 3 ? this.stackInteger(argCount-4) : 0;
 		      if (!this.success) return false;
-		      this.audioContext = Squeak.startAudioOut();
+		      this.audioContext = window.Squeak.startAudioOut();
 		      if (!this.audioContext) {
 			this.vm.warnOnce("could not initialize audio");
 			return false;
@@ -7107,7 +7108,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      var method = this.primMethod,
 			  unfreeze = this.vm.freeze(),
 			  self = this;
-		      Squeak.startAudioIn(
+		      window.Squeak.startAudioIn(
 			function onSuccess(audioContext, source) {
 			  console.log("sound: recording started")
 			  self.audioInContext = audioContext;
@@ -7264,9 +7265,9 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			console.error("jpeg read did not match header info");
 			return false;
 		      }
-		      var depth = form[Squeak.Form_depth],
+		      var depth = form[window.Squeak.Form_depth],
 			  image = this.jpeg2_getPixelsFromImage(state.img),
-			  formBits = form[Squeak.Form_bits].words;
+			  formBits = form[window.Squeak.Form_bits].words;
 		      if (depth === 32) {
 			this.jpeg2_copyPixelsToForm32(image, formBits);
 		      } else if (depth === 16) {
@@ -7377,7 +7378,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      if (url == "") return false;
 		      if (/^\/SqueakJS\//.test(url)) {
 			url = url.slice(10);     // remove file root
-			var path = Squeak.splitFilePath(url),
+			var path = window.Squeak.splitFilePath(url),
 			    template = localStorage["squeak-template:" + path.dirname];
 			if (template) url = JSON.parse(template).url + "/" + path.basename;
 		      }
@@ -7561,12 +7562,12 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      if (obj.isNil) return null;
 		      if (obj.isTrue) return true;
 		      if (obj.isFalse) return false;
-		      if (obj.bytes || obj.sqClass === this.vm.specialObjects[Squeak.splOb_ClassString])
+		      if (obj.bytes || obj.sqClass === this.vm.specialObjects[window.Squeak.splOb_ClassString])
 			return obj.bytesAsString();
-		      if (obj.sqClass === this.vm.specialObjects[Squeak.splOb_ClassArray])
+		      if (obj.sqClass === this.vm.specialObjects[window.Squeak.splOb_ClassArray])
 			return this.js_fromStArray(obj.pointers || [], true);
-		      if (obj.sqClass === this.vm.specialObjects[Squeak.splOb_ClassBlockContext] ||
-			  obj.sqClass === this.vm.specialObjects[Squeak.splOb_ClassBlockClosure])
+		      if (obj.sqClass === this.vm.specialObjects[window.Squeak.splOb_ClassBlockContext] ||
+			  obj.sqClass === this.vm.specialObjects[window.Squeak.splOb_ClassBlockClosure])
 			return this.js_fromStBlock(obj);
 		      throw Error("asJSArgument needed for " + obj);
 		    },
@@ -7602,10 +7603,10 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			throw Error("CallbackSemaphore not set");
 		      // block holds onto thisContext
 		      this.vm.reclaimableContextCount = 0;
-		      if (block.sqClass === SqueakJS.vm.specialObjects[Squeak.splOb_ClassBlockContext]) {numArgs = block.pointers[Squeak.BlockContext_argumentCount];}
-		      else {numArgs = block.pointers[Squeak.Closure_numArgs];}
+		      if (block.sqClass === SqueakJS.vm.specialObjects[window.Squeak.splOb_ClassBlockContext]) {numArgs = block.pointers[window.Squeak.BlockContext_argumentCount];}
+		      else {numArgs = block.pointers[window.Squeak.Closure_numArgs];}
 //		      if (typeof numArgs !== 'number')
-//			numArgs = block.pointers[Squeak.Closure_numArgs];
+//			numArgs = block.pointers[window.Squeak.Closure_numArgs];
 		      var squeak = this;
 		      return function evalSqueakBlock(/* arguments */) {
 			var args = [];
@@ -7670,9 +7671,9 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    ffi_primitiveCalloutWithArgs: function(argCount) {
 		      var extLibFunc = this.stackNonInteger(1),
 			  argsObj = this.stackNonInteger(0);
-		      if (!this.isKindOf(extLibFunc, Squeak.splOb_ClassExternalFunction)) return false;
-		      var moduleName = extLibFunc.pointers[Squeak.ExtLibFunc_module].bytesAsString();
-		      var funcName = extLibFunc.pointers[Squeak.ExtLibFunc_name].bytesAsString();
+		      if (!this.isKindOf(extLibFunc, window.Squeak.splOb_ClassExternalFunction)) return false;
+		      var moduleName = extLibFunc.pointers[window.Squeak.ExtLibFunc_module].bytesAsString();
+		      var funcName = extLibFunc.pointers[window.Squeak.ExtLibFunc_name].bytesAsString();
 		      var args = argsObj.pointers.join(', ');
 		      this.vm.warnOnce('FFI: ignoring ' + moduleName + ': ' + funcName + '(' + args + ')');
 		      return false;        
@@ -8023,10 +8024,10 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      return typeof obj === "number" && obj >= -0x40000000 && obj <= 0x3FFFFFFF;
 		    },
 		    isArray: function(obj) {
-		      return obj.sqClass === this.vm.specialObjects[Squeak.splOb_ClassArray];
+		      return obj.sqClass === this.vm.specialObjects[window.Squeak.splOb_ClassArray];
 		    },
 		    isMemberOf: function(obj, className) {
-		      var nameBytes = obj.sqClass.pointers[Squeak.Class_name].bytes;
+		      var nameBytes = obj.sqClass.pointers[window.Squeak.Class_name].bytes;
 		      if (className.length !== nameBytes.length) return false;
 		      for (var i = 0; i < className.length; i++)
 			if (className.charCodeAt(i) !== nameBytes[i]) return false;
@@ -8120,25 +8121,25 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			obj.sqClass == this.classLargePositiveInteger();
 		    },
 		    classArray: function() {
-		      return this.vm.specialObjects[Squeak.splOb_ClassArray];
+		      return this.vm.specialObjects[window.Squeak.splOb_ClassArray];
 		    },
 		    classBitmap: function() {
-		      return this.vm.specialObjects[Squeak.splOb_ClassBitmap];
+		      return this.vm.specialObjects[window.Squeak.splOb_ClassBitmap];
 		    },
 		    classSmallInteger: function() {
-		      return this.vm.specialObjects[Squeak.splOb_ClassInteger];
+		      return this.vm.specialObjects[window.Squeak.splOb_ClassInteger];
 		    },
 		    classLargePositiveInteger: function() {
-		      return this.vm.specialObjects[Squeak.splOb_ClassLargePositiveInteger];
+		      return this.vm.specialObjects[window.Squeak.splOb_ClassLargePositiveInteger];
 		    },
 		    classLargeNegativeInteger: function() {
-		      return this.vm.specialObjects[Squeak.splOb_ClassLargeNegativeInteger];
+		      return this.vm.specialObjects[window.Squeak.splOb_ClassLargeNegativeInteger];
 		    },
 		    classPoint: function() {
-		      return this.vm.specialObjects[Squeak.splOb_ClassPoint];
+		      return this.vm.specialObjects[window.Squeak.splOb_ClassPoint];
 		    },
 		    classString: function() {
-		      return this.vm.specialObjects[Squeak.splOb_ClassString];
+		      return this.vm.specialObjects[window.Squeak.splOb_ClassString];
 		    },
 		    nilObject: function() {
 		      return this.vm.nilObj;
@@ -8194,7 +8195,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      this.highlightPC = highlightPC; // PC of highlighted line
 		      this.innerIndents = {};
 		      this.result = '';
-		      this.scanner = new Squeak.InstructionStream(this.method, this.vm);
+		      this.scanner = new window.Squeak.InstructionStream(this.method, this.vm);
 		      this.oldPC = this.scanner.pc;
 		      this.endPC = 0;                 // adjusted while scanning
 		      this.done = false;

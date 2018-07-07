@@ -5,7 +5,7 @@
 	BalloonEnginePlugin VMMaker-bf.353 uuid: 8ae25e7e-8d2c-451e-8277-598b30e9c002
  */
 
-module("users.bert.SqueakJS.plugins.B2DPlugin").requires("users.bert.SqueakJS.vm").toRun(function() {
+window.module("users.bert.SqueakJS.plugins.B2DPlugin").requires("users.bert.SqueakJS.vm").toRun(function() {
 "use strict";    
 
 var VM_PROXY_MAJOR = 1;
@@ -7681,7 +7681,7 @@ function workBufferPut(wbOop) {
 }
 
 
-Squeak.registerExternalModule("B2DPlugin", {
+window.Squeak.registerExternalModule("B2DPlugin", {
 	primitiveMergeFillFrom: primitiveMergeFillFrom,
 	primitiveCopyBuffer: primitiveCopyBuffer,
 	primitiveAddRect: primitiveAddRect,

@@ -5,7 +5,7 @@
 // probably some performance benefit, too (no fiddling about with
 // proxies and the message-not-understood code path).
 
-module("SqueakJS.plugins.Flow").requires("users.bert.SqueakJS.vm").toRun(
+window.module("SqueakJS.plugins.Flow").requires("users.bert.SqueakJS.vm").toRun(
   function () {
     "use strict"
 
@@ -14,8 +14,9 @@ module("SqueakJS.plugins.Flow").requires("users.bert.SqueakJS.vm").toRun(
 	interpreterProxy = null,
 	moduleName = "Flow v7"
 
-    navigator.requestMIDIAccess().then(function (access) {
-      window.caffeineMIDIAccess = access})
+    if ('requestMIDIAccess' in navigator) {
+      navigator.requestMIDIAccess().then(function (access) {
+	window.caffeineMIDIAccess = access})}
 
     function setInterpreter(interpreter) {
       interpreterProxy = interpreter
@@ -160,7 +161,7 @@ module("SqueakJS.plugins.Flow").requires("users.bert.SqueakJS.vm").toRun(
       interpreterProxy.pop(1)}
 
 
-    Squeak.registerExternalModule(
+    window.Squeak.registerExternalModule(
       "Flow",
       {
         setInterpreter: setInterpreter,

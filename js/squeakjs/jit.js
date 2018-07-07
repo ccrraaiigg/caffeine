@@ -1,4 +1,4 @@
-module('users.bert.SqueakJS.jit').requires("users.bert.SqueakJS.vm").toRun(function() {
+window.module('users.bert.SqueakJS.jit').requires("users.bert.SqueakJS.vm").toRun(function() {
 "use strict";
 /*
  * Copyright (c) 2014-2016 Bert Freudenberg
@@ -129,7 +129,7 @@ to single-step.
 'initialization', {
     initialize: function(vm) {
         this.vm = vm;
-        this.comments = !!Squeak.Compiler.comments, // generate comments
+        this.comments = !!window.Squeak.Compiler.comments, // generate comments
         // for debug-printing only
         this.specialSelectors = ['+', '-', '<', '>', '<=', '>=', '=', '~=', '*', '/', '\\', '@',
             'bitShift:', '//', 'bitAnd:', 'bitOr:', 'at:', 'at:put:', 'size', 'next', 'nextPut:',

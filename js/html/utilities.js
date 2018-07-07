@@ -129,6 +129,7 @@ function showFiles() {
 window.startCaffeine = function(canvas, imageName, sourcesName, parameters) {
   // if we have a hash image then we just run Squeak with the options provided in the url
   if (location.hash.match(/\.image/)) {
+    // runSqueak is defined in squeak.js.
     return Squeak.runSqueak()
   }
 

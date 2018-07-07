@@ -118,8 +118,8 @@ function SqueakSSL() {
 }
 
 function registerSqueakSSL() {
-    if (typeof Squeak === "object" && Squeak.registerExternalModule) {
-        Squeak.registerExternalModule('SqueakSSL', SqueakSSL());
+    if (typeof window.Squeak === "object" && window.Squeak.registerExternalModule) {
+        window.Squeak.registerExternalModule('SqueakSSL', SqueakSSL());
     } else window.setTimeout(registerSqueakSSL, 100);
 };
 

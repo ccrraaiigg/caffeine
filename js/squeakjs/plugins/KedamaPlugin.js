@@ -5,7 +5,7 @@
 	KedamaPlugin Kedama-Plugins-yo.1 uuid: 3fc7d691-0149-ba4d-a339-5d27cd44a2f8
  */
 
-module("users.bert.SqueakJS.plugins.KedamaPlugin").requires("users.bert.SqueakJS.vm").toRun(function() {
+window.module("users.bert.SqueakJS.plugins.KedamaPlugin").requires("users.bert.SqueakJS.vm").toRun(function() {
 "use strict";
 
 var VM_PROXY_MAJOR = 1;
@@ -2546,7 +2546,7 @@ function zoomBitmap() {
 }
 
 
-Squeak.registerExternalModule("KedamaPlugin", {
+window.Squeak.registerExternalModule("KedamaPlugin", {
 	makeMaskLog: makeMaskLog,
 	vectorGetDistanceTo: vectorGetDistanceTo,
 	getScalarHeading: getScalarHeading,

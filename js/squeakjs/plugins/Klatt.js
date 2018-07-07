@@ -5,7 +5,7 @@
 	KlattSynthesizerPlugin VMMaker-bf.353 uuid: 8ae25e7e-8d2c-451e-8277-598b30e9c002
  */
 
-module("users.bert.SqueakJS.plugins.Klatt").requires("users.bert.SqueakJS.vm").toRun(function() {
+window.module("users.bert.SqueakJS.plugins.Klatt").requires("users.bert.SqueakJS.vm").toRun(function() {
 "use strict";
 
 var VM_PROXY_MAJOR = 1;
@@ -972,7 +972,7 @@ function zeroQphicosphisinphirphid(phi, cosphi, sinphi, rphid) {
 }
 
 
-Squeak.registerExternalModule("Klatt", {
+window.Squeak.registerExternalModule("Klatt", {
 	setInterpreter: setInterpreter,
 	primitiveSynthesizeFrameIntoStartingAt: primitiveSynthesizeFrameIntoStartingAt,
 	getModuleName: getModuleName,
