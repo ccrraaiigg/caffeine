@@ -106,11 +106,18 @@
     <script>
 //      const offscreenCanvas = document.getElementById('squeak').transferControlToOffscreen()
       const theCanvas = document.getElementById('squeak')
+      const offscreenCanvas = new OffscreenCanvas(1400, 870)
+
       window.worker = new Worker('js/html/worker.js')
 worker.onmessage = function (event) {
         theCanvas.getContext('bitmaprenderer').transferFromImageBitmap(event.data)}
 
-      worker.postMessage({instruction: 'start', storage: localStorage['squeak:/']})
+      worker.postMessage(
+        {
+          instruction: 'start',
+          storage: localStorage['squeak:/'],
+          canvas: offscreenCanvas},
+        [offscreenCanvas])
     </script>
 <!--    <script>
       // canvas is set by mobileUtilities.js.
