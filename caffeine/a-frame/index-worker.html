@@ -106,8 +106,7 @@
     <script>
 //      const offscreenCanvas = document.getElementById('squeak').transferControlToOffscreen()
       const theCanvas = document.getElementById('squeak')
-      var offscreenCanvas = new OffscreenCanvas(1400, 870),
-          offscreenBitmap = offscreenCanvas.transferToImageBitmap()
+      var imageData = theCanvas.getContext('2d').getImageData(0, 0, 1400, 870)
 
       window.worker = new Worker('js/html/worker.js')
 worker.onmessage = function (event) {
@@ -117,8 +116,8 @@ worker.onmessage = function (event) {
         {
           instruction: 'start',
           storage: localStorage['squeak:/'],
-          canvas: offscreenBitmap},
-        [offscreenBitmap])
+          canvas: imageData},
+        [imageData])
     </script>
 <!--    <script>
       // canvas is set by mobileUtilities.js.
