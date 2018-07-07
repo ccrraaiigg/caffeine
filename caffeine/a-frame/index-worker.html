@@ -106,6 +106,7 @@
     <script>
 //      const offscreenCanvas = document.getElementById('squeak').transferControlToOffscreen()
       const theCanvas = document.getElementById('squeak')
+      var offscreenCanvas = new OffscreenCanvas(1400, 870)
 
       window.worker = new Worker('js/html/worker.js')
 worker.onmessage = function (event) {
@@ -115,7 +116,7 @@ worker.onmessage = function (event) {
         {
           instruction: 'start',
           storage: localStorage['squeak:/'],
-          canvas: new OffscreenCanvas(1400, 870)},
+          canvas: offscreenCanvas},
         [offscreenCanvas])
     </script>
 <!--    <script>
