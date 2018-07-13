@@ -1,7 +1,6 @@
 // fake enough of the HTML5 environment to get squeak.js to load
 var window = this,
-    document = new Object,
-    canvas = new OffscreenCanvas(1400, 870)
+    document = new Object
 
 window.localStorage = {}
 
@@ -14,7 +13,7 @@ onmessage = function (event) {
 
     window.SqueakJS.runSqueak(
       'caffeine.image',
-      canvas,
+      event.data.canvas,
       {cursor: false})
     break
   case 'input event':

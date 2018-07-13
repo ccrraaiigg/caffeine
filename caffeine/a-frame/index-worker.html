@@ -105,11 +105,18 @@
     <script src="js/a-frame/craig/mobileUtilities-worker.js"></script>
     <script>
       const theCanvas = document.getElementById('squeak')
+      var imageData = theCanvas.getContext('2d').getImageData(0, 0, 1400, 870)
+
       window.worker = new Worker('js/html/worker.js')
 worker.onmessage = function (event) {
         theCanvas.getContext('bitmaprenderer').transferFromImageBitmap(event.data)}
 
-      worker.postMessage({instruction: 'start', storage: localStorage['squeak:/']})
+      worker.postMessage(
+        {
+          instruction: 'start',
+          storage: localStorage['squeak:/'],
+          canvas: imageData},
+        [imageData])
     </script>
 <!--    <script>
       // canvas is set by mobileUtilities.js.
