@@ -6482,7 +6482,8 @@ window.module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    },
 		    displayUpdate: function(form, rect) {
 		      this.showForm(this.display.context, form, rect);
-		      postMessage(this.display.context.canvas.transferToImageBitmap());
+		      if ('transferToImageBitmap' in this.display.context.canvas) {
+			postMessage(this.display.context.canvas.transferToImageBitmap());}
 		      this.display.lastTick = this.vm.lastTick;
 		      this.display.idle = 0;
 		    },

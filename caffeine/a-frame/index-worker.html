@@ -107,7 +107,7 @@
       const theCanvas = document.getElementById('squeak')
 
       window.worker = new Worker('js/html/worker.js')
-worker.onmessage = function (event) {
+      worker.onmessage = function (event) {
         theCanvas.getContext('bitmaprenderer').transferFromImageBitmap(event.data)}
 
       worker.postMessage(
