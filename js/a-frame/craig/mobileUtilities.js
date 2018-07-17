@@ -78,15 +78,16 @@ function spikeRendering () {
       if (scene.goingHome) timeout = 1000
       else timeout = 50}}
   
-  scene.slowRenderOnsetTimeout = setTimeout(
-    function () {
-      // Set the frame rate to 1 per second.
-//    console.log('rendering slowly')
-      cancelAnimationFrame(scene.animationFrameID)
-      scene.render = slowRender.bind(scene)
-      scene.render()
-      scene.renderingNormally = false},
-    timeout)}
+  if (!(window.mobilecheck())) {
+    scene.slowRenderOnsetTimeout = setTimeout(
+      function () {
+	// Set the frame rate to 1 per second.
+	// console.log('rendering slowly')
+	cancelAnimationFrame(scene.animationFrameID)
+	scene.render = slowRender.bind(scene)
+	scene.render()
+	scene.renderingNormally = false},
+      timeout)}}
 
 function focusMe (event) {
   event.target.focus()
