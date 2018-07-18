@@ -399,7 +399,7 @@ document.body.addEventListener(
   false)
 
 var oscPort = new osc.WebSocketPort({
-  url: "ws://192.168.178.54:8081",
+  url: "wss://192.168.178.54:8081",
   metadata: true
 })
 
