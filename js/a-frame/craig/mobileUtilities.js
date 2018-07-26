@@ -64,14 +64,14 @@ function spikeRendering () {
     scene.slowRenderOnsetTimeout = null}
 
   if (!scene.renderingNormally) {
-//  console.log('rendering normally')
+    // console.log('rendering normally')
     if (scene.slowRenderTimeout) clearTimeout(scene.slowRenderTimeout)
     cancelAnimationFrame(scene.animationFrameID)
     scene.render = normalRender.bind(scene)
     scene.render()
     scene.renderingNormally = true}
 
-  if (scene.editingCode) timeout = 50
+  if (scene.editingCode) timeout = 1500
   else {
     if (scene.hasAnimations) timeout = 10000
     else {
@@ -251,6 +251,7 @@ function forwardProjectedMouseEvents(camera, plane, canvas) {
   plane.addEventListener(
     'mousedown',
     function (event) {
+      spikeRendering()
       if (!(document.getElementById('scene').is('vr-mode'))) disableControls('look-controls')
       dispatch(event)})
   
@@ -399,9 +400,8 @@ document.body.addEventListener(
   false)
 
 var oscPort = new osc.WebSocketPort({
-  url: "wss://amsterdam.demo.blackpagedigital.com:8081",
-  metadata: true
-})
+  url: "wss://mobile.demo.blackpagedigital.com:8081",
+  metadata: true})
 
 oscPort.on(
   "message",
