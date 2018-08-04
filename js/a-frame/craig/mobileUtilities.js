@@ -1,7 +1,6 @@
 scene.renderingNormally = true
 
 window.mouseenter = function (event) {
-  scene.editingCode = true
   window.squeakDisplay.vm = SqueakJS.vm
   disableControls('wasd-controls')}
 
@@ -10,9 +9,7 @@ window.mouseleave = function (event) {
   document.getElementById('camera').components['wasd-controls'].data.fly = true
     
   // Trick squeak.js into not queueing keyboard events.
-  if (window.squeakDisplay) squeakDisplay.vm = null
-
-  scene.editingCode = false}
+  if (window.squeakDisplay) squeakDisplay.vm = null}
 
 window.mobilecheck = function() {
   var check = false;
@@ -71,12 +68,18 @@ function spikeRendering () {
     scene.render()
     scene.renderingNormally = true}
 
-  if (scene.editingCode) timeout = 1500
+  // Code formatting can take a while, but it usually doesn't.
+  if (scene.typing) timeout = 200
   else {
     if (scene.hasAnimations) timeout = 10000
     else {
       if (scene.goingHome) timeout = 1000
-      else timeout = 50}}
+      else {
+	// Raising windows can take a while.
+	if (window.mousedown) timeout = 1500
+	else timeout = 50}}}
+
+  scene.typing = false
   
   if (!(window.mobilecheck())) {
     scene.slowRenderOnsetTimeout = setTimeout(
@@ -211,14 +214,14 @@ function forwardProjectedMouseEvents(camera, plane, canvas) {
     canvasEvent.projectedY = Math.floor((selectionDistance * Math.sin(theta)) * heightFactor)
     canvas.lastProjectedEvent = canvasEvent
     
-//    console.log(planarEvent.type + ' ' + canvasEvent.projectedX + ' ' + canvasEvent.projectedY)
+//  console.log(planarEvent.type + ' ' + canvasEvent.projectedX + ' ' + canvasEvent.projectedY)
     canvas.dispatchEvent(canvasEvent)}
-
-  window.mousedown = false
 
   document.addEventListener(
     'keydown',
-    function (event) {spikeRendering()})
+    function (event) {
+      scene.typing = true
+      spikeRendering()})
 
   plane.movemouse = function (x, y) {
     var canvas = document.getElementById('squeak'),
@@ -285,6 +288,7 @@ var canvas = document.getElementById('squeak'),
     listeners
 
 camera.getAttribute('wasd-controls').fly = true
+window.mousedown = false
 
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('serviceWorker.js')
