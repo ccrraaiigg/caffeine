@@ -1,75 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
   <head profile="http://www.w3.org/2005/10/profile">
+
     <link rel="icon" 
 	  type="image/png" 
 	  href="favicon.png">
-    <meta charset="utf-8"/>
+
+    <meta charset="utf-8" />
+
     <meta name="viewport"
-	  content="width=1024"/>
+	  content="width=1024" />
+
     <meta name="apple-mobile-web-app-capable"
-	  content="yes"/>
-    <title>Livecode the Web!</title>
-    <link
-      href="https://fonts.googleapis.com/css?family=Open+Sans:regular,semibold,italic,italicsemibold|PT+Sans:400,700,400italic,700italic|PT+Serif:400,700,400italic,700italic"
-      rel="stylesheet"/>
-    <link
-      href="css/livecoding-talk.css"
-      rel="stylesheet"/>
-    <link
-      href="css/squeakjs.css"
-      rel="stylesheet"/>
-    <link
-      rel="shortcut icon"
-      href="favicon.png"/>
-    <link
-      rel="apple-touch-icon"
-      href="apple-touch-icon.png"/>
-  </head>
+	  content="yes" />
+
+    <title>Caffeine :: Livecode the Web!</title>
+
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:regular,semibold,italic,italicsemibold|PT+Sans:400,700,400italic,700italic|PT+Serif:400,700,400italic,700italic"
+	  rel="stylesheet" />
+
+    <link href="css/livecoding-talk.css"
+	  rel="stylesheet" />
+
+    <link href="css/squeakjs.css"
+	  rel="stylesheet" />
+
+    <link rel="shortcut icon"
+	  href="favicon.png" />
+
+    <link rel="apple-touch-icon"
+	  href="apple-touch-icon.png" /></head>
+
   <body class="impress-not-supported">
+
     <div class="fallback-message">
+
       <p>
 
 	Your browser <b>doesn't support the features required</b> by
-	impress.js, so you are presented with a simplified version of
-	this presentation.
+	impress.js; the presentation has been simplified.
 
       </p>
       <p>
 
-	For the best experience please use the
-        latest <b>Chrome</b>, <b>Safari</b> or <b>Firefox</b>
-        browser.
+	For the best experience, please use the	latest <b>Chrome</b>,
+	<b>Safari</b> or <b>Firefox</b> browser.
 
       </p></div>
 
     <div id="impress">
 
-      <div id="title" class="step" data-scale="4">
+      <div id="title"
+	   class="step"
+	   data-scale="4">
+
         <span class="try">
 
-	  This is a talk about
+	  Livecoding with
 
 	</span>
-        <h1>livecoding</h1>
-	<div id="title-workspace">
-	  <canvas
-	    id="title-workspace-canvas"
-	    data-keyboard-capture="true"
-	    tabindex="1"
-	    style="transition: all 500ms;
-		   opacity: 0;"
-	    width="300"
-	    height="300"></canvas></div></div>
 
-      <div
-	id="pre-summary"
-	class="step"
-	data-x="850"
-	data-y="3400"
-	data-rotate="90"
-	data-scale="5"
-	style="width: 1200px;">
+        <h1>Caffeine</h1>
+
+	<div id="title-workspace">
+
+	  <canvas id="title-workspace-canvas"
+		  data-keyboard-capture="true"
+		  tabindex="1"
+		  style="opacity: 0;"
+		  width="300"
+		  height="300"></canvas></div></div>
+
+      <div id="pre-summary"
+	   class="step"
+	   data-x="850"
+	   data-y="3400"
+	   data-rotate="90"
+	   data-scale="5"
+	   style="width: 1200px;">
 
         <p>
 
@@ -77,86 +85,66 @@
           hood...<br/> They can be that way when
           we're <strong>developing and presenting</strong>, too.
 
+	</p><br><p>
+
+	  <strong>Caffeine</strong> brings
+	  the <strong>Smalltalk</strong> livecoding model to the
+	  dynamic <strong>JavaScript</strong> system built into every
+	  web browser.
+
 	</p></div>
 
-      <div
-	id="text-editor"
-	class="step"
-	data-x="1000"
-	data-y="6200"
-	data-scale="4">
+      <div id="text-editor"
+	   class="step"
+	   data-x="1000"
+	   data-y="6200"
+	   data-scale="4">
+
 	<center>
-	  <iframe
-	    id="text-editor-widget"
-	    src="ace.html"
-	    width="600"
-	    style="opacity: 0;"></iframe>
+
+	  <iframe id="text-editor-widget"
+		  src="ace.html"
+		  width="600"
+		  style="opacity: 0;"></iframe>
+
 	  <p style="font-size: 50%;">
 
 	    <i>Your Favorite Text Editor</i>
 
 	  </p></center></div>
+	
+      <div id="caffeine"
+	   class="step"
+	   data-x="0"
+	   data-y="3500"
+	   data-z="-3000"
+	   data-rotate-x="-40"
+	   data-rotate-y="10"
+	   data-scale="2"
+	   style="position: absolute;
+		  width: 1500px;
+		  height: 950px;">
 
-      <div
-	id="caffeine"
-	class="step"
-	data-x="0"
-	data-y="3500"
-	data-z="-3000"
-	data-rotate-x="-40"
-	data-rotate-y="10"
-	data-scale="2"
-	style="
-	       position: absolute;
-	       width: 1500px;
-	       height: 950px;">
+	<iframe sandbox="allow-scripts
+			 allow-same-origin
+			 allow-top-navigation"
+		id="a-frame"
+		src="../a-frame/"
+		style="position: absolute;
+		       width: 1420px;
+		       height: 870px;"></iframe></div>
 
-	<center>
-	  <div id="embeddedSqueak">
-	    <div id="sqSpinner">
-	      <div id="sqSpinnerSpokes"></div></div>
-	    <canvas
-	      id="squeak"
-	      style="opacity: 0;"
-	      width="1400"
-	      height="870"
-	      data-keyboard-capture="true"
-	      tabindex="1"
-	      style="
-		     opacity: 0;
-		     transition: opacity 500ms;"></canvas></div></center></div>
-
-      <div
-	id="overview"
-	class="step"
-	data-x="3000"
-	data-y="1500"
-	data-scale="10"></div></div>
+      <div id="overview"
+	   class="step"
+	   data-x="3000"
+	   data-y="1500"
+	   data-scale="10"></div></div>
 
     <script src="js/impress.js"></script>
-    <script src="js/squeakjs/squeak.js"></script>
+    <script>impress().init()</script>
     <script src="js/html/utilities.js"></script>
     <script>
-      var canvas = document.getElementById("squeak")
-
-      impress().init()
-
-      window.makeCanvasEditable(canvas)
-      window.makeCanvasEditable(document.getElementById("title-workspace-canvas"))
+      window.makeCanvasEditable(document.getElementById("title-workspace"))
       window.makeEditorEditable(document.getElementById("text-editor-widget"))
-      
-      window.setTimeout(
-        function () {
-          window.startCaffeine(
-            canvas,
-            "caffeine",
-            "SqueakV46",
-            {
-              appID: "9e5a5337-6b13-4e75-8936-d4e62a5500e8",
-              appName: "livecoding presentation",
-              appServer: "demo.blackpagedigital.com:8091"})},
-          3000)
-    </script>
-  </body>
-</html>
-
+      window.makeEditorEditable(document.getElementById("a-frame"))
+    </script></body></html>

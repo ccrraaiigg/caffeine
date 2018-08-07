@@ -1,0 +1,22 @@
+| websocket |
+
+websocket := JS WebSocket new: 'wss:/frankfurt.demo.blackpagedigital.com:8100'.
+
+websocket
+	at: #onopen
+	put: [:message | websocket send: 'help'];
+	at: #onmessage
+	put: [:message |
+		| json |
+
+		json := WebUtils jsonDecode: message data asString readStream.
+	
+		(FrontendServerConnectionDialog new)
+			connectToPorts: {
+				json at: #sshFromCaffeinePort.
+				json at: #httpFromCaffeinePort}
+			atHostNamed: 'frankfurt.demo.blackpagedigital.com'
+			withCredential: (json at: #credential)];
+	yourself
+	
+FrontendShellserver activePeer

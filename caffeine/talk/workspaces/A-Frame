@@ -1,0 +1,12 @@
+"Add something to the scene."
+ABox new add
+AText new add
+
+"Explore a JS object."
+"Persist and resume some platonic solids."
+
+AEntity reanimateFromFileNamed: 'a-box-wkfjk.json'
+(Webpage current elementAt: 'a-box-wkfjk') remove
+
+Webpage current scene exitVR
+Webpage exportSnapshot

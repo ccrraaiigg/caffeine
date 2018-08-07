@@ -1,0 +1,11 @@
+"Open a JavaScript workspace."
+JavaScriptWorkspace openInWorld: HTML5PasteUpMorph newWorld
+
+"Open a Smalltalk workspace."
+Workspace openInWorld: HTML5PasteUpMorph newWorld
+
+
+"Open a classes browser."
+Browser openInWorld: HTML5PasteUpMorph newWorld
+
+SystemWindow refreshAllWindows
