@@ -92,7 +92,7 @@
 	  dynamic <strong>JavaScript</strong> system built into every
 	  web browser.
 
-	</p></div>
+      </p></div>
 
       <div id="text-editor"
 	   class="step"
@@ -134,17 +134,68 @@
 		       width: 1420px;
 		       height: 870px;"></iframe></div>
 
+      <div id="html5-morphic"
+	   class="step"
+	   data-x="6000"
+	   data-y="3500"
+	   data-z="-3000"
+	   data-rotate-x="-40"
+	   data-rotate-y="10"
+	   data-scale="4"
+	   style="width: 1200px;">
+
+	<p>
+	  
+	  Squeak's GUI, <strong>Morphic</strong>, can draw all its
+	  windows together on a single canvas, or each window on its
+	  own canvas. The first slide now contains an example of this.
+
+      </p></div>
+
+      <div id="morphicjs"
+	   class="step"
+	   data-x="12000"
+	   data-y="3500"
+	   data-z="-3000"
+	   data-rotate-x="-40"
+	   data-rotate-y="10"
+	   data-scale="4"
+	   style="width: 1200px;">
+
+	<p>
+	   
+	  There's also a standalone JS implementation of Morphic,
+	  <strong>MorphicJS</strong>, from UC Berkeley's Snap project.
+
+	</p><br><p>
+
+	  We can use MorphicJS for Squeak windows, each in its own
+	  HTML5 canvas, while Squeak itself runs as a headless backend
+	  service.
+
+	</p><br>
+
+	<div id="morphicjs-window">
+
+	  <canvas id="morphicjs-window-canvas"
+		  data-keyboard-capture="true"
+		  tabindex="1"
+		  style="opacity: 0;"
+		  width="300"
+		  height="300"></canvas></div></div>
+
       <div id="overview"
 	   class="step"
 	   data-x="3000"
 	   data-y="1500"
-	   data-scale="10"></div></div>
+	   data-scale="15"></div></div>
 
     <script src="js/impress.js"></script>
     <script>impress().init()</script>
     <script src="js/html/utilities.js"></script>
     <script>
       window.makeCanvasEditable(document.getElementById("title-workspace"))
+      window.makeCanvasEditable(document.getElementById("morphicjs-window"))
       window.makeEditorEditable(document.getElementById("text-editor-widget"))
       window.makeEditorEditable(document.getElementById("a-frame"))
     </script></body></html>
