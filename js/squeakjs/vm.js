@@ -6802,7 +6802,11 @@ window.module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      var pos = this.stackPos32BitInt(0),
 			  handle = this.stackNonInteger(1);
 		      if (!this.success || !handle.file) return false;
-		      handle.filePos = pos;
+		      if (pos < handle.file.size)
+			handle.filePos = pos;
+		      else {
+			console.log("attempt to use position " + pos + " in file of size " + handle.file.size);
+			return false;}
 		      return this.popNIfOK(argCount);
 		    },
 		    primitiveFileSize: function(argCount) {

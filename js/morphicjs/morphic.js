@@ -1359,7 +1359,7 @@ function getDocumentPositionOf(aDOMelement) {
     }
     pos = {x: aDOMelement.offsetLeft, y: aDOMelement.offsetTop};
     offsetParent = aDOMelement.offsetParent;
-    while (offsetParent !== null) {
+  while ((offsetParent !== null) && (offsetParent.id !== 'impress')) {
         pos.x += offsetParent.offsetLeft;
         pos.y += offsetParent.offsetTop;
         if (offsetParent !== document.body &&
