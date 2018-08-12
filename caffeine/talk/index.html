@@ -29,7 +29,10 @@
 	  href="favicon.png" />
 
     <link rel="apple-touch-icon"
-	  href="apple-touch-icon.png" /></head>
+	  href="apple-touch-icon.png" />
+
+    <link rel="import"
+	  href="html/devtools/basic.html"></head>
 
   <body class="impress-not-supported">
 
@@ -181,9 +184,53 @@
 		  data-keyboard-capture="true"
 		  tabindex="1"
 		  style="opacity: 0;"
-		  width="300"
+		  width="700"
 		  height="300"></canvas></div></div>
 
+      <div id="wireframes"
+	   class="step"
+	   data-x="18000"
+	   data-y="3500"
+	   data-z="-3000"
+	   data-rotate-x="-40"
+	   data-rotate-y="10"
+	   data-scale="4"
+	   style="width: 1200px;">
+
+	<p>
+	  
+	  The standalone Squeak Morphic and MorphicJS windows are
+	  minor examples of <i>animated wireframes</i>: using DOM
+	  elements defined by the HTML code of this presentation as
+	  resources for code loaded later.
+
+	</p><br><p>
+
+	  We can extend this technique to use HTML for more extensive
+	  expression of the GUI structures that our code uses. Rather
+	  than burdening our code with implementing a UI system (event
+	  handling and so on), we can reuse the one built into the web
+	  browser.
+
+      </div>
+
+      <div id="code-browser-wireframe"
+           class="step"
+           data-x="24000"
+           data-y="3500"
+           data-z="-3000"
+           data-rotate-x="-40"
+           data-rotate-y="10"
+           data-scale="4"
+           style="width: 1200px;">
+
+        <p>
+
+	  Here's an example of animated HTML wireframe, defining the
+	  UI of a Smalltalk code browser.
+
+	</p><br></div>
+	  
       <div id="overview"
 	   class="step"
 	   data-x="3000"
@@ -194,6 +241,10 @@
     <script>impress().init()</script>
     <script src="js/html/utilities.js"></script>
     <script>
+      var wireframes = document.querySelector('link[rel="import"]').import
+
+      document.getElementById("code-browser-wireframe").appendChild(wireframes.getElementById("classes-browser"))
+      
       window.makeCanvasEditable(document.getElementById("title-workspace"))
       window.makeCanvasEditable(document.getElementById("morphicjs-window"))
       window.makeEditorEditable(document.getElementById("text-editor-widget"))
