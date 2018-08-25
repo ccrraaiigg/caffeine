@@ -12,16 +12,7 @@ livecoding NodeJS (p2p tunneling, tweetcoding blog posts)
 speech recognition
 music (WebMIDI)
 Chrome Debugging Protocol
+thanks
+overview
 
 
-workspace content:
-
-parsing javascript: Esprima smalltalkFor: 'var foo = function (bar, baz) {return bar;}'
-speech recognition: Webpage current recognizeSpeech (and say "next slide")
-webmidi: (WebMIDI outputs first)
-	playNote: 'C3'
-	with: 1
-	with: {
-		#duration -> 500.
-		#rawVelocity -> true.
-		#velocity -> 80}
