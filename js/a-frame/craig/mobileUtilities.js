@@ -290,7 +290,7 @@ var canvas = document.getElementById('squeak'),
 camera.getAttribute('wasd-controls').fly = true
 window.mousedown = false
 
-if ('serviceWorker' in navigator) {
+if ('serviceWorkerr' in navigator) {
   navigator.serviceWorker.register('serviceWorker.js')
     .then(function(reg) {
       // registration worked

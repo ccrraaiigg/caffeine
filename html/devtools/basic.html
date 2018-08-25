@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
   <head>
     <title>Smalltalk Development Tools :: basic</title></head>
@@ -6,14 +7,12 @@
 
     <!-- styles -->
     
-    <link
-      rel="stylesheet"
-      href="/caffeine/css/jquery/ui/jquery-ui.min.css">
+    <link rel="stylesheet"
+	  href="/caffeine/css/jquery/ui/jquery-ui.min.css">
 
-    <link
-      id="assets-stylesheet"
-      rel="stylesheet"
-      href="/caffeine/css/devtools/basic.css">
+    <link id="assets-stylesheet"
+	  rel="stylesheet"
+	  href="/caffeine/css/devtools/basic.css">
 
     <!-- scripts -->
     
@@ -21,209 +20,227 @@
     <script src="/caffeine/js/jquery/ui/jquery-ui.min.js"></script>
     <script src="/caffeine/js/html/devtools/basic.js"></script>
 
-    <!-- assets -->
+    <!-- a traditional Smalltalk classes browser, with listboxes for
+         class categories, classes, method categories, and methods,
+         and a text area for method source, class definitions, and
+         class comments -->
 
-    <div
-      id="assets">
-      
-      <!-- a traditional Smalltalk classes browser, with listboxes for
-           class categories, classes, method categories, and methods,
-           and a text area for method source, class definitions, and
-           class comments -->
+    <div id="classes-browser"
+	 class="window"
+	 style="width: 800px;
+		height: 500px;
+		top: 50px;
+		left: 50px;">
 
-      <div
-	id="classes-browser"
-	class="window"
-	smalltalkClass="HTMLSmalltalkClassesBrowser"
-	style="width: 500px;
-	       height: 300px;
-	       top: 50px;
-	       left: 50px;">
+      <div id="title"
+	   class="titlebar">
 
-	<div
-	  id="title"
-	  class="titlebar">
+	<img id="close-button"
+	     class="close-button"
+	     src="pictures/window icons/closeButton.png">
 
-	  <img
-	    id="close-button"
-	    class="close-button"
-	    src="pictures/window icons/closeButton.png">
+	<div class="titlebar-text"
+	     style="all: initial;
+		    display: block;
+		    margin: 0px 30px;">
+	  
+	  <i><b>
 
-	  <div class="titlebar-text"
-	       style="all: initial;
-		      display: block;
-		      margin: 0px 30px;">
+	      classes browser
+
+      </b></i></div></div>
+
+      <div id="listboxes"
+	   style="display: flex;
+		  flex: 1;
+		  margin-left: 3px;
+		  margin-top: 3px;">
+
+	<select id="class-categories"
+		class="listbox"
+		size="2"
+		style="flex: 1;">
+	  
+	  <option value="1">class category one</option>
+	  <option value="2">class category two</option>
+	  <option value="3">class category three</option>
+	  <option value="4">class category four</option>
+	  <option value="5">class category five</option>
+	  <option value="6">class category six</option>
+	  <option value="7">class category seven</option></select>
+
+	<div id="classes-group"
+	     style="flex: 1;
+		    display: flex;
+		    flex-direction: column;">
+
+	  <select id="classes"
+		  class="listbox"
+		  size="2"
+		  style="flex: 5;">
 	    
-	    <i><b>
+	    <option value="1">class one</option>
+	    <option value="2">class two</option>
+	    <option value="3">class three</option>
+	    <option value="4">class four</option>
+	    <option value="5">class five</option>
+	    <option value="6">class six</option>
+	    <option value="7">class seven</option></select>
 
-		classes browser
+	  <div id="class-buttons"
+	       class="button-row">
+	    
+	    <div id="instance-side-button"
+		 class="button">instance</div>
 
-	</b></i></div></div>
+	    <div id="class-side-button"
+		 class="button">class</div>
 
-	<div
-	  id="listboxes"
-	  style="display: flex;
-		 flex: 1;
-		 margin-left: 3px;
-		 margin-top: 3px;">
+	    <div id="class-comment-button"
+		 class="button">?</div></div></div>
 
-	  <select
-	    id="class-categories"
-	    class="listbox"
-	    size="2"
-	    style="flex: 1;">
-	    <option value="1">class category one</option>
-	    <option value="2">class category two</option>
-	    <option value="3">class category three</option>
-	    <option value="4">class category four</option>
-	    <option value="5">class category five</option>
-	    <option value="6">class category six</option>
-	    <option value="7">class category seven</option></select>
-
-	  <div
-	    id="classes-group"
-	    style="flex: 1;
-		   display: flex;
-		   flex-direction: column;">
-
-	    <select
-	      id="classes"
-	      class="listbox"
-	      size="2"
-	      style="flex: 5;">
-	      <option value="1">class one</option>
-	      <option value="2">class two</option>
-	      <option value="3">class three</option>
-	      <option value="4">class four</option>
-	      <option value="5">class five</option>
-	      <option value="6">class six</option>
-	      <option value="7">class seven</option></select>
-
-	    <div
-	      id="class-buttons"
-	      class="button-row">
-	      
-	      <div
-		id="instance-side-button"
-		class="button">instance</div>
-
-	      <div
-		id="class-side-button"
-		class="button">class</div>
-
-	      <div
-		id="class-comment-button"
-		class="button">?</div></div></div>
-
-	  <select
-	    id="method-categories"
-	    class="listbox"
-	    size="2"
-	    style="flex: 1;">
-	    <option value="1">method category one</option>
-	    <option value="2">method category two</option>
-	    <option value="3">method category three</option>
-	    <option value="4">method category four</option>
-	    <option value="5">method category five</option>
-	    <option value="6">method category six</option>
-	    <option value="7">method category seven</option></select>
-
-	  <select
-	    id="methods"
-	    class="listbox"
-	    size="2"
-	    style="flex: 1;">
-	    <option value="1">method one</option>
-	    <option value="2">method two</option>
-	    <option value="3">method three</option>
-	    <option value="4">method four</option>
-	    <option value="5">method five</option>
-	    <option value="6">method six</option>
-	    <option value="7">method seven</option></select></div>
-
-	<textarea
-	  id="text"
-	  style="resize: none;
-		 flex: 1;
-		 margin: 3px;">This is a Smalltalk classes browser, implemented as an HTML wireframe animated by SqueakJS.</textarea></div>
-
-      <!-- a Smalltalk workspace for evaluating expressions -->
-      
-      <div
-	id="workspace"
-	class="window"
-	smalltalkClass="HTMLSmalltalkWorkspace"
-	style="width: 500px;
-	       height: 200px;
-	       top: 50px;
-	       left: 600px;
-	       zIndex: 10;">
-
-	<div
-	  id="title"
-	  class="titlebar">
-
-	  <img
-	    id="close-button"
-	    class="closebutton"
-	    src="pictures/window icons/closeButton.png">
+	<select id="method-categories"
+		class="listbox"
+		size="2"
+		style="flex: 1;">
 	  
-	  <div class="titlebar-text"
-	       style="all: initial;
-		      display: block;
-		      margin: 0px 30px;">
+	  <option value="1">method category one</option>
+	  <option value="2">method category two</option>
+	  <option value="3">method category three</option>
+	  <option value="4">method category four</option>
+	  <option value="5">method category five</option>
+	  <option value="6">method category six</option>
+	  <option value="7">method category seven</option></select>
 
-	    <i><b>
-
-		workspace
-
-	</b></i></div></div>
-
-	<textarea
-	  id="text"
-	  class="textarea">expressions to evaluate</textarea></div>
-
-      <!-- a text-entry dialog
-
-      <div
-	id="text-entry-dialog"
-	class="dialog" -->
-
-      
-      <!-- a modal popup confirmation dialog -->
-      
-      <div
-	id="confirm-dialog"
-	class="dialog"
-	smalltalkClass="HTMLDialog"
-	style="top: 200px;
-	       left: 1150px;">
-
-	<div
-	  id="question"
-	  class="dialog-question">Do you care?</div>
-
-	<div
-	  id="buttons"
-	  class="button-row">
-
-	  <div
-	    id="true"
-	    class="button">yes</div>
+	<select id="methods"
+		class="listbox"
+		size="2"
+		style="flex: 1;">
 	  
-	  <div
-	    id="false"
-	    class="button">no</div></div></div>
+	  <option value="1">method one</option>
+	  <option value="2">method two</option>
+	  <option value="3">method three</option>
+	  <option value="4">method four</option>
+	  <option value="5">method five</option>
+	  <option value="6">method six</option>
+	  <option value="7">method seven</option></select></div>
 
-      <!-- a popup menu -->
+      <textarea id="text"
+		class="textarea">This is a Smalltalk classes browser, implemented as an HTML wireframe animated by SqueakJS.</textarea></div>
+
+    <!-- a Smalltalk workspace for evaluating expressions -->
+    
+    <div id="workspace"
+	 class="window"
+	 style="width: 700px;
+		height: 400px;
+		top: 50px;
+		left: 600px;
+		zIndex: 10;">
+
+      <div id="title"
+	   class="titlebar">
+
+	<img id="close-button"
+	     class="closebutton"
+	     src="pictures/window icons/closeButton.png">
+	
+	<div class="titlebar-text"
+	     style="all: initial;
+		    display: block;
+		    margin: 0px 30px;">
+
+	  <i><b>
+
+	      workspace
+
+      </b></i></div></div>
+
+      <textarea id="text"
+		class="textarea">expressions to evaluate</textarea></div>
+
+    <!-- a Smalltalk object inspector, with panes for listing slots,
+         printing slot values, and evaluating expressions -->
+
+    <div id="inspector"
+	 class="window"
+	 style="width: 500px;
+		height: 500px;
+		top: 400px;
+		left: 50px;">
+
+      <div id="title"
+	   class="titlebar">
+
+	<img id="close-button"
+	     class="close-button"
+	     src="pictures/window icons/closeButton.png">
+
+	<div id="titlebar-text"
+	     class="titlebar-text"
+	     style="all: initial;
+		    display: block;
+		    margin: 0px 30px;">
+
+	  <i><b>
+
+	      inspector
+
+      </b></i></div></div>
+
+      <div id="upper-row"
+	   style="display: flex;
+		  flex: 1;
+		  margin-left: 3px;
+		  margin-top: 3px;">
+
+	<select id="slots"
+		class="listbox"
+		size="2"
+		style="flex: 1;">
+
+	  <option value="1">slot one</option>
+	  <option value="2">slot two</option>
+	  <option value="3">slot three</option></select>
+
+	<textarea id="value"
+		  class="textarea">This is a Smalltalk object inspector.</textarea></div>
       
-      <div
-	id="popup-menu"
-	class="menu"
-	smalltalkClass="HTMLPopupMenu"
-	style="top: 50px;
-	       left: 1150px;">
+      <textarea id="text"
+		class="textarea">expressions to evaluate</textarea></div>
 
-	<div class="menu-item">a choice</div>
-	<div class="menu-separator"></div>
-	<div class="menu-item">another choice</div></div></div></body></html>
+    <!-- a text-entry dialog
+
+	 <div id="text-entry-dialog"
+	 class="dialog" -->
+
+    
+    <!-- a modal popup confirmation dialog -->
+    
+    <div id="confirm-dialog"
+	 class="dialog"
+	 style="top: 200px;
+		left: 1150px;">
+
+      <div id="question"
+	   class="dialog-question">Do you care?</div>
+
+      <div id="buttons"
+	   class="button-row">
+
+	<div id="true"
+	     class="button">yes</div>
+	
+	<div id="false"
+	     class="button">no</div></div></div>
+
+    <!-- a popup menu -->
+    
+    <div id="popup-menu"
+	 class="menu"
+	 style="top: 50px;
+		left: 1150px;">
+
+      <div class="menu-item">a choice</div>
+      <div class="menu-separator"></div>
+      <div class="menu-item">another choice</div></div></body></html>

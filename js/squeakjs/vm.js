@@ -7610,8 +7610,6 @@ window.module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      this.vm.reclaimableContextCount = 0;
 		      if (block.sqClass === SqueakJS.vm.specialObjects[window.Squeak.splOb_ClassBlockContext]) {numArgs = block.pointers[window.Squeak.BlockContext_argumentCount];}
 		      else {numArgs = block.pointers[window.Squeak.Closure_numArgs];}
-//		      if (typeof numArgs !== 'number')
-//			numArgs = block.pointers[window.Squeak.Closure_numArgs];
 		      var squeak = this;
 		      return function evalSqueakBlock(/* arguments */) {
 			var args = [];
@@ -7620,8 +7618,9 @@ window.module('users.bert.SqueakJS.vm').requires().toRun(function() {
 
 			if (args[0]) {
 			  if (args[0].constructor.name == 'KeyboardEvent') {
-			    args[0].preventDefault();
-			    args[0].stopPropagation();}}
+			    if ((args[0].metaKey && (args[0].which != 86 && args[0].which != 67 && args[0].which != 65 && args[0].which != 88)) || args[0].which === 9 /* tab */) {
+			      args[0].preventDefault();
+			      args[0].stopPropagation();}}}
 
 			return new Promise(function(resolve, reject) {
 			  function evalAsync() {

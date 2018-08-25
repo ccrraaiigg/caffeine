@@ -6,12 +6,22 @@ HMTL5 Morphic
 MorphicJS
 animated HTML wireframes
 snowglobe
-ThreeJS
-VoxelJS
+other graphics frameworks (three.js, voxel.js blog posts)
 parsing JavaScript
-tunneling
-tweetcoding
+livecoding NodeJS (p2p tunneling, tweetcoding blog posts)
 speech recognition
-music
+music (WebMIDI)
 Chrome Debugging Protocol
-Web Components
+
+
+workspace content:
+
+parsing javascript: Esprima smalltalkFor: 'var foo = function (bar, baz) {return bar;}'
+speech recognition: Webpage current recognizeSpeech (and say "next slide")
+webmidi: (WebMIDI outputs first)
+	playNote: 'C3'
+	with: 1
+	with: {
+		#duration -> 500.
+		#rawVelocity -> true.
+		#velocity -> 80}

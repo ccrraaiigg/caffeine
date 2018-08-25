@@ -109,6 +109,9 @@
     <script src="js/oscrelay/node_modules/osc/dist/osc-browser.min.js"></script>
     <script src="js/a-frame/craig/mobileUtilities.js"></script>
     <script>
+      // Prevent the home button from being dragged.
+      document.body.ondragstart = () => {return false}
+      
       // canvas is set by mobileUtilities.js.
       setTimeout(
         function () {

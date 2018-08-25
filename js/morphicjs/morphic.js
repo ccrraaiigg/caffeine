@@ -8931,34 +8931,37 @@ TextMorph.prototype.slotPosition = function (slot) {
 };
 
 TextMorph.prototype.slotAt = function (aPoint) {
-    // answer the slot (index) closest to the given point taking
-    // in account how far from the middle of the character it is,
-    // so the cursor can be moved accordingly
+  // answer the slot (index) closest to the given point taking
+  // in account how far from the middle of the character it is,
+  // so the cursor can be moved accordingly
 
-    var charX = 0,
-        row = 0,
-        col = 0,
-        shadowHeight = Math.abs(this.shadowOffset.y),
-        context = this.image.getContext('2d');
+  var charX = 0,
+      row = 0,
+      col = 0,
+      shadowHeight = Math.abs(this.shadowOffset.y),
+      context = this.image.getContext('2d');
 
-    while (aPoint.y - this.top() >
-            ((fontHeight(this.fontSize) + shadowHeight) * row)) {
-        row += 1;
-    }
-    row = Math.max(row, 1);
+  while (aPoint.y - this.top() >
+         ((fontHeight(this.fontSize) + shadowHeight) * row)) {
+    row += 1;
+  }
+  row = Math.max(row, 1);
 
-    while (aPoint.x - this.left() > charX) {
-      try {charX += context.measureText(this.lines[row - 1][col]).width;} catch(e) {row -= 1; col = 0}
-        col += 1;
-    }
+  while (aPoint.x - this.left() > charX) {
+    // crl: Was getting overly large results for row, not sure
+    // why. Use case is morphic.js embedded in an ImpressJS app.
+    try {charX += context.measureText(this.lines[row - 1][col]).width;}
+    catch(e) {row -= 1; col = 0}
+    col += 1;
+  }
 
-    // see where our click fell with respect to the middle of the char
-    if (aPoint.x - this.left() >
-            charX - context.measureText(this.lines[row - 1][col]).width / 2) {
-        return this.lineSlots[Math.max(row - 1, 0)] + col;
-    } else {
-        return this.lineSlots[Math.max(row - 1, 0)] + col - 1;
-    }
+  // see where our click fell with respect to the middle of the char
+  if (aPoint.x - this.left() >
+      charX - context.measureText(this.lines[row - 1][col]).width / 2) {
+    return this.lineSlots[Math.max(row - 1, 0)] + col;
+  } else {
+    return this.lineSlots[Math.max(row - 1, 0)] + col - 1;
+  }
 };
 
 TextMorph.prototype.upFrom = function (slot) {

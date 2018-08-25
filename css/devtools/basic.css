@@ -13,14 +13,15 @@
 
 .listbox {
     flex: 1;
+    font-size: 18px;
     margin-right: 3px;}
 
 .button {
-    padding: 1px 5px;
+    padding: 1px 20px;
     background: lightGray;
     margin-top: 2px;
     border: 2px solid black;
-    font-size: small;}
+    font-size: 16px;}
 
 .button-row {
     flex: 1;
@@ -32,18 +33,20 @@
 
 .titlebar {
     display: flex;
-    height: 20px;
+    height: 25px;
     margin-top: 6px;
     margin-left: 6px;}
 
 .titlebar-text {
     position: absolute;
+    font-size: 18px;
     top: 6;
     left: 30;}
 
 .textarea {
     resize: none;
     flex: 1;
+    font-size: 18px;
     margin: 3px;}
 
 .menu {
@@ -58,6 +61,7 @@
     transition: opacity 500ms;}
 
 .menu-item {
+    font-size: 18px;
     padding: 1px 5px;}
 
 .menu-separator {

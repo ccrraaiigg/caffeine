@@ -1,4 +1,4 @@
-window.onload = function () {
+window.onload = () => {
   // When viewing the page by itself, make the UIs draggable, for demo
   // purposes.
 
@@ -6,8 +6,8 @@ window.onload = function () {
     '#classes-browser',
     '#class-categories-menu',
     '#workspace',
+    '#inspector',
     '#popup-menu',
-    '#confirm-dialog',
+    '#confirm-dialog'
   ]
-    .forEach(function (id) {(window.$)(id).draggable()})}
-
+    .forEach((id) => {(window.$)(id).draggable()})}
