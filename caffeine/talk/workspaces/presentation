@@ -1,4 +1,18 @@
 intro
+
+     Hi, this is Craig Latta from Black Page Digital. Here's
+a livecoding environment I wrote called Caffeine. Livecoding
+is writing software while you're running it. A good vehicle
+for livecoding is the JavaScript engine in the web browser
+you're using right now.
+
+     Web apps are dynamic media under the hood. They can be
+that way when we're developing and presenting, too. Caffeine
+brings the Smalltalk livecoding model to the dynamic
+JavaScript built into every web browser.
+
+
+
 SqueakJS
 ImpressJS
 A-Frame
