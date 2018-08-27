@@ -1,4 +1,4 @@
-The site-building process for GitHub Pages is currently timing out on this repo, so https://caffeine.js.org may be unavailable.
+The site-building process for GitHub Pages is currently timing out on this repo, so https://caffeine.js.org may be unavailable. A clone is running at http://blackpagedigital.com/caffeine/.
 
 Caffeine is an in-browser development environment powered by [SqueakJS](https://squeak.js.org), with support for [Squeak](http://squeak.org), [Pharo](https://pharo.org), [Cuis](http://cuis-smalltalk.org), 3D VR (via [A-Frame](https://aframe.io) and [OSC](http://opensoundcontrol.org)), zooming 3D presentations (via [impress.js](https://impress.js.org)), WebMIDI, and many other JS frameworks.
 
