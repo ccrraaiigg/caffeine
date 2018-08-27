@@ -49,3 +49,10 @@ workspaceSlideNames.forEach((id) => {
 
 canvasNames.forEach((id) => {window.makeCanvasEditable(document.getElementById(id))})
 editorNames.forEach((id) => {window.makeEditorEditable(document.getElementById(id))})
+
+window.setImpressDuration = (string) => {
+  var divs = document.getElementById('impress').children[0].children
+  
+  for (var i = 0; i < divs.length; i++) {
+    divs[i].dataset.transitionDuration = string}}
+
