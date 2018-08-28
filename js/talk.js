@@ -2,7 +2,7 @@ window.addEventListener(
   'WebComponentsReady',
   () => {
     var wireframes = document.querySelector('link[rel="import"]').import,
-	workspace = wireframes.getElementById('workspace'),
+	workspace = wireframes.getElementsByClassName('workspace')[0],
 	workspaceSlideNames = [
 	  'parsing-javascript',
 	  'speech-recognition',
@@ -20,10 +20,10 @@ window.addEventListener(
 	  'text-editor-widget',
 	  'a-frame']
 
-    document.getElementById('a-frame').addEventListener(
+    window.document.getElementById('a-frame').addEventListener(
       'mouseleave',
       (event) => {
-	document.getElementById('a-frame').blur()})
+	window.document.getElementById('a-frame').blur()})
 
     window.addEventListener(
       'keydown',
@@ -42,19 +42,19 @@ window.addEventListener(
       'mousedown',
       (event) => {document.body.parentNode.style.cursor = ''})
 
-    document.getElementById('code-browser-wireframe').appendChild(wireframes.getElementById('classes-browser').cloneNode(true))
+    window.document.getElementById('code-browser-wireframe').appendChild(wireframes.getElementsByClassName('classes-browser')[0].cloneNode(true))
 
     workspaceSlideNames.forEach((id) => {
       var slideWorkspace = workspace.cloneNode(true)
 
       slideWorkspace.id = id + '-' + slideWorkspace.id
-      document.getElementById(id).appendChild(slideWorkspace)})
+      window.document.getElementById(id).appendChild(slideWorkspace)})
 
-    canvasNames.forEach((id) => {window.makeCanvasEditable(document.getElementById(id))})
-    editorNames.forEach((id) => {window.makeEditorEditable(document.getElementById(id))})
+    canvasNames.forEach((id) => {window.makeCanvasEditable(window.document.getElementById(id))})
+    editorNames.forEach((id) => {window.makeEditorEditable(window.document.getElementById(id))})
 
     window.setImpressDuration = (string) => {
-      var divs = document.getElementById('impress').children[0].children
+      var divs = window.document.getElementById('impress').children[0].children
       
       for (var i = 0; i < divs.length; i++) {
 	divs[i].dataset.transitionDuration = string}}})
