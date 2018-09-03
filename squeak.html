@@ -26,6 +26,16 @@
             try {magicWindow = window.top.magicWindow}
             catch (exception) {magicWindow = null}
 
+	    window.top.onorientationchange = (event) => {event.preventDefault()}
+
+	    window.top.document.ontouchend = (event) => {
+	      window.top.document.getElementById("Caffeine").contentWindow.focus()
+	      window.top.document.getElementById("embeddedSqueak").style.zIndex = 1000
+	      window.top.document.getElementById("embeddedSqueak").style.boxShadow = "1px 1px 7px #999, 2px 2px 8px #999, 3px 3px 9px #999"}
+
+	    window.top.document.getElementById("embeddedSqueak").ontouchend = window.top.document.ontouchend
+	    window.top.document.getElementById("Caffeine").ontouchend = window.top.document.ontouchend
+
             if (magicWindow) {
               magicWindow.squeakDisplay = window.startCaffeine(
                 squeak,
