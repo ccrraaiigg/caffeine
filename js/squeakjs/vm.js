@@ -6482,8 +6482,9 @@ window.module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    },
 		    displayUpdate: function(form, rect) {
 		      this.showForm(this.display.context, form, rect);
-		      if ('transferToImageBitmap' in this.display.context.canvas) {
-			postMessage(this.display.context.canvas.transferToImageBitmap());}
+		      // crl: part of the upcoming web-worker-based graphics feature
+		      // if ('transferToImageBitmap' in this.display.context.canvas) {
+		      //   postMessage(this.display.context.canvas.transferToImageBitmap());}
 		      this.display.lastTick = this.vm.lastTick;
 		      this.display.idle = 0;
 		    },

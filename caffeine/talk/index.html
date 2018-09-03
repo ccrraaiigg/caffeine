@@ -1,44 +1,48 @@
 <!-- Caffeine presentation slides, version 17 -->
-<html lang='en'>
-  <head profile='http://www.w3.org/2005/10/profile'>
+<html lang="en">
+  <head profile="http://www.w3.org/2005/10/profile">
 
-    <link rel='icon' 
-	  type='image/png' 
-	  href='favicon.png'>
+    <link rel="icon" 
+	  type="image/png" 
+	  href="favicon.png">
 
-    <meta charset='utf-8' />
+    <meta charset="utf-8" />
 
-    <meta name='viewport'
-	  content='width=1024' />
+    <meta name="viewport"
+	  content="width=1024" />
 
-    <meta name='apple-mobile-web-app-capable'
-	  content='yes' />
+    <meta name="apple-mobile-web-app-capable"
+	  content="yes" />
 
     <title>Caffeine :: Livecode the Web!</title>
 
-    <link href='https://fonts.googleapis.com/css?family=Open+Sans:regular,semibold,italic,italicsemibold|PT+Sans:400,700,400italic,700italic|PT+Serif:400,700,400italic,700italic'
-	  rel='stylesheet' />
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:regular,semibold,italic,italicsemibold|PT+Sans:400,700,400italic,700italic|PT+Serif:400,700,400italic,700italic"
+	  rel="stylesheet" />
 
-    <link href='/css/livecoding-talk.css'
-	  rel='stylesheet' />
+    <link href="/css/livecoding-talk.css"
+	  rel="stylesheet" />
 
-    <link href='/css/squeakjs.css'
-	  rel='stylesheet' />
+    <link href="/css/squeakjs.css"
+	  rel="stylesheet" />
 
-    <link rel='shortcut icon'
-	  href='/favicon.png' />
+    <link rel="shortcut icon"
+	  href="/favicon.png" />
 
-    <link rel='apple-touch-icon'
-	  href='/apple-touch-icon.png' />
+    <link rel="apple-touch-icon"
+	  href="/apple-touch-icon.png" />
+
+    <!-- Safari doesn't support HTML Imports without a polyfill, and
+         GitHub Pages doesn't like the polyfill. Use Vue components
+         instead. -->
 
     <script src="/js/webcomponentsjs/webcomponents-hi-ce.js"></script>
     
-    <link rel='import'
-	  href='/html/devtools/basic.html'></head>
+    <link rel="import"
+	  href="/html/devtools/basic.html"></head>
 
-  <body class='impress-not-supported'>
+  <body class="impress-not-supported">
 
-    <div class='fallback-message'>
+    <div class="fallback-message">
 
       <p>
 
@@ -49,36 +53,36 @@
       <p>
 
 	For the best experience, please use the
-	latest <a href='https://www.google.com/chrome'><b>Chrome</b></a>,
+	latest <a href="https://www.google.com/chrome"><b>Chrome</b></a>,
 	<b>Safari</b>
-	or <a href='https://www.mozilla.org/en-US/firefox/new'><b>Firefox</b></a>
+	or <a href="https://www.mozilla.org/en-US/firefox/new"><b>Firefox</b></a>
 	browser.
 
       </p></div>
 
-    <div id='impress'>
+    <div id="impress">
 
-      <div class='step skip'
-	   data-x='12000'
-	   data-y='9500'
-	   data-z='-10000'
-	   data-scale='40'
-	   style='position: absolute;
+      <div class="step skip"
+	   data-x="12000"
+	   data-y="9500"
+	   data-z="-10000"
+	   data-scale="40"
+	   style="position: absolute;
 		  left: 0px;
 		  top: 0px;
 		  width: 1300px;
-		  pointer-events: none;'>
+		  pointer-events: none;">
 
-	<img src='pictures/backgrounds/bootscreen.jpg'
-             style='z-index: -1;
+	<img src="pictures/backgrounds/bootscreen.jpg"
+             style="z-index: -1;
 		    width: 100%;
-		    opacity: 0.1' /></div>
+		    opacity: 0.1" /></div>
 
-      <div id='title'
-	   class='step'
-	   data-scale='4'>
+      <div id="title"
+	   class="step"
+	   data-scale="4">
 
-        <span class='try'>
+        <span class="try">
 
 	  Livecoding with
 
@@ -86,22 +90,22 @@
 
         <h1>Caffeine</h1>
 
-	<div id='title-workspace'>
+	<div id="title-workspace">
 
-	  <canvas id='title-workspace-canvas'
-		  data-keyboard-capture='true'
-		  tabindex='1'
-		  style='opacity: 0;'
-		  width='300'
-		  height='300'></canvas></div></div>
+	  <canvas id="title-workspace-canvas"
+		  data-keyboard-capture="true"
+		  tabindex="1"
+		  style="opacity: 0;"
+		  width="300"
+		  height="300"></canvas></div></div>
 
-      <div id='pre-summary'
-	   class='step'
-	   data-x='850'
-	   data-y='3400'
-	   data-rotate='90'
-	   data-scale='5'
-	   style='width: 1200px;'>
+      <div id="pre-summary"
+	   class="step"
+	   data-x="850"
+	   data-y="3400"
+	   data-rotate="90"
+	   data-scale="5"
+	   style="width: 1200px;">
 
         <p>
 
@@ -112,81 +116,81 @@
 	</p><br><p>
 
 	  <strong>Caffeine</strong> brings
-	  the <a href='https://squeak.org'><strong>Smalltalk</strong></a>
+	  the <a href="https://squeak.org"><strong>Smalltalk</strong></a>
 	  livecoding model to the
-	  dynamic <a href='https://en.wikipedia.org/wiki/JavaScript'><strong>JavaScript</strong></a>
+	  dynamic <a href="https://en.wikipedia.org/wiki/JavaScript"><strong>JavaScript</strong></a>
 	  system built into every web browser.
 
       </p></div>
 
-      <div id='text-editor'
-	   class='step'
-	   data-x='1000'
-	   data-y='6200'
-	   data-scale='4'>
+      <div id="text-editor"
+	   class="step"
+	   data-x="1000"
+	   data-y="6200"
+	   data-scale="4">
 
 	<center>
 
-	  <iframe id='text-editor-widget'
-		  src='html/ace/ace.html'
-		  height='300'
-		  width='800'></iframe>
+	  <iframe id="text-editor-widget"
+		  src="html/ace/ace.html"
+		  height="300"
+		  width="800"></iframe>
 
-	  <p style='font-size: 50%;'>
+	  <p style="font-size: 50%;">
 
 	    <i>Your Favorite Text Editor</i>
 
 	  </p></center></div>
 	
-      <div id='caffeine'
-	   class='step'
-	   data-x='0'
-	   data-y='3500'
-	   data-z='-5000'
-	   data-rotate-x='-40'
-	   data-rotate-y='10'
-	   data-scale='2'
-	   style='position: absolute;
+      <div id="caffeine"
+	   class="step"
+	   data-x="0"
+	   data-y="3500"
+	   data-z="-5000"
+	   data-rotate-x="-40"
+	   data-rotate-y="10"
+	   data-scale="2"
+	   style="position: absolute;
 		  width: 1500px;
-		  height: 950px;'>
+		  height: 950px;">
 
-	<iframe sandbox='allow-scripts
+	<iframe sandbox="allow-scripts
 			 allow-same-origin
-			 allow-top-navigation'
-		id='a-frame'
-		src='../a-frame/'
-		style='position: absolute;
+			 allow-top-navigation"
+		id="a-frame"
+		src="../a-frame/"
+		style="position: absolute;
 		       width: 1420px;
-		       height: 870px;'></iframe></div>
+		       height: 870px;"></iframe></div>
 
-      <div id='html5-morphic'
-	   class='step'
-	   data-x='6000'
-	   data-y='3500'
-	   data-z='-3000'
-	   data-rotate-x='-40'
-	   data-rotate-y='10'
-	   data-scale='4'
-	   style='width: 1200px;'>
+      <div id="html5-morphic"
+	   class="step"
+	   data-x="6000"
+	   data-y="3500"
+	   data-z="-3000"
+	   data-rotate-x="-40"
+	   data-rotate-y="10"
+	   data-scale="4"
+	   style="width: 1200px;">
 
 	<p>
 	  
 	  Squeak's GUI, <strong>Morphic</strong>, can draw all its
 	  windows together on a single canvas, or each window on its
-	  own canvas. The <a href='#title'>first slide</a> contains an
+	  own canvas. The <a href="#title">first slide</a> contains an
 	  example of this.
 
       </p></div>
 
-      <div id='morphicjs'
-	   class='step'
-	   data-x='12000'
-	   data-y='3500'
-	   data-z='-3000'
-	   data-rotate-x='-40'
-	   data-rotate-y='10'
-	   data-scale='4'
-	   style='width: 1200px;'>
+      <div id="morphicjs"
+	   class="step"
+	   data-x="12000"
+	   data-y="3500"
+	   data-z="-3000"
+	   data-rotate-x="-40"
+	   data-rotate-y="10"
+	   data-scale="4"
+	   style="width: 1200px;">
 
 	<p>
 	   
@@ -201,24 +205,24 @@
 
 	</p><br>
 
-	<div id='morphicjs-window'>
+	<div id="morphicjs-window">
 
-	  <canvas id='morphicjs-window-canvas'
-		  data-keyboard-capture='true'
-		  tabindex='1'
-		  style='opacity: 0;'
-		  width='700'
-		  height='400'></canvas></div></div>
+	  <canvas id="morphicjs-window-canvas"
+		  data-keyboard-capture="true"
+		  tabindex="1"
+		  style="opacity: 0;"
+		  width="700"
+		  height="400"></canvas></div></div>
 
-      <div id='wireframes'
-	   class='step'
-	   data-x='18000'
-	   data-y='3500'
-	   data-z='-3000'
-	   data-rotate-x='-40'
-	   data-rotate-y='10'
-	   data-scale='4'
-	   style='width: 1200px;'>
+      <div id="wireframes"
+	   class="step"
+	   data-x="18000"
+	   data-y="3500"
+	   data-z="-3000"
+	   data-rotate-x="-40"
+	   data-rotate-y="10"
+	   data-scale="4"
+	   style="width: 1200px;">
 
 	<p>
 	  
@@ -237,15 +241,15 @@
 
       </div>
 
-      <div id='code-browser-wireframe'
-           class='step'
-           data-x='24000'
-           data-y='3500'
-           data-z='-3000'
-           data-rotate-x='-40'
-           data-rotate-y='10'
-           data-scale='4'
-           style='width: 1200px;'>
+      <div id="code-browser-wireframe"
+           class="step"
+           data-x="24000"
+           data-y="3500"
+           data-z="-3000"
+           data-rotate-x="-40"
+           data-rotate-y="10"
+           data-scale="4"
+           style="width: 1200px;">
 
         <p>
 
@@ -256,15 +260,15 @@
 
 	</p><br><br><br><br></div>
 
-      <div id='snowglobe'
-           class='step'
-           data-x='6000'
-           data-y='12000'
-           data-z='-6000'
-           data-rotate-x='-120'
-           data-rotate-y='10'
-           data-scale='4'
-           style='width: 1200px;'>
+      <div id="snowglobe"
+           class="step"
+           data-x="6000"
+           data-y="12000"
+           data-z="-6000"
+           data-rotate-x="-120"
+           data-rotate-y="10"
+           data-scale="4"
+           style="width: 1200px;">
 
         <p>
 
@@ -276,33 +280,33 @@
 
       </p></div>
 
-      <div id='snowglobe-demo'
-           class='step'
-           data-x='12000'
-           data-y='12000'
-           data-z='-6000'
-           data-rotate-x='-120'
-           data-rotate-y='10'
-           data-scale='4'
-           style='width: 1200px;'>
+      <div id="snowglobe-demo"
+           class="step"
+           data-x="12000"
+           data-y="12000"
+           data-z="-6000"
+           data-rotate-x="-120"
+           data-rotate-y="10"
+           data-scale="4"
+           style="width: 1200px;">
 
 	<center>
 
-	  <div id='snowglobe-demo-window'>
+	  <div id="snowglobe-demo-window">
 	    
-	    <canvas id='snowglobe-demo-canvas'
-                    data-keyboard-capture='true'
-                    tabindex='1'
-                    style='opacity: 0;'
-                    width='700'
-                    height='400'></canvas></div>
+	    <canvas id="snowglobe-demo-canvas"
+                    data-keyboard-capture="true"
+                    tabindex="1"
+                    style="opacity: 0;"
+                    width="700"
+                    height="400"></canvas></div>
 
 	  <br>
 	  
-	  <div id='snowglobe-demo-caption'>
+	  <div id="snowglobe-demo-caption">
 
-	    <p style='all: initial;
-		      font-size: xx-large;'>
+	    <p style="all: initial;
+		      font-size: xx-large;">
 
 	      <br><large><i>
 
@@ -311,24 +315,24 @@
 
       </i></large></p></div></center></div>
 
-      <div id='parsing-javascript'
-           class='step'
-           data-x='18000'
-           data-y='12000'
-           data-z='-6000'
-           data-rotate-x='-120'
-           data-rotate-y='10'
-           data-scale='4'
-           style='width: 1200px;'>
+      <div id="parsing-javascript"
+           class="step"
+           data-x="18000"
+           data-y="12000"
+           data-z="-6000"
+           data-rotate-x="-120"
+           data-rotate-y="10"
+           data-scale="4"
+           style="width: 1200px;">
 
 	  <p>
 
 	    To augment the JavaScript bridge, Caffeine integrates the
 	    
-	    <a href='https://www.npmjs.com/package/esprima'
-	       target='_blank'
-	       rel='noopener noreferrer'
-	       style='pointer-events: all;'>
+	    <a href="https://www.npmjs.com/package/esprima"
+	       target="_blank"
+	       rel="noopener noreferrer"
+	       style="pointer-events: all;">
 
 	      <strong>Esprima</strong></a>
 	    
@@ -337,44 +341,44 @@
 
 	  </p><br><br><br><br><br><br></div>
 
-      <div id='livecoding-nodejs'
-           class='step'
-           data-x='24000'
-           data-y='12000'
-           data-z='-6000'
-           data-rotate-x='-120'
-           data-rotate-y='10'
-           data-scale='4'
-           style='width: 1300px;'>
+      <div id="livecoding-nodejs"
+           class="step"
+           data-x="24000"
+           data-y="12000"
+           data-z="-6000"
+           data-rotate-x="-120"
+           data-rotate-y="10"
+           data-scale="4"
+           style="width: 1300px;">
 
 	<p>
 
 	  Caffeine can run in JavaScript environments outside web
 	  browsers, too. In particular, it can run headlessly in
 
-	  <a href='https://nodejs.org/en'
-	     target='_blank'
-	     rel='noopener noreferrer'
-	     style='pointer-events: all;'>
+	  <a href="https://nodejs.org/en"
+	     target="_blank"
+	     rel="noopener noreferrer"
+	     style="pointer-events: all;">
 
 	    <strong>NodeJS</strong></a>
 	  
 	  instances (as a
 
-	  <a href='https://www.html5rocks.com/en/tutorials/workers/basics'
-	     target='_blank'
-	     rel='noopener noreferrer'
-	     style='pointer-events: all;'>
+	  <a href="https://www.html5rocks.com/en/tutorials/workers/basics"
+	     target="_blank"
+	     rel="noopener noreferrer"
+	     style="pointer-events: all;">
 
 	    <strong>Web Worker</strong></a>
 	  
 	  ), and it can inject JavaScript code into NodeJS instances
 	  with help from the
 
-	  <a href='https://www.npmjs.com/package/node-livecode'
-	     target='_blank'
-	     rel='noopener noreferrer'
-	     style='pointer-events: all;'>
+	  <a href="https://www.npmjs.com/package/node-livecode"
+	     target="_blank"
+	     rel="noopener noreferrer"
+	     style="pointer-events: all;">
 	    
 	    <strong>node-livecode</strong></a>
 
@@ -385,32 +389,32 @@
 
 	<center>
 	    
-	  <iframe src='https://thiscontext.com/2017/07/04/browser-to-browser-websocket-tunnels-with-caffeine-and-livecoded-nodejs'
-		  height='400'
-		  width='600'></iframe>
+	  <iframe src="https://thiscontext.com/2017/07/04/browser-to-browser-websocket-tunnels-with-caffeine-and-livecoded-nodejs"
+		  height="400"
+		  width="600"></iframe>
 
-	  <iframe src='https://thiscontext.com/2017/06/27/backend-caffeine-with-node-js-and-tweetcoding'
-		  height='400'
-		  width='600'></iframe></center></div>
+	  <iframe src="https://thiscontext.com/2017/06/27/backend-caffeine-with-node-js-and-tweetcoding"
+		  height="400"
+		  width="600"></iframe></center></div>
 	    
-      <div id='speech-recognition'
-           class='step'
-           data-x='6000'
-           data-y='20500'
-           data-z='-9000'
-           data-rotate-x='-120'
-           data-rotate-y='10'
-           data-scale='4'
-           style='width: 1200px;'>
+      <div id="speech-recognition"
+           class="step"
+           data-x="6000"
+           data-y="20500"
+           data-z="-9000"
+           data-rotate-x="-120"
+           data-rotate-y="10"
+           data-scale="4"
+           style="width: 1200px;">
 
 	  <p>
 
 	    The
 
-	    <a href='https://aframe.io'
-	       target='_blank'
-	       rel='noopener noreferrer'
-	       style='pointer-events: all;'>
+	    <a href="https://aframe.io"
+	       target="_blank"
+	       rel="noopener noreferrer"
+	       style="pointer-events: all;">
 	    
 	      <strong>A-Frame</strong></a>
 
@@ -420,34 +424,34 @@
 	    keyboard or use a virtual keyboard. Caffeine integrates
 	    the
 
-	    <a href='https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API'
-	       target='_blank'
-	       rel='noopener noreferrer'
-	       style='pointer-events: all;'>
+	    <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API"
+	       target="_blank"
+	       rel="noopener noreferrer"
+	       style="pointer-events: all;">
 	    
 	      <strong>Web Speech API</strong></a>.
 	    
 	  </p><br><br><br><br><br><br></div>
 
-      <div id='webmidi'
-           class='step'
-           data-x='12000'
-           data-y='20500'
-           data-z='-9000'
-           data-rotate-x='-120'
-           data-rotate-y='10'
-           data-scale='4'
-           style='width: 1200px;'>
+      <div id="webmidi"
+           class="step"
+           data-x="12000"
+           data-y="20500"
+           data-z="-9000"
+           data-rotate-x="-120"
+           data-rotate-y="10"
+           data-scale="4"
+           style="width: 1200px;">
 
 	<p>
 
 	  Another piece of Caffeine's audio infrastructure is
 	  support for the
 
-	  <a href='https://https://www.w3.org/TR/webmidi'
-	     target='_blank'
-	     rel='noopener noreferrer'
-	     style='pointer-events: all;'>
+	  <a href="https://https://www.w3.org/TR/webmidi"
+	     target="_blank"
+	     rel="noopener noreferrer"
+	     style="pointer-events: all;">
 	    
 	    <strong>WebMIDI API</strong></a>
 
@@ -455,15 +459,15 @@
 
 	</p><br><br><br><br><br><br><br><br></div>
 
-      <div id='chrome-debugging-protocol'
-           class='step'
-           data-x='18000'
-           data-y='20500'
-           data-z='-9000'
-           data-rotate-x='-120'
-           data-rotate-y='10'
-           data-scale='4'
-           style='width: 1200px;'>
+      <div id="chrome-debugging-protocol"
+           class="step"
+           data-x="18000"
+           data-y="20500"
+           data-z="-9000"
+           data-rotate-x="-120"
+           data-rotate-y="10"
+           data-scale="4"
+           style="width: 1200px;">
 
 	<p>
 
@@ -471,19 +475,19 @@
 	    Caffeine can also livecode every other tab in the web
 	    browser, with the help of the
 
-	    <a href='https://chromedevtools.github.io/devtools-protocol'
-	       target='_blank'
-	       rel='noopener noreferrer'
-	       style='pointer-events: all;'>
+	    <a href="https://chromedevtools.github.io/devtools-protocol"
+	       target="_blank"
+	       rel="noopener noreferrer"
+	       style="pointer-events: all;">
 	    
 	      <strong>Chrome Remote Debugging Protocol</strong></a>
 
 	    and the
 	    
-	    <a href='https://chrome.google.com/webstore/detail/caffeine-helper/hmfnphcjichoefnnncadoikiboacckmk'
-	       target='_blank'
-	       rel='noopener noreferrer'
-	       style='pointer-events: all;'>
+	    <a href="https://chrome.google.com/webstore/detail/caffeine-helper/hmfnphcjichoefnnncadoikiboacckmk"
+	       target="_blank"
+	       rel="noopener noreferrer"
+	       style="pointer-events: all;">
 	    
 	      <strong>Caffeine Helper</strong></a>
 
@@ -491,15 +495,15 @@
 
 	  </p><br><br><br><br><br><br></div>
 
-      <div id='thanks'
-           class='step'
-           data-x='24000'
-           data-y='20500'
-           data-z='-9000'
-           data-rotate-x='-120'
-           data-rotate-y='10'
-           data-scale='4'
-           style='width: 950px;'>
+      <div id="thanks"
+           class="step"
+           data-x="24000"
+           data-y="20500"
+           data-z="-9000"
+           data-rotate-x="-120"
+           data-rotate-y="10"
+           data-scale="4"
+           style="width: 950px;">
 
 	<p>
 
@@ -528,22 +532,22 @@
 
       </ul></div>
 	
-      <div id='overview'
-	   class='step'
-	   data-x='12000'
-	   data-y='9500'
-	   data-scale='27'
-	   style='position: absolute;
+      <div id="overview"
+	   class="step"
+	   data-x="12000"
+	   data-y="9500"
+	   data-scale="27"
+	   style="position: absolute;
 		  left: 0px;
 		  top: 0px;
-		  width: 1400px;' /></div>
+		  width: 1400px;" /></div>
 
-    <script src='js/impress/impress.js'></script>
-    <script src='js/impress/lib/gc.js'></script>
-    <script src='js/impress/lib/util.js'></script>
-    <script src='js/impress/plugins/navigation.js'></script>
-    <script src='js/impress/plugins/skip.js'></script>
-    <script src='js/impress/plugins/touch.js'></script>
+    <script src="js/impress/impress.js"></script>
+    <script src="js/impress/lib/gc.js"></script>
+    <script src="js/impress/lib/util.js"></script>
+    <script src="js/impress/plugins/navigation.js"></script>
+    <script src="js/impress/plugins/skip.js"></script>
+    <script src="js/impress/plugins/touch.js"></script>
     <script>impress().init()</script>
-    <script src='js/html/utilities.js'></script>
-    <script src='js/talk.js'></script></body></html>
+    <script src="js/html/utilities.js"></script>
+    <script src="js/talk.js"></script></body></html>
