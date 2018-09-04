@@ -89,6 +89,7 @@ function exportFile(a) {
   }, alert)
   return false
 }
+
 function showFiles() {
   var imgList = [],
       fileList = [],
