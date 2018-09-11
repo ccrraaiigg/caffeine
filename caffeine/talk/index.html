@@ -31,12 +31,9 @@
     <link rel="apple-touch-icon"
 	  href="/apple-touch-icon.png" />
 
-    <!-- Safari doesn't support HTML Imports without a polyfill, and
-         GitHub Pages doesn't like the polyfill. Use Vue components
-         instead.
+    <script src="/js/webcomponentsjs/webcomponents-hi-ce.js"></script>
 
-    <script src="/js/webcomponentsjs/webcomponents-hi-ce.js"></script> -->
-    
+    <!-- This makes a "WebComponentsReady" event available, for which talk.js listens. -->
     <link rel="import"
 	  href="/html/devtools/basic.html"></head>
 

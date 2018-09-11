@@ -1,4 +1,5 @@
 window.addEventListener(
+  // This event is made available by the WebCommponents polyfill we're using, to support Safari.
   'WebComponentsReady',
   () => {
     var wireframes = document.querySelector('link[rel="import"]').import,
