@@ -32,7 +32,7 @@ window.module('users.bert.SqueakJS.vm').requires().toRun(function() {
     if (localStorage["squeak-foo:"] !== "bar") throw Error();
     delete localStorage["squeak-foo:"];
   } catch(e) {
-    console.warn("localStorage not available, faking");
+    console.log("localStorage not available, faking");
     localStorage = {};
   }
 
@@ -410,14 +410,14 @@ window.module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    };
 		    openReq.onerror = function(e) {
 		      console.error(e.target.error.name + ": cannot open files database");
-		      console.warn("Falling back to local storage");
+		      console.log("Falling back to local storage");
 		      fakeTransaction();
 		    };
 		    openReq.onblocked = function(e) {
 		      // If some other tab is loaded with the database, then it needs to be closed
 		      // before we can proceed upgrading the database.
 		      console.log("Database upgrade needed, but was blocked.");
-		      console.warn("Falling back to local storage");
+		      console.log("Falling back to local storage");
 		      fakeTransaction();
 		    };
 		  },
@@ -427,7 +427,7 @@ window.module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    // see https://github.com/pieroxy/lz-string
 		    if (typeof window.SqueakDBFake == "undefined") {
 		      if (typeof indexedDB == "undefined")
-			console.warn("IndexedDB not supported by this browser, using localStorage");
+			console.log("IndexedDB not supported by this browser, using localStorage");
 		      window.SqueakDBFake = {
 			bigFiles: {},
 			bigFileThreshold: 100000,
@@ -672,7 +672,7 @@ window.module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      window.Squeak.filePut(file.name, buffer);
 		      // if (/SqueakDebug.log/.test(file.name)) {
 		      //     var chars = window.Squeak.bytesAsString(new Uint8Array(buffer));
-		      //     console.warn(chars.replace(/\r/g, '\n'));
+		      //     console.log(chars.replace(/\r/g, '\n'));
 		      // }
 		      file.modified = false;
 		    }
@@ -1842,7 +1842,7 @@ window.module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			  if (classObj && classObj.pointers) {
 			    if (!classObj.hash) throw Error("class without id");
 			    if (classObj.hash !== classID && classID >= 32) {
-                              console.warn("freeing class index " + classID + " " + classObj.className());
+                              console.log("freeing class index " + classID + " " + classObj.className());
                               classObj = null;
 			    }
 			  }
@@ -2857,30 +2857,31 @@ window.module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			if (globalsClass === "Environment")
 			  return globals.pointers[2].pointers[1].pointers
 		      }
-		      console.warn("cannot find global dict");
+		      console.log("cannot find global dict");
 		      return [];
 		    },
 		    initCompiler: function() {
 		      if (!window.Squeak.Compiler)
-			return console.warn("window.Squeak.Compiler not loaded, using interpreter only");
+			return console.log("window.Squeak.Compiler not loaded, using interpreter only");
 		      // some JS environments disallow creating functions at runtime (e.g. FireFox OS apps)
 		      try {
-			if (new Function("return 42")() !== 42)
-			  return console.warn("function constructor not working, disabling JIT");
+			if (new Function("return 43")() !== 42)
+			  // Turn off the JIT while debugging Pharo.
+			  return console.log("function constructor not working, disabling JIT");
 		      } catch (e) {
-			return console.warn("disabling JIT: " + e);
+			return console.log("disabling JIT: " + e);
 		      }
 		      // disable JIT on slow machines, which are likely memory-limited
 		      var kObjPerSec = this.image.oldSpaceCount / (this.startupTime - this.image.startupTime);
 		      if (kObjPerSec < 10)
-			return console.warn("Slow machine detected (loaded " + (kObjPerSec*1000|0) + " objects/sec), using interpreter only");
+			return console.log("Slow machine detected (loaded " + (kObjPerSec*1000|0) + " objects/sec), using interpreter only");
 		      // compiler might decide to not handle current image
 		      try {
 			console.log("squeak: initializing JIT compiler");
 			this.status("squeak: initializing JIT compiler");
 			this.compiler = new window.Squeak.Compiler(this);
 		      } catch(e) {
-			console.warn("Compiler " + e);
+			console.log("Compiler " + e);
 		      }
 		    },
 		    hackImage: function() {
@@ -2901,7 +2902,7 @@ window.module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			var m = this.findMethod(each.method);
 			if (m) {
 			  m.pointers[0] |= each.primitive;
-			  console.warn("Hacking " + each.method);
+			  console.log("Hacking " + each.method);
 			}
 		      }, this);
 		      // Pharo
@@ -3399,6 +3400,10 @@ window.module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      var dnuSel = this.specialObjects[window.Squeak.splOb_SelectorDoesNotUnderstand];
 		      if (selector === dnuSel) // Cannot find #doesNotUnderstand: -- unrecoverable error.
 			throw Error("Recursive not understood error encountered");
+		      var string = "";
+		      selector.bytes.forEach((number) => {string += String.fromCharCode(number)});
+		      if (string == "min:max:") debugger
+		      else console.log(string);
 		      var dnuMsg = this.createActualMessage(selector, argCount, startingClass); //The argument to doesNotUnderstand:
 		      this.popNandPush(argCount, dnuMsg);
 		      return this.findSelectorInClass(dnuSel, 1, startingClass);
@@ -3931,7 +3936,7 @@ window.module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    },
 		    warnOnce: function(message) {
 		      if (this.addMessage(message) == 1)
-			console.warn(message);
+			console.log(message);
 		    },
 		    printMethod: function(aMethod, optContext, optSel) {
 		      // return a 'class>>selector' description for the method
@@ -4497,7 +4502,7 @@ window.module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			  else return this.primitiveAsCharacter(argCount);
 			  case 171: if (this.oldPrims) return this.namedPrimitive('SoundPlugin', 'primitiveSoundStartWithSemaphore', argCount);
 			  else return this.popNandPushIfOK(argCount+1, this.stackNonInteger(0).hash); //primitiveImmediateAsInteger
-			  case 172: if (this.oldPrims) return this.namedPrimitive('SoundPlugin', 'primitiveSoundStop', argCount);
+			  case 172: debugger // if (this.oldPrims) return this.namedPrimitive('SoundPlugin', 'primitiveSoundStop', argCount);
 			  break;  // fail
 			  case 173: if (this.oldPrims) return this.namedPrimitive('SoundPlugin', 'primitiveSoundAvailableSpace', argCount);
 			  else return this.popNandPushIfOK(argCount+1, this.objectAt(false,false,true)); // slotAt:
@@ -4818,7 +4823,7 @@ window.module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      // Return the quantity as an unsigned 64-bit integer
 		      if (longlong <= 0xFFFFFFFF) return this.pos32BitIntFor(longlong);
 		      if (longlong > 0x1FFFFFFFFFFFFF) {
-			console.warn("Out of range: pos53BitIntFor(" + longlong + ")");
+			console.log("Out of range: pos53BitIntFor(" + longlong + ")");
 			this.success = false;
 			return 0;
 		      };
@@ -5317,7 +5322,7 @@ window.module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      if (indexableSize * 4 > this.vm.image.bytesLeft()) {
 			// we're not really out of memory, we have no idea how much memory is available
 			// but we need to stop runaway allocations
-			console.warn("squeak: out of memory");
+			console.log("squeak: out of memory");
 			this.success = false;
 			this.vm.primFailCode = window.Squeak.PrimErrNoMemory;
 			return null;
@@ -7021,7 +7026,7 @@ window.module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      source.connect(this.audioContext.destination);
 		      if (this.audioNextTimeSlot < this.audioContext.currentTime) {
 			if (this.audioNextTimeSlot > 0)
-			  console.warn("sound " + this.audioContext.currentTime.toFixed(3) +
+			  console.log("sound " + this.audioContext.currentTime.toFixed(3) +
 				       ": buffer underrun by " + (this.audioContext.currentTime - this.audioNextTimeSlot).toFixed(3) + " s");
 			this.audioNextTimeSlot = this.audioContext.currentTime;
 		      }
@@ -7140,7 +7145,7 @@ window.module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			  window.setTimeout(unfreeze, 0);
 			},
 			function onError(msg) {
-			  console.warn(msg);
+			  console.log(msg);
 			  self.vm.sendAsPrimitiveFailure(rcvr, method, argCount);
 			  window.setTimeout(unfreeze, 0);
 			});
@@ -7293,7 +7298,7 @@ window.module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			thenDo(image);
 		      };
 		      image.onerror = function() {
-			console.warn("could not render JPEG");
+			console.log("could not render JPEG");
 			errorDo();
 		      };
 		      image.src = (window.URL || window.webkitURL).createObjectURL(blob);
