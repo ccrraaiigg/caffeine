@@ -31,9 +31,11 @@
     <link rel="apple-touch-icon"
 	  href="/apple-touch-icon.png" />
 
+    <!-- This HTML Imports polyfill makes a "WebComponentsReady" event
+         available, for which talk.js listens. -->
+
     <script src="/js/webcomponentsjs/webcomponents-hi-ce.js"></script>
 
-    <!-- This makes a "WebComponentsReady" event available, for which talk.js listens. -->
     <link rel="import"
 	  href="/html/devtools/basic.html"></head>
 
@@ -87,6 +89,26 @@
 
         <h1>Caffeine</h1>
 
+	<!-- This span can only be properly positioned via CSS after
+             other elements on the page are loaded; make Caffeine do
+             it. -->
+
+	<span id="footnote"
+	      class="footnote"
+	      style="opacity: 0;
+		     transition: all 500ms;
+		     position: absolute;
+		     white-space: nowrap;">
+	  
+	  <i><a href="https://github.com/ccrraaiigg/ccrraaiigg.github.io"
+	     target="_blank"
+	     rel="noopener noreferrer"
+	     style="pointer-events: all;">
+
+	      (GitHub repo)
+
+	</a></i></span>
+	
 	<div id="title-workspace">
 
 	  <canvas id="title-workspace-canvas"
