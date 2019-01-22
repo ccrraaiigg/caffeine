@@ -19,6 +19,7 @@
     <script src="js/squeakjs/squeak.js"></script>
     <script src="js/html/utilities.js"></script>
     <script>
+        // We shouldn't be using setTimeout() anywhere...
         setTimeout(
           function () {
             // Attempt to keep this page embeddable in external non-secure origins.
@@ -54,7 +55,7 @@
                   appID: "4599d316-a13e-46ef-92be-c7337899038c",
                   appName: "Caffeine",
                   appServer: "demo.blackpagedigital.com:8091"})}},
-          3000)
+          6000)
     </script>
   </body>
 </html>

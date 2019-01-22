@@ -130,10 +130,10 @@ Function.prototype.subclass = function(classPath /* + more args */ ) {
 (function(){
   var scripts,
       squeakjs,
-    vmDir = "https://caffeine.js.org/js/squeakjs/";
-//    vmDir = "https://amsterdam.demo.blackpagedigital.com/caffeine/js/squeakjs/";
-//    vmDir = "http://localhost/caffeine/js/squeakjs/";
-
+      vmDir = "https://caffeine.js.org/js/squeakjs/";
+      // vmDir = "http://mobile.blackpagedigital.com/js/squeakjs/";
+      // vmDir = "http://127.0.0.1/js/squeakjs/";
+      // vmDir = "http://172.20.10.4/js/squeakjs/";
 
   if ('getElementsByTagName' in document) {
     scripts = document.getElementsByTagName("script");

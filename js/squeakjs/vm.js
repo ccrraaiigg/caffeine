@@ -3402,8 +3402,8 @@ window.module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			throw Error("Recursive not understood error encountered");
 		      var string = "";
 		      selector.bytes.forEach((number) => {string += String.fromCharCode(number)});
-		      if (string == "min:max:") debugger
-		      else console.log(string);
+//		      if (string == "min:max:") debugger
+//		      else console.log(string);
 		      var dnuMsg = this.createActualMessage(selector, argCount, startingClass); //The argument to doesNotUnderstand:
 		      this.popNandPush(argCount, dnuMsg);
 		      return this.findSelectorInClass(dnuSel, 1, startingClass);
@@ -3596,8 +3596,16 @@ window.module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      }
 		      var trueArgCount = args.pointersSize();
 		      var stack = this.activeContext.pointers;
-		      this.arrayCopy(args.pointers, 0, stack, this.sp - 1, trueArgCount);
-		      this.sp += trueArgCount - argCount; //pop selector and array then push args
+		      var destinationIndex;
+
+		      if (supered) {
+			destinationIndex = this.sp + trueArgCount - argCount}
+		      else {
+			destinationIndex = this.sp - 1}
+		      
+		      //pop selector and array and push args
+		      this.arrayCopy(args.pointers, 0, stack, destinationIndex, trueArgCount);
+		      this.sp += trueArgCount - argCount;
 		      var entry = this.findSelectorInClass(selector, trueArgCount, lookupClass);
 		      this.executeNewMethod(rcvr, entry.method, entry.argCount, entry.primIndex, entry.mClass, selector);
 		      return true;
@@ -6487,9 +6495,6 @@ window.module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    },
 		    displayUpdate: function(form, rect) {
 		      this.showForm(this.display.context, form, rect);
-		      // crl: part of the upcoming web-worker-based graphics feature
-		      // if ('transferToImageBitmap' in this.display.context.canvas) {
-		      //   postMessage(this.display.context.canvas.transferToImageBitmap());}
 		      this.display.lastTick = this.vm.lastTick;
 		      this.display.idle = 0;
 		    },
