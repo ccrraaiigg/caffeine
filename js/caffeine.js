@@ -1,43 +1,125 @@
+function dragElement(element, handle) {
+  var deltaX = deltaY = x = y = 0
+
+  handle.onmousedown = dragMouseDown
+
+  function dragMouseDown(event) {
+    event = event || window.event
+    event.preventDefault()
+
+    Array.from(document.querySelectorAll('body *')).map(element => element.style.zIndex = 0)
+
+    this.style.zIndex = 1
+
+    x = event.clientX
+    y = event.clientY
+
+    document.onmouseup = closeDragElement
+    document.onmousemove = elementDrag}
+
+  function elementDrag(event) {
+    event = event || window.event
+    event.preventDefault()
+
+    deltaX = x - event.clientX
+    deltaY = y - event.clientY
+    x = event.clientX
+    y = event.clientY
+
+    element.style.top = (element.offsetTop - deltaY) + 'px'
+    element.style.left = (element.offsetLeft - deltaX) + 'px'}
+
+  function closeDragElement() {
+    document.onmouseup = null
+    document.onmousemove = null}}
+
+
+function resizeElement(element) {
+  // Create box in bottom-left.
+  var resizer = document.createElement('div')
+
+  resizer.id = 'resizeHandle'
+  resizer.style.width = '10px'
+  resizer.style.height = '10px'
+  resizer.style.background = 'red'
+  resizer.style.opacity = 0.5
+  resizer.style.position = 'absolute'
+  resizer.style.right = 0
+  resizer.style.bottom = 0
+  resizer.style.cursor = 'se-resize'
+
+  // Append child to element.
+  element.appendChild(resizer)
+
+  // box function onmousemove
+  resizer.addEventListener('mousedown', initResize, false)
+
+  // window functions mousemove & mouseup
+  function initResize(event) {
+    element.onresizestart(event)
+    window.addEventListener('mousemove', resize, false)
+    window.addEventListener('mouseup', stopResize, false)}
+
+  // Resize the element.
+  function resize(event) {
+    element.style.width = (event.clientX - element.offsetLeft) + 'px'
+    element.style.height = (event.clientY - element.offsetTop) + 'px'
+    element.onresize(event)}
+
+  // On mouseup, remove window functions mousemove & mouseup.
+  function stopResize(event) {
+    window.removeEventListener('mousemove', resize, false)
+    window.removeEventListener('mouseup', stopResize, false)
+    element.onresizeend(event)}}
+
+
 window.onload = function () {
-  var embeddedSqueak = window.document.getElementById("embeddedSqueak"),
-      summary = window.document.getElementById("summary")
+  var embeddedSqueak = document.getElementById('embeddedSqueak'),
+      summary = document.getElementById('summary'),
+      statustext = document.getElementById('status').children[0]
+
+  statustext.style.textShadow = '1px 1px 1px #000'
+  statustext.style.opacity = 0.5
 
   embeddedSqueak.onmouseenter = function () {
-    window.document.getElementById("Caffeine").contentWindow.focus()
     this.style.zIndex = 1000
-    this.style.boxShadow = "1px 1px 7px #999, 2px 2px 8px #999, 3px 3px 9px #999"}
+    document.getElementById('Caffeine').contentWindow.focus()
+    this.style.boxShadow = '1px 1px 7px #999, 2px 2px 8px #999, 3px 3px 9px #999'}
 
   embeddedSqueak.onmouseleave = function () {
     window.focus()
-    this.style.boxShadow = ""}
-  
+    this.style.boxShadow = ''}
+    
   summary.onmousedown = function () {
     embeddedSqueak.style.zIndex = 1}
 
   summary.onmouseover = function () {
-    embeddedSqueak.style.boxShadow = ""}
+    embeddedSqueak.style.boxShadow = ''}
 
-  window.setTimeout(
-    function () {window.document.getElementById("backgroundPicture").style.opacity = 1},
-    200)
+  document.body.style.transition = 'all 1000ms'
+  document.body.bgColor = ''
 
   window.setTimeout(
     function () {
+      window.document.getElementById('banner').style.opacity = 1},
+    1000)
+  
+  window.setTimeout(
+    function () {
+      var settingsButton = window.document.getElementById('settings.button')
+
       window.progress.style.opacity = 1
-      window.document.body.background = "pictures/backgrounds/6.jpg"
-      window.document.body.style.backgroundSize = "cover"
-      window.document.getElementById("backgroundPicture").remove()},
-    1000)
+      window.thestatus.style.opacity = 1
+      window.document.getElementById('summary').style.opacity = 1
+      settingsButton.style.opacity = 0.5
 
-  window.setTimeout(
-    function () {window.thestatus.style.opacity = 1},
-    1000)
+      settingsButton.onclick = (event) => {
+	var squeak = window.document.getElementById('embeddedSqueak')
 
-  window.setTimeout(
-    function () {window.document.getElementById("banner").style.opacity = 1},
-    1000)
-
-  window.setTimeout(
-    function () {window.document.getElementById("summary").style.opacity = 1},
+	if (squeak.style.opacity == 0) {
+	  squeak.style.opacity = 1
+	  squeak.style.pointerEvents = 'all'}
+	else {
+	  squeak.style.opacity = 0
+	  squeak.style.pointerEvents = 'none'}}},
     1500)}
-

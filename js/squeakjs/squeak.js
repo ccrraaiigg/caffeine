@@ -22,12 +22,11 @@
 
 "use strict";
 
-try {
-  var magicWindow = window, isMagic;
-  while ((magicWindow != window.top) && (magicWindow.document.head.id != "magic")) {
-    magicWindow = magicWindow.parent;}
+var magicWindow = window, isMagic;
+while ((magicWindow != window.top) && (magicWindow.document.head.id != "magic")) {
+  magicWindow = window.parent;}
 
-  isMagic = (magicWindow.document.head.id == "magic")}
+try {isMagic = (magicWindow.document.head.id == "magic")}
 catch (exception) {
   magicWindow = null;
   isMagic = false}
@@ -55,7 +54,7 @@ if (isMagic) {
   thestatus.style.height = '10px';
   thestatus.style.transition = 'opacity 500ms';
   thestatus.style.opacity = 0;
-  thestatus.style.color = "gray";
+  thestatus.style.color = 'gray';
   thestatus.innerHTML = "<i>starting virtual machine...</i>";
   magicWindow.thestatus = thestatus;
   if (magicWindow.document.body) magicWindow.document.body.appendChild(thestatus);}
@@ -70,7 +69,7 @@ window.module = function(dottedPath) {
   if (dottedPath === "") return window;
   var path = dottedPath.split("."),
       name = path.pop(),
-      parent = window.module(path.join(".")),
+      parent = module(path.join(".")),
       self = parent[name];
   if (!self) parent[name] = self = {
     loaded: false,
@@ -83,8 +82,8 @@ window.module = function(dottedPath) {
             self.loaded = true;
             self.pending.forEach(function(f){f();});
           }
-          if (req && !window.module(req).loaded) {
-            window.module(req).pending.push(load);
+          if (req && !module(req).loaded) {
+            module(req).pending.push(load);
           } else {
             load();
           }
@@ -119,7 +118,7 @@ Function.prototype.subclass = function(classPath /* + more args */ ) {
   // add class to module
   var modulePath = classPath.split("."),
       className = modulePath.pop();
-  window.module(modulePath.join('.'))[className] = subclass;
+  module(modulePath.join('.'))[className] = subclass;
   return subclass;
 };
 
@@ -128,20 +127,16 @@ Function.prototype.subclass = function(classPath /* + more args */ ) {
 //////////////////////////////////////////////////////////////////////////////
 
 (function(){
-  var scripts,
-      squeakjs,
-      vmDir = "https://caffeine.js.org/js/squeakjs/";
-      // vmDir = "http://mobile.blackpagedigital.com/js/squeakjs/";
-      // vmDir = "http://127.0.0.1/js/squeakjs/";
-      // vmDir = "http://172.20.10.4/js/squeakjs/";
-
-  if ('getElementsByTagName' in document) {
-    scripts = document.getElementsByTagName("script");
-    squeakjs = scripts[scripts.length - 1]}
-  
-  if (scripts) {
-    if (squeakjs.src.match(/squeak\.min\.js$/)) return;}
-  
+    var scripts = document.getElementsByTagName("script"),
+	squeakjs = scripts[scripts.length - 1],
+	loc,
+	vmDir;
+    
+    loc = document.createElement('a');
+    loc.href = document.location;
+    vmDir = 'http://' + loc.hostname + '/js/squeakjs/';
+    
+  if (squeakjs.src.match(/squeak\.min\.js$/)) return;
   [   "vm.js",
       "jit.js",
       "plugins/ADPCMCodecPlugin.js",
@@ -169,16 +164,14 @@ Function.prototype.subclass = function(classPath /* + more args */ ) {
       "lib/jszip.js",
       "lib/FileSaver.js",
   ].forEach(function(filename) {
-    if ('createElement' in document) {
-      var script = document.createElement('script');
-      script.setAttribute("type","text/javascript");
-      script.setAttribute("src", vmDir + filename);
-      document.getElementsByTagName("head")[0].appendChild(script);}
-    else {importScripts('../squeakjs/' + filename)}
+    var script = document.createElement('script');
+    script.setAttribute("type","text/javascript");
+    script.setAttribute("src", vmDir + filename);
+    document.getElementsByTagName("head")[0].appendChild(script);
   });
 })();
 
-window.module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
+module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
 
   // if in private mode set localStorage to a regular dict
   var localStorage = window.localStorage;
@@ -202,64 +195,63 @@ window.module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
         fullscreenElement = "fullscreenElement",
         fullscreenEnabled = "fullscreenEnabled";
 
-    if (box) {
-      if (!box.requestFullscreen) {
-	[    // Fullscreen support is still very browser-dependent
-          {req: box.webkitRequestFullscreen, exit: document.webkitExitFullscreen,
-           evt: "webkitfullscreenchange", elem: "webkitFullscreenElement", enable: "webkitFullscreenEnabled"},
-          {req: box.mozRequestFullScreen, exit: document.mozCancelFullScreen,
-           evt: "mozfullscreenchange", elem: "mozFullScreenElement", enable: "mozFullScreenEnabled"},
-          {req: box.msRequestFullscreen, exit: document.msExitFullscreen,
-           evt: "MSFullscreenChange", elem: "msFullscreenElement", enable: "msFullscreenEnabled"},
-	].forEach(function(browser) {
-          if (browser.req) {
-            box.requestFullscreen = browser.req;
-            document.exitFullscreen = browser.exit;
-            fullscreenEvent = browser.evt;
-            fullscreenElement = browser.elem;
-            fullscreenEnabled = browser.enable;
-          }
-	});
-      }
+    if (!box.requestFullscreen) {
+      [    // Fullscreen support is still very browser-dependent
+        {req: box.webkitRequestFullscreen, exit: document.webkitExitFullscreen,
+         evt: "webkitfullscreenchange", elem: "webkitFullscreenElement", enable: "webkitFullscreenEnabled"},
+        {req: box.mozRequestFullScreen, exit: document.mozCancelFullScreen,
+         evt: "mozfullscreenchange", elem: "mozFullScreenElement", enable: "mozFullScreenEnabled"},
+        {req: box.msRequestFullscreen, exit: document.msExitFullscreen,
+         evt: "MSFullscreenChange", elem: "msFullscreenElement", enable: "msFullscreenEnabled"},
+      ].forEach(function(browser) {
+        if (browser.req) {
+          box.requestFullscreen = browser.req;
+          document.exitFullscreen = browser.exit;
+          fullscreenEvent = browser.evt;
+          fullscreenElement = browser.elem;
+          fullscreenEnabled = browser.enable;
+        }
+      });
+    }
 
-      // If the user canceled fullscreen, turn off the fullscreen flag so
-      // we don't try to enable it again in the next event
-      function fullscreenChange(fullscreen) {
-	display.fullscreen = fullscreen;
-	box.style.background = fullscreen ? 'black' : '';
-	if (options.header) options.header.style.display = fullscreen ? 'none' : '';
-	if (options.footer) options.footer.style.display = fullscreen ? 'none' : '';
-	if (options.fullscreenCheckbox) options.fullscreenCheckbox.checked = fullscreen;
-	setTimeout(window.onresize, 0);
-      }
+    // If the user canceled fullscreen, turn off the fullscreen flag so
+    // we don't try to enable it again in the next event
+    function fullscreenChange(fullscreen) {
+      display.fullscreen = fullscreen;
+      box.style.background = fullscreen ? 'black' : '';
+      if (options.header) options.header.style.display = fullscreen ? 'none' : '';
+      if (options.footer) options.footer.style.display = fullscreen ? 'none' : '';
+      if (options.fullscreenCheckbox) options.fullscreenCheckbox.checked = fullscreen;
+      setTimeout(window.onresize, 0);
+    }
 
-      var checkFullscreen;
+    var checkFullscreen;
 
-      if (box.requestFullscreen) {
-	document.addEventListener(fullscreenEvent, function(){fullscreenChange(box == document[fullscreenElement]);});
-	checkFullscreen = function() {
-          if (document[fullscreenEnabled] && (box == document[fullscreenElement]) != display.fullscreen) {
-            if (display.fullscreen) box.requestFullscreen();
-            else document.exitFullscreen();
-          }
-	};
-      } else {
-	var isFullscreen = false;
-	checkFullscreen = function() {
-          if ((options.header || options.footer) && isFullscreen != display.fullscreen) {
-            isFullscreen = display.fullscreen;
-            fullscreenChange(isFullscreen);
-          }
-	};
-      }
-
-      if (options.fullscreenCheckbox) options.fullscreenCheckbox.onclick = function() {
-	display.fullscreen = options.fullscreenCheckbox.checked;
-	checkFullscreen();
+    if (box.requestFullscreen) {
+      document.addEventListener(fullscreenEvent, function(){fullscreenChange(box == document[fullscreenElement]);});
+      checkFullscreen = function() {
+        if (document[fullscreenEnabled] && (box == document[fullscreenElement]) != display.fullscreen) {
+          if (display.fullscreen) box.requestFullscreen();
+          else document.exitFullscreen();
+        }
       };
+    } else {
+      var isFullscreen = false;
+      checkFullscreen = function() {
+        if ((options.header || options.footer) && isFullscreen != display.fullscreen) {
+          isFullscreen = display.fullscreen;
+          fullscreenChange(isFullscreen);
+        }
+      };
+    }
 
-      return checkFullscreen;
-    } else {return function () {}}}
+    if (options.fullscreenCheckbox) options.fullscreenCheckbox.onclick = function() {
+      display.fullscreen = options.fullscreenCheckbox.checked;
+      checkFullscreen();
+    };
+
+    return checkFullscreen;
+  }
 
   function setupSwapButtons(options) {
     if (options.swapCheckbox) {
@@ -287,10 +279,10 @@ window.module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
       else {shiftPressed = false}}
     
     modifiers =
-      (shiftPressed ? window.Squeak.Keyboard_Shift : 0) +
-      (ctrlPressed ? window.Squeak.Keyboard_Ctrl : 0) +
-      (cmdPressed ? window.Squeak.Keyboard_Cmd : 0);
-    display.buttons = (display.buttons & ~window.Squeak.Keyboard_All) | modifiers;
+      (shiftPressed ? Squeak.Keyboard_Shift : 0) +
+      (ctrlPressed ? Squeak.Keyboard_Ctrl : 0) +
+      (cmdPressed ? Squeak.Keyboard_Cmd : 0);
+    display.buttons = (display.buttons & ~Squeak.Keyboard_All) | modifiers;
     return modifiers;
   }
 
@@ -322,17 +314,17 @@ window.module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
   function recordMouseEvent(what, evt, canvas, display, eventQueue, options) {
     updateMousePos(evt, canvas, display);
     if (!display.vm) return;
-    var buttons = display.buttons & window.Squeak.Mouse_All;
+    var buttons = display.buttons & Squeak.Mouse_All;
     switch (what) {
     case 'mousedown':
       switch (evt.button || 0) {
-      case 0: buttons = window.Squeak.Mouse_Red; break;      // left
-      case 1: buttons = window.Squeak.Mouse_Yellow; break;   // middle
-      case 2: buttons = window.Squeak.Mouse_Blue; break;     // right
+      case 0: buttons = Squeak.Mouse_Red; break;      // left
+      case 1: buttons = Squeak.Mouse_Yellow; break;   // middle
+      case 2: buttons = Squeak.Mouse_Blue; break;     // right
       }
       if (options.swapButtons)
-        if (buttons == window.Squeak.Mouse_Yellow) buttons = window.Squeak.Mouse_Blue;
-      else if (buttons == window.Squeak.Mouse_Blue) buttons = window.Squeak.Mouse_Yellow;
+        if (buttons == Squeak.Mouse_Yellow) buttons = Squeak.Mouse_Blue;
+      else if (buttons == Squeak.Mouse_Blue) buttons = Squeak.Mouse_Yellow;
       break;
     case 'mousemove':
       break; // nothing more to do
@@ -343,11 +335,11 @@ window.module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
     display.buttons = buttons | recordModifiers(evt, display);
     if (eventQueue) {
       eventQueue.push([
-        window.Squeak.EventTypeMouse,
+        Squeak.EventTypeMouse,
         evt.timeStamp,  // converted to Squeak time in makeSqueakEvent()
         display.mouseX,
         display.mouseY,
-        display.buttons & window.Squeak.Mouse_All,
+        display.buttons & Squeak.Mouse_All,
         display.buttons >> 3,
       ]);
       if (display.signalInputEvent)
@@ -368,10 +360,10 @@ window.module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
       display.vm.interruptPending = true;
     } else if (eventQueue) {
       eventQueue.push([
-        window.Squeak.EventTypeKeyboard,
+        Squeak.EventTypeKeyboard,
         timestamp,  // converted to Squeak time in makeSqueakEvent()
         key, // MacRoman
-        window.Squeak.EventKeyChar,
+        Squeak.EventKeyChar,
         display.buttons >> 3,
         key,  // Unicode
       ]);
@@ -389,7 +381,7 @@ window.module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
     if (!display.vm || !eventQueue) return;
     updateMousePos(evt, canvas, display);
     eventQueue.push([
-      window.Squeak.EventTypeDragDropFiles,
+      Squeak.EventTypeDragDropFiles,
       evt.timeStamp,  // converted to Squeak time in makeSqueakEvent()
       type,
       display.mouseX,
@@ -403,15 +395,15 @@ window.module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
 
   function fakeCmdOrCtrlKey(key, timestamp, display, eventQueue) {
     // set both Cmd and Ctrl bit, because we don't know what the image wants
-    display.buttons &= ~window.Squeak.Keyboard_All;  // remove all modifiers
-    display.buttons |= window.Squeak.Keyboard_Cmd | window.Squeak.Keyboard_Ctrl;
+    display.buttons &= ~Squeak.Keyboard_All;  // remove all modifiers
+    display.buttons |= Squeak.Keyboard_Cmd | Squeak.Keyboard_Ctrl;
     display.keys = []; //  flush other keys
     recordKeyboardEvent(key, timestamp, display, eventQueue);
   }
 
   function makeSqueakEvent(evt, sqEvtBuf, sqTimeOffset) {
     sqEvtBuf[0] = evt[0];
-    sqEvtBuf[1] = (evt[1] - sqTimeOffset) & window.Squeak.MillisecondClockMask;
+    sqEvtBuf[1] = (evt[1] - sqTimeOffset) & Squeak.MillisecondClockMask;
     for (var i = 2; i < evt.length; i++)
       sqEvtBuf[i] = evt[i];
   }
@@ -466,7 +458,7 @@ window.module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
         display.getNextEvent = function(evtBuf, timeOffset) {
           var evt = eventQueue.shift();
           if (evt) makeSqueakEvent(evt, evtBuf, timeOffset - eventQueue.offset);
-          else evtBuf[0] = window.Squeak.EventTypeNone;
+          else evtBuf[0] = Squeak.EventTypeNone;
         };
         display.getNextEvent(firstEvtBuf, firstOffset);
       };
@@ -558,16 +550,12 @@ window.module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
         console.error("copy error " + err);
       }
     };
-
-    canvas.addEventListener(
-      'mousedown',
-      function(evt) {
-	checkFullscreen();
-	recordMouseEvent('mousedown', evt, canvas, display, eventQueue, options);
-	evt.preventDefault();
-	return false;
-      });
-
+    canvas.onmousedown = function(evt) {
+      checkFullscreen();
+      recordMouseEvent('mousedown', evt, canvas, display, eventQueue, options);
+      evt.preventDefault();
+      return false;
+    };
     canvas.onmouseup = function(evt) {
       recordMouseEvent('mouseup', evt, canvas, display, eventQueue, options);
       checkFullscreen();
@@ -795,6 +783,23 @@ window.module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
       display.cursorCanvas.style.pointerEvents = "none";
       canvas.parentElement.appendChild(display.cursorCanvas);
     }
+
+    // wheel stuff
+    document.addEventListener(
+      "mousewheel",
+      function(event) {
+	if (!display.vm) return true;
+
+	event.preventDefault();
+	event.stopPropagation();
+
+	recordModifiers({ctrlKey: true, metaKey: true}, display);
+
+	if (event.wheelDeltaY) {
+	  if (event.wheelDeltaY < 0) recordKeyboardEvent(31, event.timeStamp, display, eventQueue);
+	  else recordKeyboardEvent(30, event.timeStamp, display, eventQueue);}},
+      {passive: false});
+    
     // keyboard stuff
     document.onkeypress = function(evt) {
       if (canvas.otherCanvasActive) {
@@ -913,16 +918,16 @@ window.module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
         evt.dataTransfer.dropEffect = 'none';
       } else {
         evt.dataTransfer.dropEffect = 'copy';
-        recordDragDropEvent(window.Squeak.EventDragMove, evt, canvas, display, eventQueue);
+        recordDragDropEvent(Squeak.EventDragMove, evt, canvas, display, eventQueue);
       }
     };
     document.ondragenter = function(evt) {
       if (!dragEventHasFiles(evt)) return;
-      recordDragDropEvent(window.Squeak.EventDragEnter, evt, canvas, display, eventQueue);
+      recordDragDropEvent(Squeak.EventDragEnter, evt, canvas, display, eventQueue);
     };
     document.ondragleave = function(evt) {
       if (!dragEventHasFiles(evt)) return;
-      recordDragDropEvent(window.Squeak.EventDragLeave, evt, canvas, display, eventQueue);
+      recordDragDropEvent(Squeak.EventDragLeave, evt, canvas, display, eventQueue);
     };
     document.ondrop = function(evt) {
       evt.preventDefault();
@@ -936,7 +941,7 @@ window.module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
         var reader = new FileReader();
         reader.onload = function () {
           var buffer = this.result;
-          window.Squeak.filePut(f.name, buffer);
+          Squeak.filePut(f.name, buffer);
           loaded.push(f.name);
           if (!image && /.*image$/.test(f.name) && (!display.vm || confirm("Run " + f.name + " now?\n(cancel to use as file)"))) {
             image = buffer;
@@ -944,10 +949,10 @@ window.module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
           }
           if (loaded.length == files.length) {
             if (image) {
-              window.SqueakJS.appName = imageName.slice(0, -6);
-              window.SqueakJS.runImage(image, imageName, display, options);
+              SqueakJS.appName = imageName.slice(0, -6);
+              SqueakJS.runImage(image, imageName, display, options);
             } else {
-              recordDragDropEvent(window.Squeak.EventDragDrop, evt, canvas, display, eventQueue);
+              recordDragDropEvent(Squeak.EventDragDrop, evt, canvas, display, eventQueue);
             }
           }
         };
@@ -1028,9 +1033,10 @@ window.module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
   function setupSpinner(vm, options) {
     var spinner = options.spinner;
     if (!spinner) {
+      debugger;
       return null;}
     spinner.onmousedown = function(evt) {
-      if (confirm(window.SqueakJS.appName + " is busy. Interrupt?"))
+      if (confirm(SqueakJS.appName + " is busy. Interrupt?"))
         vm.interruptPending = true;
     };
     return spinner.style;
@@ -1061,28 +1067,28 @@ window.module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
 
   var loop; // holds timeout for main loop
 
-  window.SqueakJS.runImage = function(buffer, name, display, options) {
+  SqueakJS.runImage = function(buffer, name, display, options) {
     window.onbeforeunload = function(evt) {
-      var msg = window.SqueakJS.appName + " is still running";
+      var msg = SqueakJS.appName + " is still running";
       evt.returnValue = msg;
       return msg;
     };
     window.clearTimeout(loop);
     display.reset();
     display.clear();
-    display.showBanner("loading app '" + window.SqueakJS.appName + "'...");
+    display.showBanner("loading app '" + SqueakJS.appName + "'...");
     display.showProgress(0);
     var self = this;
     window.setTimeout(function readImageAsync() {
-      var image = new window.Squeak.Image(name);
+      var image = new Squeak.Image(name);
       image.readFromBuffer(buffer, function startRunning() {
         display.quitFlag = false;
-        var vm = new window.Squeak.Interpreter(image, display);
-        window.SqueakJS.vm = vm;
+        var vm = new Squeak.Interpreter(image, display);
+        SqueakJS.vm = vm;
         localStorage["squeakImageName"] = name;
         setupSwapButtons(options);
         display.clear();
-        display.showBanner("starting app '" + window.SqueakJS.appName + "'...");
+        display.showBanner("starting app '" + SqueakJS.appName + "'...");
         var spinner = setupSpinner(vm, options);
         function run() {
           try {
@@ -1095,7 +1101,8 @@ window.module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
               })};
           } catch(error) {
             console.error(error);
-//            alert(error);
+	      //            alert(error);
+	      debugger
 	    loop = window.setTimeout(run, 200);
           }
         }
@@ -1133,11 +1140,11 @@ window.module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
         }
         options[key] = val;
     }
-    var root = window.Squeak.splitFilePath(options.root || "/").fullname;
-    window.Squeak.dirCreate(root, true);
+    var root = Squeak.splitFilePath(options.root || "/").fullname;
+    Squeak.dirCreate(root, true);
     if (!/\/$/.test(root)) root += "/";
     options.root = root;
-    window.SqueakJS.options = options;
+    SqueakJS.options = options;
 }
 
 function fetchTemplates(options) {
@@ -1149,14 +1156,14 @@ function fetchTemplates(options) {
         }
         for (var path in options.templates) {
             var dir = path[0] == "/" ? path : options.root + path,
-                url = window.Squeak.splitUrl(options.templates[path], options.url).full;
-            window.Squeak.fetchTemplateDir(dir, url);
+                url = Squeak.splitUrl(options.templates[path], options.url).full;
+            Squeak.fetchTemplateDir(dir, url);
         }
     }
 }
 
 function processFile(file, display, options, thenDo) {
-    window.Squeak.filePut(options.root + file.name, file.data, function() {
+    Squeak.filePut(options.root + file.name, file.data, function() {
         console.log("Stored " + options.root + file.name);
         if (file.zip) {
             processZip(file, display, options, thenDo);
@@ -1172,17 +1179,17 @@ function processZip(file, display, options, thenDo) {
         zip.forEach(function(filename){
             if (!options.image.name && filename.match(/\.image$/))
                 options.image.name = filename;
-            if (options.forceDownload || !window.Squeak.fileExists(options.root + filename)) {
+            if (options.forceDownload || !Squeak.fileExists(options.root + filename)) {
                 todo.push(filename);
             } else if (options.image.name === filename) {
                 // image exists, need to fetch it from storage
                 var _thenDo = thenDo;
                 thenDo = function() {
-                    window.Squeak.fileGet(options.root + filename, function(data) {
+                    Squeak.fileGet(options.root + filename, function(data) {
                         options.image.data = data;
                         return _thenDo();
                     }, function onError() {
-                        window.Squeak.fileDelete(options.root + file.name);
+                        Squeak.fileDelete(options.root + file.name);
                         return processZip(file, display, options, _thenDo);
                     });
                 }
@@ -1211,17 +1218,17 @@ function processZip(file, display, options, thenDo) {
 }
 
 function checkExisting(file, display, options, ifExists, ifNotExists) {
-    if (!window.Squeak.fileExists(options.root + file.name))
+    if (!Squeak.fileExists(options.root + file.name))
         return ifNotExists();
     if (file.image || file.zip) {
         // if it's the image or a zip, load from file storage
-        window.Squeak.fileGet(options.root + file.name, function(data) {
+        Squeak.fileGet(options.root + file.name, function(data) {
             file.data = data;
             if (file.zip) processZip(file, display, options, ifExists);
             else ifExists();
         }, function onError() {
             // if error, download it
-            window.Squeak.fileDelete(options.root + file.name);
+            Squeak.fileDelete(options.root + file.name);
             return ifNotExists();
         });
     } else {
@@ -1248,7 +1255,7 @@ function downloadFile(file, display, options, thenDo) {
         else this.onerror(this.statusText);
     };
     rq.onerror = function(e) {
-        if (options.proxy) return console.log("Failed to download:\n" + file.url);
+        if (options.proxy) return alert("Failed to download:\n" + file.url);
         console.warn('Retrying with CORS proxy: ' + file.url);
         var proxy = 'https://crossorigin.me/',
             retry = new XMLHttpRequest();
@@ -1257,7 +1264,7 @@ function downloadFile(file, display, options, thenDo) {
         retry.responseType = rq.responseType;
         retry.onprogress = rq.onprogress;
         retry.onload = rq.onload;
-        retry.onerror = function() {console.log("Failed to download:\n" + file.url)};
+        retry.onerror = function() {alert("Failed to download:\n" + file.url)};
         retry.send();
     };
     rq.send();
@@ -1282,7 +1289,7 @@ function fetchFiles(files, display, options, thenDo) {
     getNextFile();
 }
 
-window.SqueakJS.runSqueak = function(imageUrl, canvas, options) {
+SqueakJS.runSqueak = function(imageUrl, canvas, options) {
     // we need to fetch all files first, then run the image
     processOptions(options);
     if (!imageUrl && options.image) imageUrl = options.image;
@@ -1294,13 +1301,13 @@ window.SqueakJS.runSqueak = function(imageUrl, canvas, options) {
         files = [];
     display.argv = options.argv;
     if (imageUrl) {
-        var url = window.Squeak.splitUrl(imageUrl, baseUrl);
+        var url = Squeak.splitUrl(imageUrl, baseUrl);
         image.url = url.full;
         image.name = url.filename;
     }
     if (options.files) {
         options.files.forEach(function(f) {
-            var url = window.Squeak.splitUrl(f, baseUrl);
+            var url = Squeak.splitUrl(f, baseUrl);
             if (image.name === url.filename) {/* pushed after other files */}
             else if (!image.url && f.match(/\.image$/)) {
                 image.name = url.filename;
@@ -1311,12 +1318,12 @@ window.SqueakJS.runSqueak = function(imageUrl, canvas, options) {
         });
     }
 
-    if (!window.Squeak.fileExists(options.root + image.name)) {
+    if (!Squeak.fileExists(options.root + image.name)) {
       // If the image file exists, assume there's no need to check the zips.
       if (options.zip) {
           var zips = typeof options.zip === "string" ? [options.zip] : options.zip;
           zips.forEach(function(zip) {
-              var url = window.Squeak.splitUrl(zip, baseUrl);
+              var url = Squeak.splitUrl(zip, baseUrl);
               files.push({url: url.full, name: url.filename, zip: true});
           });
       }}
@@ -1324,32 +1331,35 @@ window.SqueakJS.runSqueak = function(imageUrl, canvas, options) {
     if (image.url) files.push(image);
 
     if (options.document) {
-        var url = window.Squeak.splitUrl(options.document, baseUrl);
+        var url = Squeak.splitUrl(options.document, baseUrl);
         files.push({url: url.full, name: url.filename, forceDownload: options.forceDownload !== false});
         display.documentName = options.root + url.filename;
     }
     options.image = image;
     fetchFiles(files, display, options, function thenDo() {
-        window.Squeak.fsck();
+        Squeak.fsck();
         var image = options.image;
         if (!image.name) return console.log("could not find an image");
-        if (!image.data) return console.log("could not find image " + image.name);
-        window.SqueakJS.appName = options.appName || image.name.replace(/\.image$/, "");
-        window.SqueakJS.runImage(image.data, options.root + image.name, display, options);
+        if (!image.data) {
+	    console.log("could not find image " + image.name);
+	    document.location.reload();
+	    return}
+        SqueakJS.appName = options.appName || image.name.replace(/\.image$/, "");
+        SqueakJS.runImage(image.data, options.root + image.name, display, options);
     });
     return display;
 };
 
-window.SqueakJS.quitSqueak = function() {
-    window.SqueakJS.vm.quitFlag = true;
+SqueakJS.quitSqueak = function() {
+    SqueakJS.vm.quitFlag = true;
 };
 
-window.SqueakJS.onQuit = function(vm, display, options) {
+SqueakJS.onQuit = function(vm, display, options) {
     window.onbeforeunload = null;
     display.vm = null;
     if (options.spinner) options.spinner.style.display = "none";
     if (options.onQuit) options.onQuit(vm, display, options);
-    else display.showBanner(window.SqueakJS.appName + " stopped.");
+    else display.showBanner(SqueakJS.appName + " stopped.");
 };
 
 }); // end module
@@ -1361,7 +1371,7 @@ window.SqueakJS.onQuit = function(vm, display, options) {
 if (window.applicationCache) {
     applicationCache.addEventListener('updateready', function() {
         // use original appName from options
-        var appName = window.SqueakJS && window.SqueakJS.options && window.SqueakJS.options.appName || "SqueakJS";
+        var appName = window.SqueakJS && SqueakJS.options && SqueakJS.options.appName || "SqueakJS";
         if (confirm(appName + ' has been updated. Restart now?')) {
             window.onbeforeunload = null;
             window.location.reload();

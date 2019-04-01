@@ -1,4 +1,4 @@
-window.module('users.bert.SqueakJS.jit').requires("users.bert.SqueakJS.vm").toRun(function() {
+module('users.bert.SqueakJS.jit').requires("users.bert.SqueakJS.vm").toRun(function() {
 "use strict";
 /*
  * Copyright (c) 2014-2016 Bert Freudenberg
@@ -129,7 +129,7 @@ to single-step.
 'initialization', {
     initialize: function(vm) {
         this.vm = vm;
-        this.comments = !!window.Squeak.Compiler.comments, // generate comments
+        this.comments = !!Squeak.Compiler.comments, // generate comments
         // for debug-printing only
         this.specialSelectors = ['+', '-', '<', '>', '<=', '>=', '=', '~=', '*', '/', '\\', '@',
             'bitShift:', '//', 'bitAnd:', 'bitOr:', 'at:', 'at:put:', 'size', 'next', 'nextPut:',
@@ -211,6 +211,9 @@ to single-step.
         this.sourcePos['lit[']       = this.source.length; this.source.push("var lit = vm.method.pointers;\n");
         this.sourcePos['loop-start'] = this.source.length; this.source.push("while (true) switch (vm.pc) {\ncase 0:\n");
         this.done = false;
+
+	method.fused = true;
+
         while (!this.done) {
             var byte = method.bytes[this.pc++],
                 byte2 = 0;

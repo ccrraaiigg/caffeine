@@ -29,7 +29,7 @@
 
 <script>
 // import { matchesSelectorToParentElements } from '../utils/dom.js'
-import('http://mobile.blackpagedigital.com/js/vue-draggable-resizable/src/utils/dom.js').then((result) => {console.log('vue-draggable-resizable loaded')}, (error) => {debugger})
+import('http://localhost/js/vue-draggable-resizable/src/utils/dom.js').then((result) => {console.log('vue-draggable-resizable loaded')}, (error) => {debugger})
 
 module.exports = {
   replace: true,

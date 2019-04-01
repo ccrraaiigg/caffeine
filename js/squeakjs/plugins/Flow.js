@@ -5,7 +5,7 @@
 // probably some performance benefit, too (no fiddling about with
 // proxies and the message-not-understood code path).
 
-window.module("SqueakJS.plugins.Flow").requires("users.bert.SqueakJS.vm").toRun(
+module("SqueakJS.plugins.Flow").requires("users.bert.SqueakJS.vm").toRun(
   function () {
     "use strict"
 
@@ -14,9 +14,8 @@ window.module("SqueakJS.plugins.Flow").requires("users.bert.SqueakJS.vm").toRun(
 	interpreterProxy = null,
 	moduleName = "Flow v7"
 
-    if ('requestMIDIAccess' in navigator) {
-      navigator.requestMIDIAccess().then(function (access) {
-	window.caffeineMIDIAccess = access})}
+    navigator.requestMIDIAccess().then(function (access) {
+      window.caffeineMIDIAccess = access})
 
     function setInterpreter(interpreter) {
       interpreterProxy = interpreter
@@ -97,7 +96,7 @@ window.module("SqueakJS.plugins.Flow").requires("users.bert.SqueakJS.vm").toRun(
 	  numberOfWords = words.length,
 	  wordIndex = 0,
 	  data
-	
+      
       while (index < requestedIndex) {
 	port = outputs.next()
 	index = index + 1}
@@ -124,7 +123,7 @@ window.module("SqueakJS.plugins.Flow").requires("users.bert.SqueakJS.vm").toRun(
 
       while (self.children.length > 0) {
 	var child = self.firstChild
-    
+	
 	self.removeChild(child)}
 
       (
@@ -140,38 +139,74 @@ window.module("SqueakJS.plugins.Flow").requires("users.bert.SqueakJS.vm").toRun(
 
       interpreterProxy.pop(1)}
 
+    // read from Blobs, for sending binary WebSocket frames
+
+    function setBytesFrom () {
+      var byteArray = interpreterProxy.stackValue(1),
+	  result = interpreterProxy.stackValue(0).jsObject
+
+      byteArray.bytes = new Uint8Array(result)}
+    
     // VisualWorks support
 
     function decompressVisualWorksBitmapFromByteArray () {
-	  var words = interpreterProxy.stackValue(1).words,
+      var words = interpreterProxy.stackValue(1).words,
 	  bytes = interpreterProxy.stackValue(0).bytes,
 	  numberOfBytes = bytes.length,
 	  bytesPosition = 0,
 	  wordIndex = 0,
 	  word
 
-	  while (bytesPosition < numberOfBytes) {
-	    word = (bytes[bytesPosition++] << 24) + bytes[bytesPosition++]
+      while (bytesPosition < numberOfBytes) {
+	word = (bytes[bytesPosition++] << 24) + bytes[bytesPosition++]
 
-	    if (bytesPosition < numberOfBytes) {
-	      word = word + (bytes[bytesPosition++] << 8) + (bytes[bytesPosition++] << 16)}
+	if (bytesPosition < numberOfBytes) {
+	  word = word + (bytes[bytesPosition++] << 8) + (bytes[bytesPosition++] << 16)}
 
-		words[wordIndex++] = word}
+	words[wordIndex++] = word}
 
       interpreterProxy.pop(1)}
 
+    // Naiad support
 
-    window.Squeak.registerExternalModule(
+    function isMethodFused () {
+      interpreterProxy.pushBool(interpreterProxy.stackValue(0).fused)}
+
+    function defuseMethod () {
+      interpreterProxy.stackValue(0).fused = false}
+    
+    function fuseMethod () {
+      interpreterProxy.stackValue(0).fused = true}
+
+    function setReloadingMethodHeader () {
+      // Hack the header of the reloading method to indicate that it
+      // needs large context frames, to accommodate the arguments of
+      // any method it might eventually install.
+      var method = interpreterProxy.stackValue(0)
+
+      method.pointers[0] = method.pointers[0] | 0x20000}
+
+    function setSpecialObjectsArray () {
+      interpreterProxy.vm.image.specialObjectsArray = interpreterProxy.stackValue(0)
+      interpreterProxy.pop(1)}
+    
+    Squeak.registerExternalModule(
       "Flow",
       {
-        setInterpreter: setInterpreter,
-        numberOfMIDIPorts: numberOfMIDIPorts,
-        nameOfMIDIPortAt: nameOfMIDIPortAt,
-        newMIDIPortHandleInto: newMIDIPortHandleInto,
+	setInterpreter: setInterpreter,
+	numberOfMIDIPorts: numberOfMIDIPorts,
+	nameOfMIDIPortAt: nameOfMIDIPortAt,
+	newMIDIPortHandleInto: newMIDIPortHandleInto,
 	enableMIDIPortAtAnd: enableMIDIPortAtAnd,
 	MIDIClockValue: MIDIClockValue,
 	scheduleMIDIMessagesInQuantityOn: scheduleMIDIMessagesInQuantityOn,
 	htmlSelectElementSetOptions: htmlSelectElementSetOptions,
-	decompressVisualWorksBitmapFromByteArray
+	decompressVisualWorksBitmapFromByteArray: decompressVisualWorksBitmapFromByteArray,
+	setBytesFrom: setBytesFrom,
+	isMethodFused: isMethodFused,
+	fuseMethod: fuseMethod,
+	defuseMethod: defuseMethod,
+	setReloadingMethodHeader: setReloadingMethodHeader,
+	setSpecialObjectsArray: setSpecialObjectsArray
       })})
 
