@@ -134,7 +134,7 @@ Function.prototype.subclass = function(classPath /* + more args */ ) {
     
     loc = document.createElement('a');
     loc.href = document.location;
-    vmDir = 'http://' + loc.hostname + '/js/squeakjs/';
+    vmDir = 'https://' + loc.hostname + '/js/squeakjs/';
     
   if (squeakjs.src.match(/squeak\.min\.js$/)) return;
   [   "vm.js",
