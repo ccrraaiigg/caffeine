@@ -15,7 +15,7 @@ This repository is the content for the Caffeine website, https://caffeine.js.org
 | [/helloworld](https://caffeine.js.org/helloworld) | the simplest possible Caffeine app and IDE |
 | [/files](https://caffeine.js.org/files)           | a listing of the file Caffeine has stored in your web browser's cache. You can download files from it, and drop new files into it. |
 
-There are [issues](https://github.com/ccrraaiigg/ccrraaiigg.github.io/issues) and [projects](https://github.com/ccrraaiigg/ccrraaiigg.github.io/projects) to follow; please do! Current activity is focused on [making Caffeine a productive in-world VR livecoding environment](https://github.com/ccrraaiigg/ccrraaiigg.github.io/projects/1), and deploying livecoded VueJS web apps.
+There are [issues](https://github.com/ccrraaiigg/caffeine/issues) and [projects](https://github.com/ccrraaiigg/caffeine/projects) to follow; please do! Current activity is focused on [making Caffeine a productive in-world VR livecoding environment](https://github.com/ccrraaiigg/caffeine/projects/1), and deploying livecoded VueJS web apps.
 
 Craig Latta
 <br>
