@@ -167,7 +167,7 @@ Function.prototype.subclass = function(classPath /* + more args */ ) {
     var script = document.createElement('script');
     script.setAttribute("type","text/javascript");
     script.setAttribute("src", vmDir + filename);
-    document.getElementsByTagName("head")[0].appendChild(script);
+    document.head.appendChild(script);
   });
 })();
 
