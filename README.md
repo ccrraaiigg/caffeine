@@ -6,10 +6,10 @@ This repository is the content for the Caffeine website, https://caffeine.js.org
 | ------------------------------------------------- | ---------------------------- |
 | [/](https://caffeine.js.org/)                     | an introduction to Caffeine  |
 | [/talk](https://caffeine.js.org/talk)             | an impress-powered presentation about Caffeine and livecoding |
-| [/spa](https://caffeine.js.org/spa)               | Caffeine on a single-page application site |
+| [/2d](https://caffeine.js.org/2d)               | Caffeine on a single-page application site |
 | [/pharo](https://caffeine.js.org/pharo)           | a demo of Pharo |
 | [/cuis](https://caffeine.js.org/cuis)             | a demo of Cuis |
-| [/a-frame](https://caffeine.js.org/a-frame)       | an A-Frame-powered virtual livecoding space |
+| [/3d](https://caffeine.js.org/3d)       | an A-Frame-powered virtual livecoding space |
 | [/helloworld](https://caffeine.js.org/helloworld) | the simplest possible Caffeine app and IDE |
 | [/files](https://caffeine.js.org/files)           | a listing of the file Caffeine has stored in your web browser's cache. You can download files from it, and drop new files into it. |
 
