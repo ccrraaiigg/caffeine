@@ -2,7 +2,7 @@ Caffeine is a livecoding environment for [web browsers](https://developer.mozill
 
 [This repository](https://github.com/ccrraaiigg/caffeine) is the content for [the Caffeine website](https://caffeine.js.org), **caffeine.js.org**. It provides these endpoints:
 
-|                                                   | Description                  |
+|                                                   |                              |
 | ------------------------------------------------- | ---------------------------- |
 | [/](https://caffeine.js.org/)                     | this page  |
 | [/talk](https://caffeine.js.org/talk)             | an [impress](https://impress.js.org)-powered presentation about Caffeine and livecoding |
@@ -15,7 +15,6 @@ Caffeine is a livecoding environment for [web browsers](https://developer.mozill
 There are [issues](https://github.com/ccrraaiigg/caffeine/issues) and [projects](https://github.com/ccrraaiigg/caffeine/projects) to follow; please do! Current activity is focused on [making Caffeine a productive in-world VR livecoding environment](https://github.com/ccrraaiigg/caffeine/projects/1), and deploying livecoded [VueJS](https://vuejs.org) web apps.
 
 
-<br>
 <br>
 Craig Latta
 <br>
