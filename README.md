@@ -15,6 +15,8 @@ Caffeine is a livecoding environment for [web browsers](https://developer.mozill
 There are [issues](https://github.com/ccrraaiigg/caffeine/issues) and [projects](https://github.com/ccrraaiigg/caffeine/projects) to follow; please do! Current activity is focused on [making Caffeine a productive in-world VR livecoding environment](https://github.com/ccrraaiigg/caffeine/projects/1), and deploying livecoded [VueJS](https://vuejs.org) web apps.
 
 
+<br>
+<br>
 Craig Latta
 <br>
 [Black Page Digital](http://blackpagedigital.com)
