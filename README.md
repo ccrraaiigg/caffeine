@@ -5,20 +5,19 @@ Caffeine is a livecoding environment for web browsers, NodeJS, and WebAssembly, 
 |                                                   | Description                  |
 | ------------------------------------------------- | ---------------------------- |
 | [/](https://caffeine.js.org/)                     | an introduction to Caffeine  |
-| [/talk](https://caffeine.js.org/talk)             | an impress-powered presentation about Caffeine and livecoding |
+| [/talk](https://caffeine.js.org/talk)             | an [impress](https://impress.js.org)-powered presentation about Caffeine and livecoding |
 | [/2d](https://caffeine.js.org/2d)               | Caffeine on a single-page application site |
-| [/pharo](https://caffeine.js.org/pharo)           | a demo of Pharo |
-| [/cuis](https://caffeine.js.org/cuis)             | a demo of Cuis |
-| [/3d](https://caffeine.js.org/3d)       | an A-Frame-powered virtual livecoding space |
-| [/helloworld](https://caffeine.js.org/helloworld) | the simplest possible Caffeine app and IDE |
-| [/files](https://caffeine.js.org/files)           | a listing of the file Caffeine has stored in your web browser's cache. You can download files from it, and drop new files into it. |
+| [/pharo](https://caffeine.js.org/pharo)           | a demo of [Pharo](https://pharo.org) |
+| [/cuis](https://caffeine.js.org/cuis)             | a demo of [Cuis](http://cuis-smalltalk.org) |
+| [/3d](https://caffeine.js.org/3d)       | an [A-Frame](https://aframe.io)-powered in-world virtual reality livecoding space |
+| [/files](https://caffeine.js.org/files)           | a listing of the files Caffeine has stored in your web browser's cache. You can download files from it, and drop new files into it. |
 
-There are [issues](https://github.com/ccrraaiigg/caffeine/issues) and [projects](https://github.com/ccrraaiigg/caffeine/projects) to follow; please do! Current activity is focused on [making Caffeine a productive in-world VR livecoding environment](https://github.com/ccrraaiigg/caffeine/projects/1), and deploying livecoded VueJS web apps.
-
-GitHub's site-building process for GitHub Pages on this repo sometimes times out, so https://caffeine.js.org may be stale or unavailable. A clone is running at http://blackpagedigital.com/caffeine/.
+There are [issues](https://github.com/ccrraaiigg/caffeine/issues) and [projects](https://github.com/ccrraaiigg/caffeine/projects) to follow; please do! Current activity is focused on [making Caffeine a productive in-world VR livecoding environment](https://github.com/ccrraaiigg/caffeine/projects/1), and deploying livecoded [VueJS](https://vuejs.org) web apps.
 
 
 Craig Latta
+<br>
+[Black Page Digital](http://blackpagedigital.com)
 <br>
 [@ccrraaiigg](https://twitter.com/ccrraaiigg)
 
