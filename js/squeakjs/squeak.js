@@ -130,11 +130,18 @@ Function.prototype.subclass = function(classPath /* + more args */ ) {
     var scripts = document.getElementsByTagName("script"),
 	squeakjs = scripts[scripts.length - 1],
 	loc,
-	vmDir;
+	vmDir,
+	scheme;
     
     loc = document.createElement('a');
-    loc.href = document.location;
-    vmDir = 'https://' + loc.hostname + '/js/squeakjs/';
+  loc.href = document.location;
+  
+  if ((loc.hostname == 'localhost') || (loc.hostname == '127.0.0.1'))
+    scheme = 'http'
+  else
+    scheme = 'https';
+  
+    vmDir = scheme + '://' + loc.hostname + '/js/squeakjs/';
     
   if (squeakjs.src.match(/squeak\.min\.js$/)) return;
   [   "vm.js",

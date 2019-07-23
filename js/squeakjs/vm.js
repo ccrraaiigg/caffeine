@@ -749,7 +749,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      rq.onerror = function(e) {
 			console.log("cannot load template index " + index);
 		      }
-		      rq.send();
+
 		    }
 		  },
 		  fetchTemplateFile: function(path, ifFound, ifNotFound) {
