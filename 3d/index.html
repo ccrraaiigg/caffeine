@@ -84,11 +84,13 @@
 		sound="src: #wind-sound;
 		       loop: true"></a-entity>
 
-      <a-entity id="camera"
-		camera
-		look-controls
-		wasd-controls
-                position="0 5 -2.5"></a-entity>
+      <a-entity id="camera-wrapper"
+		position="0 5 -2.5">
+
+	<a-entity id="camera"
+		  camera
+		  look-controls
+		  wasd-controls></a-entity></a-entity>
 
       <input id="home"
 	     type="image"
