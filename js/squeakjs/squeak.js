@@ -821,6 +821,7 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
     
     // keyboard stuff
     document.onkeypress = function(evt) {
+      /* 
       if (canvas.otherCanvasActive) {
 	evt.preventDefault();
 	evt.stopPropagation();
@@ -834,6 +835,7 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
       recordKeyboardEvent(evt.charCode, evt.timeStamp, display, eventQueue);
       evt.preventDefault();
       evt.stopPropagation();
+*/
     };
     document.onkeydown = function(evt) {
       checkFullscreen();
@@ -867,20 +869,24 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
 	evt.stopPropagation();
         return evt.preventDefault();
       }
-      if ((evt.metaKey || (evt.altKey && !evt.ctrlKey))) {
-        var key = evt.key; // only supported in FireFox, others have keyIdentifier
-        if (!key && evt.keyIdentifier && evt.keyIdentifier.slice(0,2) == 'U+')
-          key = String.fromCharCode(parseInt(evt.keyIdentifier.slice(2), 16));
-        if (key && key.length == 1) {
+      var key = evt.key; // only supported in FireFox, others have keyIdentifier
+      if (!key && evt.keyIdentifier && evt.keyIdentifier.slice(0,2) == 'U+')
+        key = String.fromCharCode(parseInt(evt.keyIdentifier.slice(2), 16));
+
+      var code = key.charCodeAt(0);
+
+      if (key && key.length == 1) {
+	if (evt.metaKey || evt.altKey || evt.ctrlKey) {
           if (/[CXVR]/i.test(key))
             return true;  // let browser handle cut/copy/paste/reload
-          var code = key.charCodeAt(0);
           if (/[A-Z]/.test(key) && !evt.shiftKey) code += 32;  // make lower-case
-          recordKeyboardEvent(code, evt.timeStamp, display, eventQueue);
-	  evt.stopPropagation();
-          return evt.preventDefault();
-        }
+	}
       }
+
+      if (key != 'Control') {
+	recordKeyboardEvent(code, evt.timeStamp, display, eventQueue);
+	evt.stopPropagation();
+	return evt.preventDefault();}
     };
     document.onkeyup = function(evt) {
       if (canvas.otherCanvasActive) {
