@@ -883,7 +883,7 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
 	}
       }
 
-      if (key != 'Control') {
+      if ((key != 'Control') && (key != 'Shift') && (key != 'Meta') && (key != 'Alt') && (key != 'CapsLock')) {
 	recordKeyboardEvent(code, evt.timeStamp, display, eventQueue);
 	evt.stopPropagation();
 	return evt.preventDefault();}
