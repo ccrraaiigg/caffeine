@@ -877,8 +877,12 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
 
       if (key && key.length == 1) {
 	if (evt.metaKey || evt.altKey || evt.ctrlKey) {
-          if (/[CXVR]/i.test(key))
-            return true;  // let browser handle cut/copy/paste/reload
+          if (/[R]/i.test(key))
+            return false;  // let browser handle reload exclusively
+          if (/[CXV]/i.test(key)) {
+	    recordKeyboardEvent(code, evt.timeStamp, display, eventQueue);
+            return false;  // let browser handle cut/copy/paste
+	  }
           if (/[A-Z]/.test(key) && !evt.shiftKey) code += 32;  // make lower-case
 	}
       }

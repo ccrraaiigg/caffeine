@@ -96,9 +96,13 @@ window.onload = function () {
   summary.onmouseover = function () {
     embeddedSqueak.style.boxShadow = ''}
 
-  document.body.style.transition = 'all 1000ms'
-  document.body.bgColor = ''
-
+  window.setTimeout(
+    function () {
+      window.scrollTo(0, 0)
+      document.body.style.transition = 'all 1000ms'
+      document.body.bgColor = ''},
+    500)
+  
   window.setTimeout(
     function () {
       window.document.getElementById('banner').style.opacity = 1},
