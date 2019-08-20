@@ -30,9 +30,34 @@
             try {magicWindow = window.top.magicWindow}
             catch (exception) {magicWindow = null}
 
-	    window.top.onorientationchange = (event) => {event.preventDefault()}
+	    window.top.onorientationchange = (event) => {
+	      event.stopPropagation()
+	      event.preventDefault()}
 
 	    window.top.document.ontouchend = (event) => {
+	      if (!window.top.muteButtonOverridden) {
+		// Unlock HTML5 Audio - load a data url of short silence and play it
+		// This will allow us to play web audio when the Apple iPhone/iPad hardware
+		// mute toggle is on.
+	      
+		var silenceDataURL = "data:audio/mp3;base64,//MkxAAHiAICWABElBeKPL/RANb2w+yiT1g/gTok//lP/W/l3h8QO/OCdCqCW2Cw//MkxAQHkAIWUAhEmAQXWUOFW2dxPu//9mr60ElY5sseQ+xxesmHKtZr7bsqqX2L//MkxAgFwAYiQAhEAC2hq22d3///9FTV6tA36JdgBJoOGgc+7qvqej5Zu7/7uI9l//MkxBQHAAYi8AhEAO193vt9KGOq+6qcT7hhfN5FTInmwk8RkqKImTM55pRQHQSq//MkxBsGkgoIAABHhTACIJLf99nVI///yuW1uBqWfEu7CgNPWGpUadBmZ////4sL//MkxCMHMAH9iABEmAsKioqKigsLCwtVTEFNRTMuOTkuNVVVVVVVVVVVVVVVVVVV//MkxCkECAUYCAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV",
+		    tag = document.createElement("audio")
+		
+		tag.controls = false
+		tag.preload = "auto"
+		tag.loop = false
+		tag.src = silenceDataURL
+
+		tag.onended = () => {
+		  window.top.muteButtonOverridden = true
+		  console.log("iOS hardware mute switch overridden")}
+
+		var p = tag.play()
+		
+		if (p) p.then(
+		  () => {},
+		  (reason) => {console.log("iOS hardware mute switch not overridden, HTML5 audio play failed", reason)})}
+      
 	      window.top.document.getElementById("Caffeine").contentWindow.focus()
 	      window.top.document.getElementById("embeddedSqueak").style.zIndex = 1000
 	      window.top.document.getElementById("embeddedSqueak").style.boxShadow = "1px 1px 7px #999, 2px 2px 8px #999, 3px 3px 9px #999"}
