@@ -51,7 +51,7 @@ function makeCanvasEditable(canvas) {
 
   canvas.style.pointerEvents = "all"
   canvas.style.transition = "opacity 500ms"
-  canvas.style.background = "no-repeat url('pictures/backgrounds/bootscreen.jpg')"
+  canvas.style.background = "no-repeat url('pictures/backgrounds/bootscreen/bootscreen.png')"
   canvas.style.backgroundSize = "auto 100%"
   canvas.style.backgroundPosition = "center center"
   canvas.style.borderRadius = "10px"

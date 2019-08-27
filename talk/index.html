@@ -6,16 +6,12 @@
 	  type="image/png" 
 	  href="favicon.png">
 
-    <meta charset="utf-8" />
-
-    <meta name="viewport"
-	  content="width=1024" />
-
-    <meta name="apple-mobile-web-app-capable"
-	  content="yes" />
-
-    <title>Caffeine :: Livecode the Web!</title>
-
+    <link rel="apple-touch-icon"
+	  href="/pictures/icons/caffeine/caffeineWebAppIcon.png">
+    
+    <link rel="apple-touch-startup-image"
+	  href="/pictures/backgrounds/bootscreen/bootscreen.png">
+    
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:regular,semibold,italic,italicsemibold|PT+Sans:400,700,400italic,700italic|PT+Serif:400,700,400italic,700italic"
 	  rel="stylesheet" />
 
@@ -28,16 +24,23 @@
     <link rel="shortcut icon"
 	  href="/favicon.png" />
 
-    <link rel="apple-touch-icon"
-	  href="/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-capable"
+	  content="yes" />
 
-    <!-- This HTML Imports polyfill makes a "WebComponentsReady" event
-         available, for which talk.js listens. -->
+    <meta name="apple-mobile-web-app-status-bar-style"
+	  content="black-translucent">
 
-    <script src="/js/webcomponentsjs/webcomponents-hi-ce.js"></script>
+    <meta name="apple-mobile-web-app-title"
+	  content="Caffeine" />
 
-    <link rel="import"
-	  href="/html/devtools/basic.html"></head>
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+	  content="width=1024" />
+
+    <title>Caffeine :: Livecode the Web!</title>
+
+    <script src="/js/caffeine.js"></script></head>
 
   <body class="impress-not-supported">
 
@@ -72,7 +75,7 @@
 		  width: 1300px;
 		  pointer-events: none;">
 
-	<img src="pictures/backgrounds/bootscreen.jpg"
+	<img src="/pictures/backgrounds/bootscreen/bootscreen.png"
              style="z-index: -1;
 		    width: 100%;
 		    opacity: 0.1" /></div>
@@ -408,13 +411,17 @@
 
 	<center>
 	    
-	  <iframe src="https://thiscontext.com/2017/07/04/browser-to-browser-websocket-tunnels-with-caffeine-and-livecoded-nodejs"
+	  <!--	  
+          <iframe src="https://thiscontext.com/2017/07/04/browser-to-browser-websocket-tunnels-with-caffeine-and-livecoded-nodejs"
 		  height="400"
 		  width="600"></iframe>
 
 	  <iframe src="https://thiscontext.com/2017/06/27/backend-caffeine-with-node-js-and-tweetcoding"
 		  height="400"
-		  width="600"></iframe></center></div>
+		  width="600"></iframe>
+	  -->
+
+      </center></div>
 	    
       <div id="speech-recognition"
            class="step"

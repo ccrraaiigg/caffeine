@@ -75,7 +75,7 @@ function resizeElement(element) {
 
 window.onload = function () {
   var embeddedSqueak = document.getElementById('embeddedSqueak'),
-      summary = document.getElementById('summary'),
+//      summary = document.getElementById('summary'),
       statustext = document.getElementById('status').children[0]
 
   statustext.style.textShadow = '1px 1px 1px #000'
@@ -90,12 +90,14 @@ window.onload = function () {
     window.focus()
     this.style.boxShadow = ''}
     
+/*
   summary.onmousedown = function () {
     embeddedSqueak.style.zIndex = 1}
 
   summary.onmouseover = function () {
     embeddedSqueak.style.boxShadow = ''}
-
+*/
+  
   window.setTimeout(
     function () {
       window.scrollTo(0, 0)
@@ -114,7 +116,7 @@ window.onload = function () {
 
       window.progress.style.opacity = 1
       window.thestatus.style.opacity = 1
-      window.document.getElementById('summary').style.opacity = 1
+//      window.document.getElementById('summary').style.opacity = 1
       settingsButton.style.opacity = 0.5
 
       settingsButton.onclick = (event) => {
@@ -126,4 +128,9 @@ window.onload = function () {
 	else {
 	  squeak.style.opacity = 0
 	  squeak.style.pointerEvents = 'none'}}},
-    1500)}
+    1500)
+
+  window.setTimeout(
+    function () {
+      window.document.getElementById('movie').style.opacity = 1},
+    2000)}

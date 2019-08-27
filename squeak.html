@@ -30,10 +30,6 @@
             try {magicWindow = window.top.magicWindow}
             catch (exception) {magicWindow = null}
 
-	    window.top.onorientationchange = (event) => {
-	      event.stopPropagation()
-	      event.preventDefault()}
-
 	    window.top.document.ontouchend = (event) => {
 	      if (!window.top.muteButtonOverridden) {
 		// Unlock HTML5 Audio - load a data url of short silence and play it
@@ -53,7 +49,7 @@
 		  console.log("iOS hardware mute switch overridden")}
 
 		var p = tag.play()
-		
+
 		if (p) p.then(
 		  () => {},
 		  (reason) => {console.log("iOS hardware mute switch not overridden, HTML5 audio play failed", reason)})}
@@ -83,7 +79,7 @@
                   appID: "4599d316-a13e-46ef-92be-c7337899038c",
                   appName: "Caffeine",
                   appServer: "demo.blackpagedigital.com:8091"})}},
-          6000)
+          2000)
     </script>
   </body>
 </html>

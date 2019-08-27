@@ -9,6 +9,9 @@
     <link rel="apple-touch-icon"
 	  href="/pictures/icons/caffeine/caffeineWebAppIcon.png">
     
+    <link rel="apple-touch-startup-image"
+	  href="/pictures/backgrounds/bootscreen/bootscreen.png">
+    
     <meta name="apple-mobile-web-app-capable"
 	  content="yes" />
 
@@ -22,6 +25,7 @@
 	  content="width=1200">
 
     <script src="/js/caffeine.js"></script>
+    <script src="https://player.vimeo.com/api/player.js"></script>
 
     <body bgcolor="black"
 	  style="margin: 0px;
@@ -31,22 +35,22 @@
 
       <div id="banner"
 	   style="position: absolute;
-		  left: 40%;
+		  left: 30%;
 		  margin: 0 auto;
 		  transition: opacity 500ms;
 		  opacity: 0;">
 
-	<img src="/pictures/icons/caffeine/caffeine.png"
+	<img src="/pictures/icons/caffeine/caffeineWebAppIcon.png"
 	     width=65
 	     id="logo"
 	     style="border-radius: 10px;
 		    opacity: 0.7;">
 
-	<h1 style="width: 300px;
+	<h1 style="width: 350px;
 		   background-color: rgba(255, 255, 255, 0.6);
 		   border-radius: 10px;">
 
-	  Caffeine :: <i>Livecode the Web</i>
+	  caffeine.js.org :: <i>Livecode the Web</i>
 
 	</h1>
 
@@ -54,6 +58,7 @@
 	     width=65
 	     style="border-radius: 6px; opacity: 0.7;"></div>
 
+      <!--
       <div id="summary"
 	   style="position: absolute;
 		  left: 40px;
@@ -153,6 +158,34 @@
 
 	    <script async src="//platform.twitter.com/widgets.js"
 		    charset="utf-8"></script></blockquote></div>
+-->
+
+      <div id="movie"
+	   style="opacity: 0;
+		  border: 2px inset gray;
+		  position: absolute;
+		  top: 200;
+		  left: 150;
+		  transition: opacity 500ms, box-shadow 300ms;">
+
+	<iframe
+	  src="https://player.vimeo.com/video/286872152?api=1"
+	  width="640"
+	  height="400"
+	  frameborder="0"
+	  allow="fullscreen"
+	  webkitallowfullscreen
+	  mozallowfullscreen
+	  allowfullscreen></iframe></div>
+
+      <div id="workspace">
+
+	<canvas id="workspace-canvas"
+		data-keyboard-capture="true"
+		tabindex="1"
+		style="opacity: 0;"
+		width="300"
+		height="300"></canvas></div>
 
       <div id="embeddedSqueak"
 	   style="pointer-events: none;
