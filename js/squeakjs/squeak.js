@@ -598,6 +598,7 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
       dist: 0,
       down: {},
     };
+    window.top.touch = touch;
     function touchToMouse(evt) {
       if (evt.touches.length) {
         // average all touch positions
