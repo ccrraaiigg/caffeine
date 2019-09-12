@@ -8,6 +8,7 @@ function dragElement(element, handle) {
     event.preventDefault()
 
     Array.from(document.querySelectorAll('body *')).map(element => element.style.zIndex = 0)
+    window.document.getElementById('dashboard').style.zIndex = 2000
 
     this.style.zIndex = 1
 
@@ -112,20 +113,24 @@ window.onload = function () {
   
   window.setTimeout(
     function () {
-      var settingsButton = window.document.getElementById('settings.button')
+      var dashboard = window.document.getElementById('dashboard'),
+	  settingsButton = window.document.getElementById('settings.button'),
+	  spinner = window.document.getElementById('sqSpinner')
 
       window.progress.style.opacity = 1
       window.thestatus.style.opacity = 1
 //      window.document.getElementById('summary').style.opacity = 1
-      settingsButton.style.opacity = 0.5
-
+      dashboard.style.opacity = 0.5
+      
       settingsButton.onclick = (event) => {
 	var squeak = window.document.getElementById('embeddedSqueak')
 
 	if (squeak.style.opacity == 0) {
+	  spinner.style.opacity = 1
 	  squeak.style.opacity = 1
 	  squeak.style.pointerEvents = 'all'}
 	else {
+	  spinner.style.opacity = 0
 	  squeak.style.opacity = 0
 	  squeak.style.pointerEvents = 'none'}}},
     1500)

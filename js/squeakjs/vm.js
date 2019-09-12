@@ -3742,6 +3742,9 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      var trueArgCount = argCount - 1;
 		      var selectorIndex = this.sp - trueArgCount;
 		      var stack = this.activeContext.pointers; // slide eveything down...
+
+		      this.activeContext.performSelector = selector;
+
 		      this.arrayCopy(stack, selectorIndex+1, stack, selectorIndex, trueArgCount);
 		      this.sp--; // adjust sp accordingly
 		      var entry = this.findSelectorInClass(selector, trueArgCount, this.getClass(rcvr));
@@ -3767,6 +3770,9 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      this.arrayCopy(args.pointers, 0, stack, this.sp - 1, trueArgCount);
 		      this.sp += trueArgCount - argCount; //pop selector and array then push args
 		      var entry = this.findSelectorInClass(selector, trueArgCount, lookupClass);
+
+		      this.activeContext.performSelector = selector;
+
 		      this.executeNewMethod(rcvr, entry.method, entry.argCount, entry.primIndex, entry.mClass, selector);
 		      return true;
 		    },

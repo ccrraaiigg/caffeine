@@ -52,3 +52,20 @@ img {
   horizontal-align: middle;
 }
 
+div#sqSpinner {
+    border-radius: 50px;
+    background: rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 5px 5px #F90;
+    display: none;
+    transform: rotate(30deg);
+}
+
+div#sqSpinner > div {
+    position: relative;
+    top: 45px;
+    left: 5px;
+    width: 50px; 
+    height: 5px;
+    border-radius: 5px;
+    box-shadow: 0 0 5px 5px #F90;
+}

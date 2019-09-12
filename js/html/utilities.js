@@ -134,9 +134,14 @@ window.startCaffeine = function(canvas, imageName, sourcesName, parameters) {
   }
 
   // otherwise we run with given parameters
-  var squeakDisplay
+  var squeakDisplay,
+      spinner
 
   window.canvas = canvas
+
+  spinner = window.top.document.getElementById("sqSpinner")
+  if (!spinner) {
+    spinner = window.document.getElementById("sqSpinner")}
   
   squeakDisplay = SqueakJS.runSqueak(
     imageName + ".image",
@@ -146,7 +151,7 @@ window.startCaffeine = function(canvas, imageName, sourcesName, parameters) {
 	"memories/" + imageName + ".zip",
 	"sources/" + sourcesName + ".sources.zip"],
       swapButtons: true,
-      spinner: window.document.getElementById("sqSpinner"),
+      spinner: spinner,
       appName: parameters.appName,
       parameters: parameters})
 

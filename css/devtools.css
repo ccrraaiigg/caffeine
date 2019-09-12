@@ -1,3 +1,78 @@
+.ck,.mce-tinymce,.mce-stack-layout,.mce-edit-area{
+    display: flex;
+    flex-direction: column;
+    flex: 1;}
+
+.mce-tinymce iframe{
+    flex: 1;}
+
+.vdr{
+    touch-action:none;
+    border:1px dashed #000}
+
+.handle,.vdr{
+    position:absolute;
+    box-sizing:border-box}
+
+.handle{
+    width:10px;
+    height:10px;
+    background:#eee;
+    border:1px solid #333}
+
+.handle-tl{
+    top:-10px;
+    left:-10px;
+    cursor:nw-resize}
+
+.handle-tm{
+    top:-10px;
+    left:50%;
+    margin-left:-5px;
+    cursor:n-resize}
+
+.handle-tr{
+    top:-10px;
+    right:-10px;
+    cursor:ne-resize}
+
+.handle-ml{
+    left:-10px;
+    cursor:w-resize}
+
+.handle-ml,.handle-mr{
+    top:50%;
+    margin-top:-5px}
+
+.handle-mr{
+    right:-10px;
+    cursor:e-resize}
+
+.handle-bl{
+    bottom:-10px;
+    left:-10px;
+    cursor:sw-resize}
+
+.handle-bm{
+    bottom:-10px;
+    left:50%;
+    margin-left:-5px;
+    cursor:s-resize}
+
+.handle-br{
+    bottom:-10px;
+    right:-10px;
+    cursor:se-resize}
+
+@media only screen and (max-width:768px){
+    [class*=handle-]:before{
+	content:"";
+	left:-10px;
+	right:-10px;
+	bottom:-10px;
+	top:-10px;
+	position:absolute}}
+
 .window {
     display: flex;
     flex-direction: column;
@@ -30,18 +105,6 @@
     justify-content: space-between;
     margin-right: 3px;
     margin-bottom: 1px;}
-
-.titlebar {
-    display: flex;
-    height: 25px;
-    margin-top: 6px;
-    margin-left: 6px;}
-
-.titlebar-text {
-    position: absolute;
-    font-size: 18px;
-    top: 6;
-    left: 30;}
 
 .textarea {
     resize: none;
@@ -90,4 +153,3 @@
     margin-top: 2px;
     border: 2px solid black;
     font-size: small;}
-

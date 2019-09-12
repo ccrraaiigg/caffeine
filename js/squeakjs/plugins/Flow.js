@@ -34,7 +34,7 @@ module("SqueakJS.plugins.Flow").requires("users.bert.SqueakJS.vm").toRun(
 	  inputs = window.caffeineMIDIAccess.inputs,
 	  outputs = window.caffeineMIDIAccess.outputs
 
-      if (requestedIndex >= inputs.size + outputs.size) return interpreterProxy.primitiveFail()
+      if (requestedIndex >= inputs.size + outputs.size) interpreterProxy.primitiveFail()
       else {
 	var inputValues = inputs.values(),
 	    outputValues = outputs.values(),
@@ -178,18 +178,21 @@ module("SqueakJS.plugins.Flow").requires("users.bert.SqueakJS.vm").toRun(
     function fuseMethod () {
       interpreterProxy.stackValue(0).fused = true}
 
-    function setReloadingMethodHeader () {
-      // Hack the header of the reloading method to indicate that it
-      // needs large context frames, to accommodate the arguments of
-      // any method it might eventually install.
-      var method = interpreterProxy.stackValue(0)
-
-      method.pointers[0] = method.pointers[0] | 0x20000}
-
     function setSpecialObjectsArray () {
       interpreterProxy.vm.image.specialObjectsArray = interpreterProxy.stackValue(0)
       interpreterProxy.pop(1)}
-    
+
+    function performSelector () {
+      var performSelector = interpreterProxy.stackValue(0).performSelector
+
+      if (!performSelector) {
+	interpreterProxy.primitiveFail()}
+      else {
+	interpreterProxy.popthenPush(
+	  1,
+	  performSelector)}}
+
+      
     Squeak.registerExternalModule(
       "Flow",
       {
@@ -206,7 +209,7 @@ module("SqueakJS.plugins.Flow").requires("users.bert.SqueakJS.vm").toRun(
 	isMethodFused: isMethodFused,
 	fuseMethod: fuseMethod,
 	defuseMethod: defuseMethod,
-	setReloadingMethodHeader: setReloadingMethodHeader,
-	setSpecialObjectsArray: setSpecialObjectsArray
+	setSpecialObjectsArray: setSpecialObjectsArray,
+	performSelector: performSelector
       })})
 
