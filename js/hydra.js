@@ -2525,7 +2525,8 @@ module.exports = function (constraints, cb) {
               callback(err);
           })
         } else {
-          var isCef = !window.chrome.webstore;
+	  //          var isCef = !window.chrome.webstore;
+	  var isCef = false;
         // "known" crash in chrome 34 and 35 on linux
           if (window.navigator.userAgent.match('Linux')) maxver = 35;
 
