@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <title>Tarp Require asynchronous test page</title>
+  <script src="./lib/es6-promise.auto.js"></script> 
+  <script src="./lib/url-polyfill.min.js"></script> 
+  <script type="text/javascript" src="../require.js"></script>
+</head>
+
+<body>
+  <h1>Tarp Require asynchronous test page</h1>
+  <script>
+    Tarp.require({ expose: true });
+
+    // Resolve a simple module
+    require.resolve("module1", true).then(console.log, console.error);
+    // Sync request (with redirect) overtakes async loading
+    console.log(require.resolve("fake1/"));
+
+    // Resolve a redirect
+    require.resolve("fake2/", true).then(console.log, console.error);
+    // Sync request (without redirect) overtakes async loading
+    console.log(require.resolve("module2"));
+
+    // Resolve a simple module
+    require.resolve("module3", true).then(console.log, console.error);
+    // Sync request (without redirect) overtakes async loading
+    console.log(require.resolve("module3"));
+
+    // Resolve a redirect (cached)
+    require.resolve("fake1/", true).then(console.log, console.error);
+
+   // Execute a simple module (cached)
+    require("module3", true).then(function(mod) {
+      console.log(mod.greet());
+    }, console.error);
+
+    // Execute a complex module with submodules
+    // The module "subCached" is loaded synchronously to test preloading with already loaded modules
+    require.resolve("relative/subCached");
+    require("relative/main", true).then(function(mod) {
+      console.log(mod.greet());
+    }, console.error);
+
+    // Load a package
+    require("pkgtest/package.json", true).then(function(pkg) {
+      console.log(JSON.stringify(pkg));
+    });
+
+    // Load the main module of a package
+    require("pkgtest/", true).then(function(main) {
+      console.log(main.greet());
+    });
+  </script>
+</body>
+
+</html>

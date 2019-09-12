@@ -1,0 +1,8 @@
+language: node_js
+node_js:
+  - "5.0"
+  - "6.0"
+  - "7.0"
+  - "8.0"
+before_install:
+  - npm install -g npm@~2.14.5

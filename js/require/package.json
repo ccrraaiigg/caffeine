@@ -1,0 +1,27 @@
+{
+  "name": "@tarp/require",
+  "version": "1.3.0",
+  "description": "A lightweight & asynchronous JavaScript loader for CommonJS and NodeJS modules.",
+  "main": "require.min.js",
+  "directories": {
+    "doc": "doc",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/letorbi/tarp.require.git"
+  },
+  "keywords": [
+    "commonjs",
+    "module-loader"
+  ],
+  "author": "Torben Haase (https://pixelsvsbytes.com)",
+  "license": "LGPL-3.0",
+  "bugs": {
+    "url": "https://github.com/letorbi/tarp.require/issues"
+  },
+  "homepage": "https://github.com/letorbi/tarp.require#readme"
+}

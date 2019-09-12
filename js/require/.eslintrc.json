@@ -1,0 +1,24 @@
+{
+	"extends": "eslint:recommended",
+	"parserOptions": {
+		"ecmaVersion": 6,
+		"sourceType": "script"
+	},
+	"env": {
+		"browser": true,
+		"shared-node-browser": true,
+		"commonjs": true,
+		"es6": true
+	},
+	"rules": {
+		"no-console": [	"error", {
+			"allow": ["info", "warn", "error"]
+		}],
+		"no-unused-vars": [	"error", {
+			"varsIgnorePattern": "global"
+		}], 
+		"semi": ["error",
+			"always"
+		]
+	}
+}
