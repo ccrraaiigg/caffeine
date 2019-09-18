@@ -132,7 +132,9 @@ window.onload = function () {
 	else {
 	  spinner.style.opacity = 0
 	  squeak.style.opacity = 0
-	  squeak.style.pointerEvents = 'none'}}},
+	  squeak.style.pointerEvents = 'none'}}
+
+      WebMidi.enable()},
     1500)
 
   window.setTimeout(

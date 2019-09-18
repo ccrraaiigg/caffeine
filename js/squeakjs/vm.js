@@ -129,6 +129,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		  splOb_SelectorUnreportedSignal: 120,
 		  splOb_SelectorTether: 121,
 		  splOb_ReloadingMethod: 122,
+		  splOb_JSProxyClass: 123
 		},
 		"known classes", {
 		  // Class layout:
