@@ -329,7 +329,7 @@ goHome = function (event) {
   spikeRendering()
   
   positionAnimation.setAttribute('attribute', 'position')
-  positionAnimation.setAttribute('to', '0 5 -2.5')
+  positionAnimation.setAttribute('to', '0 0 0')
   rotationAnimation.setAttribute('attribute', 'rotation')
   rotationAnimation.setAttribute('to', '0 0 0')
 
