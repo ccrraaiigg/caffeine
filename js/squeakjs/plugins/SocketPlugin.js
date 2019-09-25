@@ -341,8 +341,8 @@ function SocketPlugin() {
 
     primitiveResolverLocalAddress: function(argCount) {
       // NOTE: window.RTCPeerConnection is "not a constructor" in FF22/23
-      var promise,
-	  RTCPeerConnection = /*window.RTCPeerConnection ||*/ window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
+      /* var promise,
+	  RTCPeerConnection = /*window.RTCPeerConnection || // window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
 
       if (RTCPeerConnection) {
 	promise = () => new Promise((resolve, reject) => {
@@ -395,7 +395,8 @@ function SocketPlugin() {
 	addr.split(".").map(string => {bytearray.pointers[i++] = Number(string)})
 	this.interpreterProxy.popthenPush(1, bytearray);
       }, (message) => {
-	return false})
+      return false}) */
+      this.interpreterProxy.primitiveFail();
     },
     
     primitiveHasSocketAccess: function(argCount) {

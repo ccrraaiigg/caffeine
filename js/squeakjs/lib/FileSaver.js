@@ -144,7 +144,7 @@
       }
   ;
 
-  if ('createElementNS' in doc) {
+  if (doc && ('createElementNS' in doc)) {
     save_link = doc.createElementNS("http://www.w3.org/1999/xhtml", "a");
     can_use_save_link = "download" in save_link}
   else {can_use_save_link = false};

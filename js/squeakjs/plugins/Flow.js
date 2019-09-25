@@ -9,7 +9,7 @@ module("SqueakJS.plugins.Flow").requires("users.bert.SqueakJS.vm").toRun(
 
     function setInterpreter(interpreter) {
       interpreterProxy = interpreter
-      window.interpreter = interpreter
+      self.interpreter = interpreter
       if ((interpreterProxy.majorVersion() == VM_PROXY_MAJOR) === false) return false
       else return (interpreterProxy.minorVersion() >= VM_PROXY_MINOR)}
 

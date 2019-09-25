@@ -440,6 +440,7 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
     }
 
     var display = {
+      headless: false,
       context: canvas.getContext("2d"),
       fullscreen: false,
       width: 0,   // if 0, VM uses canvas.width
@@ -880,12 +881,12 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
 
       if (key && key.length == 1) {
 	if (evt.metaKey || evt.altKey || evt.ctrlKey) {
-          if (/[RV]/i.test(key))
+          if (/[RCXV]/i.test(key))
             return true;  // let browser handle paste and reload exclusively
-          if (/[CX]/i.test(key)) {
-	    recordKeyboardEvent(code, evt.timeStamp, display, eventQueue);
-            return true;  // let browser handle cut and copy
-	  }
+//          if (/[CX]/i.test(key)) {
+//	    recordKeyboardEvent(code, evt.timeStamp, display, eventQueue);
+//            return true;  // let browser handle cut and copy
+//	  }
           if (/[A-Z]/.test(key) && !evt.shiftKey) code += 32;  // make lower-case
 	}
       }
@@ -1114,6 +1115,7 @@ keyboardButton.innerHTML = '<?xml version="1.0" encoding="UTF-8" standalone="no"
     var self = this;
     window.setTimeout(function readImageAsync() {
       var image = new Squeak.Image(name);
+      image.window = window;
       image.readFromBuffer(buffer, function startRunning() {
         display.quitFlag = false;
         var vm = new Squeak.Interpreter(image, display);

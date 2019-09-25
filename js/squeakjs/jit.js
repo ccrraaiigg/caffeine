@@ -1,4 +1,4 @@
-module('users.bert.SqueakJS.jit').requires("users.bert.SqueakJS.vm").toRun(function() {
+self.module('users.bert.SqueakJS.jit').requires("users.bert.SqueakJS.vm").toRun(function() {
 "use strict";
 /*
  * Copyright (c) 2014-2016 Bert Freudenberg
