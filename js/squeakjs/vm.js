@@ -24,7 +24,8 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 
   // shorter name for convenience
   self.Squeak = users.bert.SqueakJS.vm;
-    
+
+  Squeak.ExternalObjects = [];
 
   // if in private mode set localStorage to a regular dict
   var localStorage = self.localStorage;
@@ -3770,7 +3771,14 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      }
 		      var trueArgCount = args.pointersSize();
 		      var stack = this.activeContext.pointers;
-		      this.arrayCopy(args.pointers, 0, stack, this.sp - 1, trueArgCount);
+		      var startingStackPositionOfArguments;
+
+		      if (supered)
+			startingStackPositionOfArguments = this.sp - 2;
+		      else
+			startingStackPositionOfArguments = this.sp -1;
+		      
+		      this.arrayCopy(args.pointers, 0, stack, startingStackPositionOfArguments, trueArgCount);
 		      this.sp += trueArgCount - argCount; //pop selector and array then push args
 		      var entry = this.findSelectorInClass(selector, trueArgCount, lookupClass);
 
@@ -4683,8 +4691,8 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			  case 156: if (this.oldPrims) return this.primitiveFileDelete(argCount);
 			  case 157: if (this.oldPrims) return this.primitiveFileSize(argCount);
 			  case 158: if (this.oldPrims) return this.primitiveFileWrite(argCount);
-			  case 159: if (this.oldPrims) return this.primitiveFileRename(argCount);
-			  break;  // fail 150-159 if fell through
+			  break;  // fail 150-158 if fell through
+			  case 159: return this.primitiveHashMultiply(argCount);
 			  case 160: if (this.oldPrims) return this.primitiveDirectoryCreate(argCount);
 			  else return this.primitiveAdoptInstance(argCount);
 			  case 161: if (this.oldPrims) return this.primitiveDirectoryDelimitor(argCount); // new: primitiveSetIdentityHash
@@ -5169,6 +5177,11 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			result *= Math.pow(2, Math.floor((exponent + i) / steps));
 		      return result;
 		    },
+		    primitiveHashMultiply: function() {
+		      var receiver = this.stackSigned53BitInt(0),
+			  low = receiver & 16383;
+		      
+		      return this.popNandPushIfOK(1, 0x260D * low + ((0x260D * (receiver << 14) + (0x65 * low) & 16383) * 16384) & 0xFFFFFFF);},
 		    primitiveLessThanLargeIntegers: function() {
 		      return this.pop2andPushBoolIfOK(this.stackSigned53BitInt(1) < this.stackSigned53BitInt(0));
 		    },
@@ -7805,12 +7818,22 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      return this.js_fromStObject(obj);
 		    },
 		    js_fromStArray: function(objs, maybeDict) {
-		      if (objs.length > 0 && maybeDict && this.isAssociation(objs[0]))
-			return this.js_fromStDict(objs);
-		      var jsArray = [];
-		      for (var i = 0; i < objs.length; i++)
-			jsArray.push(this.js_fromStObject(objs[i]));
-		      return jsArray;
+		      var result;
+		      
+		      if (objs.length > 0 && maybeDict && this.isAssociation(objs[0])) {
+			try {result = this.js_fromStDict(objs);}
+			catch (e) {
+			  var jsArray = [];
+			  for (var i = 0; i < objs.length; i++)
+			    jsArray.push(this.js_fromStObject(objs[i]));
+			  result = jsArray;}}
+		      else {
+			var jsArray = [];
+			for (var i = 0; i < objs.length; i++)
+			  jsArray.push(this.js_fromStObject(objs[i]));
+			result = jsArray;}
+
+		      return result;
 		    },
 		    js_fromStDict: function(objs) {
 		      var jsDict = {};
@@ -7906,6 +7929,25 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      this.vm.warnOnce('FFI: ignoring ' + moduleName + ': ' + funcName + '(' + args + ')');
 		      return false;        
 		    },
+		    ffi_primitiveFFIAllocate: function(argCount) {
+		      var externalObject;
+
+		      externalObject = this.instantiateClass(this.vm.specialObjects[Squeak.splOb_ClassExternalAddress], 1);
+		      Squeak.ExternalObjects[Squeak.ExternalObjects.length] = externalObject;
+		      return this.popNandPushIfOK(1, externalObject);
+		    },
+		    ffi_primitiveCalloutWithArgs: function(argCount) {
+		      var functionSpec = this.vm.stackValue(1),
+			  functionName = Squeak.bytesAsString(functionSpec.pointers[3].bytes),
+			  args = [];
+
+		      for (i = 3; i <= (functionSpec.pointers[2].pointers.length - 1 + 3); i++) {
+			args.push(this.vm.stackValue(i));}
+			
+		      switch(functionName) {
+		      case 'memcpy':
+			debugger;
+			break;}}
 		  },
 		  'Obsolete', {
 		    primitiveFloatArrayAt: function(argCount) {
