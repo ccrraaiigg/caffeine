@@ -3525,6 +3525,8 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			  return this.findSelectorInClass(cantInterpSel, 1, currentClass.superclass());
 			}
 			var newMethod = this.lookupSelectorInDict(mDict, selector);
+
+			if (!newMethod) debugger;
 			
 			if (!newMethod.isNil) {
 //			  if (newMethod === this.specialObjects[Squeak.splOb_ReloadingMethod]) debugger;
@@ -5611,6 +5613,8 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      return this.popNandPushIfOK(1, this.makeLargeIfNeeded(bytes));
 		    },
 		    primitiveFusedGC: function(argCount) {
+		      // Fail if this is Pharo trying to run a mirror-object primitive.
+		      if ((this.vm.stackValue(0) === this.vm.trueObj) || (this.vm.stackValue(0) === this.vm.trueObj)) return false;
 		      this.vm.image.fusedGC("primitive");
 		      var bytes = this.vm.image.bytesLeft();
 		      return this.popNandPushIfOK(1, this.makeLargeIfNeeded(bytes));
