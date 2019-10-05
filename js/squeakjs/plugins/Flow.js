@@ -10,6 +10,17 @@ module("SqueakJS.plugins.Flow").requires("users.bert.SqueakJS.vm").toRun(
     function setInterpreter(interpreter) {
       interpreterProxy = interpreter
       self.interpreter = interpreter
+
+      top.WebMidi.writePacketsTo = (packets, output) => {
+	var index
+	
+	for (index = 0; index < packets.length; index = index + 4) {
+	  output.send(
+	    packets[index],
+	    [packets[index + 1],
+	     packets[index + 2]],
+	    packets[index + 3])}}
+      
       if ((interpreterProxy.majorVersion() == VM_PROXY_MAJOR) === false) return false
       else return (interpreterProxy.minorVersion() >= VM_PROXY_MINOR)}
 
@@ -19,36 +30,50 @@ module("SqueakJS.plugins.Flow").requires("users.bert.SqueakJS.vm").toRun(
     function numberOfMIDIPorts () {
       interpreterProxy.popthenPush(
 	1,
-	top.WebMidi.outputs.length)}
+	(top.WebMidi.inputs.length + top.WebMidi.outputs.length))}
 
     function nameOfMIDIPortAt () {
-      interpreterProxy.popthenPush(
-	2,
-	interpreterProxy.vm.Squeak.Primitives.prototype.makeStString.apply(
-	  interpreterProxy,
-	  [top.WebMidi.outputs[interpreterProxy.stackIntegerValue(0)].name]))}
+      var portIndex = interpreterProxy.stackIntegerValue(0),
+	  numberOfInterfaces = top.WebMidi.inputs.length
+
+      if (portIndex < numberOfInterfaces) {
+	// input
+	interpreterProxy.popthenPush(
+	  2,
+	  interpreterProxy.vm.Squeak.Primitives.prototype.makeStString.apply(
+	    interpreterProxy,
+	    ["in: " + top.WebMidi.inputs[portIndex].name]))}
+      else {
+	// output
+	interpreterProxy.popthenPush(
+	  2,
+	  interpreterProxy.vm.Squeak.Primitives.prototype.makeStString.apply(
+	    interpreterProxy,
+	    ["out: " + top.WebMidi.outputs[portIndex - numberOfInterfaces].name]))}}
 
     function newMIDIPortHandleInto () {
       // No handles are necessary with WebMidi.js.
     }
       
     function outputPortIndexInputPortIndex () {
-      var receiver = interpreterProxy.stackObjectValue(3),
+      var receiver = interpreterProxy.stackObjectValue(2),
 	  jsProxyClass = interpreterProxy.vm.image.specialObjectsArray.pointers[Squeak.splOb_JSProxyClass]
       
       interpreterProxy.storePointerofObjectwithValue(
-	10,
+	7,
 	receiver,
 	SqueakJS.vm.primHandler.makeStObject(
 	  top.WebMidi.inputs[interpreterProxy.stackIntegerValue(0)],
 	  jsProxyClass))
 
       interpreterProxy.storePointerofObjectwithValue(
-	11,
+	8,
 	receiver,
 	SqueakJS.vm.primHandler.makeStObject(
-	  top.WebMidi.outputs[interpreterProxy.stackIntegerValue(1)],
-	  jsProxyClass))}
+	  top.WebMidi.outputs[interpreterProxy.stackIntegerValue(1) - top.WebMidi.inputs.length],
+	  jsProxyClass))
+
+      interpreterProxy.pop(2)}
     
     
     // HTML UI support
@@ -81,7 +106,9 @@ module("SqueakJS.plugins.Flow").requires("users.bert.SqueakJS.vm").toRun(
       var byteArray = interpreterProxy.stackValue(1),
 	  result = interpreterProxy.stackValue(0).jsObject
 
-      byteArray.bytes = new Uint8Array(result)}
+      byteArray.bytes = new Uint8Array(result)
+
+      interpreterProxy.pop(1)}
     
     // VisualWorks support
 
