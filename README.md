@@ -2,7 +2,6 @@ Caffeine is a livecoding environment for [web browsers](https://developer.mozill
 
 [This repository](https://github.com/ccrraaiigg/caffeine) is the content for [the Caffeine website](https://caffeine.js.org), **caffeine.js.org**. It provides these endpoints:
 
-|                                                   |                              |
 | ------------------------------------------------- | ---------------------------- |
 | [/](https://caffeine.js.org/)                     | this page  |
 | [/talk](https://caffeine.js.org/talk)             | an [impress](https://impress.js.org)-powered presentation about Caffeine and livecoding |
