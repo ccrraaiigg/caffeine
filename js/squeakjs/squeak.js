@@ -131,65 +131,43 @@ Function.prototype.subclass = function(classPath /* + more args */ ) {
 (function(){
   var scripts = document.getElementsByTagName("script"),
       squeakjs = scripts[scripts.length - 1],
-      loc,
-      vmDir,
-      scheme,
-      toLoad;
-    
-  loc = document.createElement('a');
-  loc.href = document.location;
+      vmDir = document.location.toString().split("#")[0];
+
+  vmDir = vmDir.substring(0, vmDir.lastIndexOf('/')) + '/js/squeakjs/';
   
-  if ((loc.hostname == 'localhost') || (loc.hostname == '127.0.0.1') || (loc.hostname == '192.168.178.20'))
-    scheme = 'http'
-  else
-    scheme = 'https';
-  
-  vmDir = scheme + '://' + loc.hostname + '/js/squeakjs/';
-    
   if (squeakjs.src.match(/squeak\.min\.js$/)) return;
-  
-  toLoad = [   "jit.js",
-	       "plugins/ADPCMCodecPlugin.js",
-	       "plugins/B2DPlugin.js",
-	       "plugins/BitBltPlugin.js",
-	       "plugins/FFTPlugin.js",
-	       "plugins/FloatArrayPlugin.js",
-	       "plugins/Flow.js",
-	       "plugins/GeniePlugin.js",
-	       "plugins/JPEGReaderPlugin.js",
-	       "plugins/KedamaPlugin.js",
-	       "plugins/KedamaPlugin2.js",
-	       "plugins/Klatt.js",
-	       "plugins/LargeIntegers.js",
-	       "plugins/Matrix2x3Plugin.js",
-	       "plugins/MiscPrimitivePlugin.js",
-	       "plugins/ScratchPlugin.js",
-	       "plugins/SocketPlugin.js",
-	       "plugins/SpeechPlugin.js",
-	       "plugins/SqueakSSL.js",
-	       "plugins/SoundGenerationPlugin.js",
-	       "plugins/StarSqueakPlugin.js",
-	       "plugins/ZipPlugin.js",
-	       "lib/lz-string.js",
-	       "lib/jszip.js",
-	       "lib/FileSaver.js",
-	       "vm.js"
-	   ];
-
-
-  function loadRemaining() {
-    if (toLoad.length > 0) {
-      var script = document.createElement('script'),
-	  filename = toLoad.pop();
-
-      script.setAttribute("type","text/javascript");
-      script.setAttribute("src", vmDir + filename);
-      script.onload = loadRemaining;
-      
-      document.head.appendChild(script);}}
-
-  loadRemaining();
-  
+  [   "vm.js",
+      "jit.js",
+      "plugins/ADPCMCodecPlugin.js",
+      "plugins/B2DPlugin.js",
+      "plugins/BitBltPlugin.js",
+      "plugins/FFTPlugin.js",
+      "plugins/FloatArrayPlugin.js",
+      "plugins/Flow.js",
+      "plugins/GeniePlugin.js",
+      "plugins/JPEGReaderPlugin.js",
+      "plugins/KedamaPlugin.js",
+      "plugins/KedamaPlugin2.js",
+      "plugins/Klatt.js",
+      "plugins/LargeIntegers.js",
+      "plugins/Matrix2x3Plugin.js",
+      "plugins/MiscPrimitivePlugin.js",
+      "plugins/ScratchPlugin.js",
+      "plugins/SocketPlugin.js",
+      "plugins/SpeechPlugin.js",
+      "plugins/SqueakSSL.js",
+      "plugins/SoundGenerationPlugin.js",
+      "plugins/StarSqueakPlugin.js",
+      "plugins/ZipPlugin.js",
+      "lib/lz-string.js",
+      "lib/jszip.js",
+      "lib/FileSaver.js",
+  ].forEach(function(filename) {
+    var script = document.createElement('script');
+    script.setAttribute("type","text/javascript");
+    script.setAttribute("src", vmDir + filename);
+    document.getElementsByTagName("head")[0].appendChild(script);
+  });
 })();
 
 module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
