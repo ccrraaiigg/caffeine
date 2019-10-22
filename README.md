@@ -7,7 +7,7 @@ Caffeine is a livecoding environment for [web browsers](https://developer.mozill
 | [/talk](https://caffeine.js.org/talk)             | an [impress](https://impress.js.org)-powered presentation about Caffeine and livecoding |
 | [/2d](https://caffeine.js.org/2d)               | Caffeine on a single-page application site |
 | [/3d](https://caffeine.js.org/3d)       | an [A-Frame](https://aframe.io)-powered in-world virtual reality livecoding space |
-| [/pharo](https://caffeine.js.org/pharo)           | a demo of [Pharo](https://pharo.org) |
+| [/pharo](https://caffeine.js.org/pharo)           | a demo of [Pharo](https://pharo.org) 7 |
 | [/cuis](https://caffeine.js.org/cuis)             | a demo of [Cuis](http://cuis-smalltalk.org) |
 | [/files](https://caffeine.js.org/files)           | a listing of the files Caffeine has stored in your web browser's cache. You can download files from it, and drop new files into it. |
 
