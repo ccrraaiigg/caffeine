@@ -7867,11 +7867,11 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			for (var i = 0; i < numArgs; i++)
 			  args.push(arguments[i]);
 
-			if (args[0]) {
-			  if (args[0].constructor.name == 'KeyboardEvent') {
-			    args[0].preventDefault();
-			    args[0].stopPropagation();
-			  }}
+//			if (args[0]) {
+//			  if (args[0].constructor.name == 'KeyboardEvent') {
+//			    args[0].preventDefault();
+//			    args[0].stopPropagation();
+//			  }}
 
 			return new Promise(function(resolve, reject) {
 			  function evalAsync() {

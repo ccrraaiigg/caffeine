@@ -803,6 +803,8 @@
     // Store and return API for given impress.js root element
     return ( roots[ "impress-root-" + rootId ] = {
       init: init,
+      initAllSteps: initAllSteps,
+      steps: () => {initAllSteps(); return steps},
       goto: goto,
       next: next,
       prev: prev,

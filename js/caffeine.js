@@ -4,11 +4,14 @@ function dragElement(element, handle) {
   handle.onmousedown = dragMouseDown
 
   function dragMouseDown(event) {
+    var dashboard = window.document.getElementById('dashboard')
+
+    element.style.pointerEvents = "none"
     event = event || window.event
     event.preventDefault()
 
     Array.from(document.querySelectorAll('body *')).map(element => element.style.zIndex = 0)
-    window.document.getElementById('dashboard').style.zIndex = 2000
+    if (dashboard) dashboard.style.zIndex = 2000
 
     this.style.zIndex = 1
 
@@ -31,6 +34,7 @@ function dragElement(element, handle) {
     element.style.left = (element.offsetLeft - deltaX) + 'px'}
 
   function closeDragElement() {
+	element.style.pointerEvents = "all"
     document.onmouseup = null
     document.onmousemove = null}}
 

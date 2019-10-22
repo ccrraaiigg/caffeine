@@ -67,10 +67,11 @@
                 return false;
             }
 
-            if ( ( event.keyCode >= 32 && event.keyCode <= 34 ) ||
-                 ( event.keyCode >= 37 && event.keyCode <= 40 ) ) {
-                return true;
-            }
+          if ( event.keyCode >= 33 && event.keyCode <= 34 ) {
+	       // ||
+//                 ( event.keyCode >= 37 && event.keyCode <= 40 ) ) {
+            return true;
+          }
         };
 
         // KEYBOARD NAVIGATION HANDLERS
@@ -94,15 +95,15 @@
                 } else {
                     switch ( event.keyCode ) {
                         case 33: // Pg up
-                        case 37: // Left
-                        case 38: // Up
+//                        case 37: // Left
+//                        case 38: // Up
                                  api.prev( event );
                                  break;
                         case 9:  // Tab
-                        case 32: // Space
+//                        case 32: // Space
                         case 34: // Pg down
-                        case 39: // Right
-                        case 40: // Down
+//                        case 39: // Right
+//                        case 40: // Down
                                  api.next( event );
                                  break;
                     }
