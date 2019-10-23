@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Morphic!</title>
+    <script type="text/javascript" src="morphic.js"></script>
+    <script type="text/javascript">
+      var world;
+
+      window.onload = function () {
+        world = new WorldMorph(
+          document.getElementById('world'));
+        loop();
+      };
+
+      function loop() {
+        requestAnimationFrame(loop);
+        world.doOneCycle();
+      }
+    </script>
+  </head>
+  <body>
+    <canvas id="world" tabindex="1" width="800" height="600">
+      <p>Your browser doesn't support canvas.</p>
+    </canvas>
+  </body>
+</html>
