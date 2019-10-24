@@ -1,32 +1,15 @@
-// Use Vue instead of HTML Imports
-/* var wireframes = document.querySelector('link[rel="import"]').import,
-       workspace = wireframes.getElementsByClassName('workspace')[0],
-       workspaceSlideNames = [
-        'parsing-javascript',
-        'speech-recognition',
-        'webmidi',
-        'chrome-debugging-protocol'],
-*/
 var canvasNames = [
-  'title-workspace'],
+      'title-workspace'],
 
-    /*
-      'morphicjs-window',
-      'snowglobe-demo-window',
-      'parsing-javascript-workspace',
-      'speech-recognition-workspace',
-      'webmidi-workspace',
-      'chrome-debugging-protocol-workspace'],
-*/
     editorNames = [
       'text-editor-widget',
       'a-frame']
 
 window.document.getElementById('a-frame').addEventListener(
   'mouseleave',
-  (event) => {
-    window.document.getElementById('a-frame').blur()})
+  (event) => {window.document.getElementById('a-frame').blur()})
 
+// Add keybindings for navigating between slides.
 window.addEventListener(
   'keydown',
   (event) => {
@@ -36,6 +19,7 @@ window.addEventListener(
     if (event.key === 'o') {
       if (document.activeElement === document.body) impress().goto('overview')}})
 
+// Restore the cursor after it has been hidden by keyboard events.
 window.addEventListener(
   'mousemove',
   (event) => {document.body.parentNode.style.cursor = ''})
@@ -43,19 +27,6 @@ window.addEventListener(
 window.addEventListener(
   'mousedown',
   (event) => {document.body.parentNode.style.cursor = ''})
-
-/*
-
-window.document.getElementById('code-browser-wireframe').appendChild(wireframes.getElementsByClassName('classes-browser')[0].cloneNode(true))
- 
-workspaceSlideNames.forEach((id) => {
-  debugger
-  var slideWorkspace = workspace.cloneNode(true)
-
-  slideWorkspace.id = id + '-' + slideWorkspace.id
-  window.document.getElementById(id).appendChild(slideWorkspace)})
-
-*/
 
 canvasNames.forEach((id) => {window.makeCanvasEditable(window.document.getElementById(id))})
 editorNames.forEach((id) => {window.makeEditorEditable(window.document.getElementById(id))})

@@ -1,7 +1,8 @@
 <html>
   <head>
-    <script src="js/a-frame/official/aframe.min.js"></script>
-    <script src="js/a-frame/craig/aframe-environment-component.min.js"></script>
+    <script src="js/aframe/craig/aframe-v0.6.1.crl.js"></script>
+    <!--    <script src="js/aframe/official/aframe.min.js"></script> -->
+    <script src="js/aframe/craig/components/aframe-environment-component.min.js"></script>
 
     <link href="css/squeakjs.css"
 	  rel="stylesheet" />
@@ -10,7 +11,7 @@
 	  href="manifest.json">
 
   <body>
-    <script src="js/a-frame/craig/components/mousemove.js"></script>
+    <script src="js/aframe/craig/components/mousemove.js"></script>
 
     <a-scene id="scene"
 	     keyboard-shortcuts="enterVR: false"
@@ -35,10 +36,6 @@
 	<img id="logo"
 	     src="pictures/backgrounds/bootscreen/bootscreen1024x512.jpeg">
 
-<!--	<audio id="wind-sound"
-	       src="sounds/wind.mp3"
-	       preload="auto"></audio>
-  -->
       </a-assets>
       
       <!-- The raycaster doesn't work properly on rotated
@@ -116,7 +113,7 @@
     <script src="js/html/utilities.js"></script>
     <script src="/js/hydra.js"></script>
     <script src="js/oscrelay/node_modules/osc/dist/osc-browser.min.js"></script>
-    <script src="js/a-frame/craig/mobileUtilities.js"></script>
+    <script src="js/aframe/craig/mobileUtilities.js"></script>
     <script>
       // Prevent the home button from being dragged.
       document.body.ondragstart = () => {return false}
