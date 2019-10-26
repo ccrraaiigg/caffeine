@@ -882,6 +882,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		  },
 		  'initializing', {
 		    initialize: function(name) {
+		      this.topmostScope = self;
 		      this.totalMemory = 100000000;
 		      this.name = name;
 		      this.gcCount = 0;
@@ -1093,6 +1094,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      }
 		      var obj = this.firstOldObject,
 			  done = 0,
+			  topmostScope = self,
 			  self = this;
 		      function mapSomeObjects() {
 			if (obj) {
@@ -1118,7 +1120,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      };
 		      function mapSomeObjectsAsync() {
 			if (mapSomeObjects()) {
-			  self.window.setTimeout(mapSomeObjectsAsync, 0);
+			  this.setTimeout(mapSomeObjectsAsync, 0);
 			} else {
 			  if (thenDo) thenDo();
 			}
@@ -1127,7 +1129,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			while (mapSomeObjects()) {};   // do it synchronously
 			if (thenDo) thenDo();
 		      } else {
-			self.window.setTimeout(mapSomeObjectsAsync, 0);
+			this.topmostScope.setTimeout(mapSomeObjectsAsync, 0);
 		      }
 		    },
 		    decorateKnownObjects: function() {
