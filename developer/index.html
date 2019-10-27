@@ -29,6 +29,7 @@
 		 min-width: 100%;
 		 transition: bgcolor 2s;">
 
+      <script src="/js/caffeine.js"></script>
       <script src="/js/squeakjs/tether/tether.js"></script>
       
       <br>
@@ -122,35 +123,70 @@
                 Caffeine in each of the ways mentioned above. We'll
                 begin at the DevTools console.
 
-                1. To start Caffeine as a Web Worker, evaluate:
+             1. To start Caffeine as a Web Worker, evaluate:
 
               ---
 
-                fetch('http://localhost/js/squeakjs/caffeineHandler.js')
-                .then((caffeineHandlerSourceResult) => {caffeineHandlerSourceResult.text()
-                .then((caffeineHandlerSource) => {
-                fetch('http://localhost/js/squeakjs/squeak-worker.js')
-                .then((virtualMachineSourceResult) => {virtualMachineSourceResult.text()
-                .then((virtualMachineSource) => {
-                window.caffeineWorker = new Worker(URL.createObjectURL(new Blob([virtualMachineSource])))
+                fetch('http://localhost/js/squeakjs/tether/handler.js')
+                  .then((handlerSourceResult) => {handlerSourceResult.text()
+                    .then((handlerSource) => {
+                      fetch('http://localhost/js/squeakjs/squeak-worker.js')
+                        .then((virtualMachineSourceResult) => {virtualMachineSourceResult.text()
+                          .then((virtualMachineSource) => {
+                            window.caffeineWorker = new Worker(URL.createObjectURL(new Blob([virtualMachineSource])))
 
-                worker.onmessage = (new Function(caffeineHandlerSource))()
-                worker.postMessage('start')})})})})
+                            worker.onmessage = (new Function(handlerSource))()
+                            worker.postMessage('start')})})})})
 
               ---
 
                 This creates a worker running the code for the
                 Caffeine virtual machine, establishes a handler for
                 messages from the worker, and posts a message to the
-                worker telling the virtual machine to start.
+                worker telling the virtual machine to start. When
+                Caffeine has started, you'll see a message on the
+                console about a completed "fsck" operation.
 
-                There's a debugger statement in the handler; this
-                tutorial continues there, then returns here for the
-                next way of running Caffeine.
+                Caffeine speaks a remote communication protocol called
+                "Tether". Each side speaking the protocol uses a
+                special "tether" object to coordinate
+                communication. The browser is the first side to speak,
+                by exposing its tether object to Caffeine. Caffeine
+                responds by exposing its local counterpart tether to
+                the browser. Expose your tether by evaluating:
 
-                2. To run Caffeine within the main browser thread,
-                with an IDE and the ability to manipulate the DOM
-                directly, evaluate:
+              ---
+
+                caffeine.tether.push(caffeine.tether)
+
+              ---
+
+	        You can send messages containing either simple JSON
+                objects specifying a method in the other side's tether
+                object to invoke, or containing a more complex format
+                which lets you send messages to any object on the
+                other side.
+
+                You can send messages Caffeine's tether object like so:
+
+              ---
+
+                caffeine.tether.sendMessage(
+                  {
+                    'selector': 'echo:',
+                    'arguments': [3]},
+                  (result) => {console.log(result)})
+
+              ---
+
+                Caffeine responds with messages sent via postMessage(). See
+                /js/squeakjs/tether/handler.js for the handler we use
+                for them.
+
+
+             2. To run Caffeine within the main browser thread, with
+                an IDE and the ability to manipulate the DOM directly,
+                evaluate:
 
               ---
 
@@ -175,9 +211,11 @@
                 page. This tutorial continues there, then returns here
                 for the next way of running Caffeine.
 
-                3. To run Caffeine as a Node instance, check out https://npmjs.com/xxx
 
-                4. To run Caffeine in a Chrome DevTools panel, install
+             3. To run Caffeine as a Node instance, check out
+                https://npmjs.com/xxx
+
+             4. To run Caffeine in a Chrome DevTools panel, install
                 the Caffeine Chrome extension from the Chrome Web
                 store, at https://xxx
 

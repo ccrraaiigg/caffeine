@@ -1,10 +1,34 @@
-// This is a JavaScript implementation of the Caffeine's "Tether"
-// remote communication protocol, used when running Caffeine as a Web
-// Worker in a browser.
+// This is the JavaScript implementation of Caffeine's "Tether" remote
+// communication protocol, used when running Caffeine as a Web Worker
+// in a browser.
 //
 // You can post messages to Caffeine with the worker's
 // postMessage() function. Caffeine responds with message
-// events. For details, see /js/squeakjs/tether/handler.js
+// events.
+//
+// Each side speaking the protocol uses a special "tether" object to
+// coordinate communication. You can send messages containing simple
+// JSON objects that specify a method in the other side's tether
+// object to invoke, or containing a more complex format which lets
+// you send messages to any object on the other side.
+//
+// The browser is the first side to speak, by exposing its tether
+// object to Caffeine. Caffeine responds by exposing its local
+// counterpart tether to the browser. Expose your tether by
+// evaluating:
+//
+// caffeine.tether.push(caffeine.tether)
+//
+// You can send messages Caffeine's tether object like so:
+//
+// caffeine.tether.sendMessage(
+//   {
+//     'selector': 'echo:',
+//     'arguments': [3]},
+//   (result) => {console.log(result)})
+//
+// Caffeine responds with messages sent via postMessage(). See
+// /js/squeakjs/tether/handler.js for the handler to use for them.
 
 window.caffeine = []
 

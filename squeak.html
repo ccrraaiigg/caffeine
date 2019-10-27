@@ -53,13 +53,18 @@
 		if (p) p.then(
 		  () => {},
 		  (reason) => {console.log("iOS hardware mute switch not overridden, HTML5 audio play failed", reason)})}
-      
-	      window.top.document.getElementById("Caffeine").contentWindow.focus()
-	      window.top.document.getElementById("embeddedSqueak").style.zIndex = 1000
-	      window.top.document.getElementById("embeddedSqueak").style.boxShadow = "1px 1px 7px #999, 2px 2px 8px #999, 3px 3px 9px #999"}
 
-	    window.top.document.getElementById("embeddedSqueak").ontouchend = window.top.document.ontouchend
-	    window.top.document.getElementById("Caffeine").ontouchend = window.top.document.ontouchend
+	      var caffeineElement = window.top.document.getElementById("Caffeine"),
+                  embeddedSqueakElement = window.top.document.getElementById("embeddedSqueak")
+
+              if (caffeineElement) {
+                caffeineElement.contentWindow.focus()
+                caffeineElement.ontouchend = window.top.document.ontouchend}
+
+              embeddedSqueakElement.ontouchend = window.top.document.ontouchend
+              embeddedSqueakElement.style.zIndex = 1000
+              embeddedSqueakElement.style.boxShadow = "1px 1px 7px #999, 2px 2px 8px #999, 3px 3px 9px #999"}
+
 
             if (magicWindow) {
               magicWindow.squeakDisplay = window.startCaffeine(

@@ -8,7 +8,7 @@
 // responds by exposing its local counterpart tether to the
 // browser. Expose your tether by evaluating:
 //
-// caffeine.tether.push(caffeine.tether)}
+// caffeine.tether.push(caffeine.tether)
 //
 // You can send simple messages Caffeine's tether object like so:
 //
