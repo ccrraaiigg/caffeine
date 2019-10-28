@@ -202,6 +202,8 @@
                 frame.frameborder = '0'
                 frame.scrolling = 'no'
                 frame.setAttribute('allowfullscreen', '')
+                frame.onmouseenter = (event) => {event.target.focus()}
+                frame.onmouseleave = (event) => {event.target.blur()}
 
                 document.body.appendChild(frame)
 
