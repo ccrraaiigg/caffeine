@@ -190,7 +190,17 @@
 
               ---
 
-                let frame = document.createElement('iframe')
+                let div = document.createElement('div'),
+                    center = document.createElement('center')
+                    frame = document.createElement('iframe')
+
+                div.id = 'embeddedSqueak'
+                div.style.pointerEvents = 'all'
+                div.style.border = '2px inset gray'
+                div.style.position = 'absolute'
+                div.style.top = 280
+                div.style.left = 120
+                div.style.zIndex = 1
 
                 frame.style = 'overflow; hidden;'
                 frame.src = 'http://localhost/squeak.html'
@@ -202,10 +212,10 @@
                 frame.frameborder = '0'
                 frame.scrolling = 'no'
                 frame.setAttribute('allowfullscreen', '')
-                frame.onmouseenter = (event) => {event.target.focus()}
-                frame.onmouseleave = (event) => {event.target.blur()}
 
-                document.body.appendChild(frame)
+                center.appendChild(frame)
+                div.appendChild(center)
+                document.body.appendChild(div)
 
               ---
 
@@ -304,7 +314,7 @@
           function () {
             var banner = document.getElementById('banner')
 
-            banner.style.transition = 'all 1000ms'
+            banner.style.transition = 'opacity 1000ms'
             banner.style.opacity = 1},
           1500)
 
@@ -313,9 +323,9 @@
             var summary = document.getElementById('summary'),
             dashboard= document.getElementById('dashboard')
 
-            summary.style.transition = 'all 1000ms'
+            summary.style.transition = 'opacity 1000ms'
             summary.style.opacity = 1
-            dashboard.style.transition = 'all 1000ms'
+            dashboard.style.transition = 'opacity 1000ms'
             dashboard.style.opacity = 0.7},
           2500)
       </script>

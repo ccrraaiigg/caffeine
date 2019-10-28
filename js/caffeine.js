@@ -11,9 +11,9 @@ function dragElement(element, handle) {
     event.preventDefault()
 
     Array.from(document.querySelectorAll('body *')).map(element => element.style.zIndex = 0)
-    if (dashboard) dashboard.style.zIndex = 2000
+    element.style.zIndex = 3000
 
-    this.style.zIndex = 1
+    if (dashboard) {dashboard.style.zIndex = 2000}
 
     x = event.clientX
     y = event.clientY
@@ -79,29 +79,21 @@ function resizeElement(element) {
 
 
 window.onload = function () {
-  var embeddedSqueak = document.getElementById('embeddedSqueak'),
-//      summary = document.getElementById('summary'),
-      statustext = document.getElementById('status').children[0]
+  var summary = document.getElementById('summary'),
+      status = document.getElementById('status')
 
-  statustext.style.textShadow = '1px 1px 1px #000'
-  statustext.style.opacity = 0.5
+  if (status) {
+    var statustext = status.children[0]
 
-  embeddedSqueak.onmouseenter = function () {
-    this.style.zIndex = 1000
-    document.getElementById('Caffeine').contentWindow.focus()
-    this.style.boxShadow = '1px 1px 7px #999, 2px 2px 8px #999, 3px 3px 9px #999'}
+    statustext.style.textShadow = '1px 1px 1px #000'
+    statustext.style.opacity = 0.5}
 
-  embeddedSqueak.onmouseleave = function () {
-    window.focus()
-    this.style.boxShadow = ''}
-    
-/*
-  summary.onmousedown = function () {
-    embeddedSqueak.style.zIndex = 1}
+    if (summary) {
+      summary.onmousedown = function () {
+        document.getElementById('embeddedSqueak').style.zIndex = 1}
 
-  summary.onmouseover = function () {
-    embeddedSqueak.style.boxShadow = ''}
-*/
+      summary.onmouseover = function () {
+        if (document.getElementById('embeddedSqueak')) {document.getElementById('embeddedSqueak').style.boxShadow = ''}}}
   
   window.setTimeout(
     function () {
@@ -121,27 +113,29 @@ window.onload = function () {
 	  settingsButton = window.document.getElementById('settings.button'),
 	  spinner = window.document.getElementById('sqSpinner')
 
-      window.progress.style.opacity = 1
-      window.thestatus.style.opacity = 1
-//      window.document.getElementById('summary').style.opacity = 1
+      if (window.progress) {
+	window.progress.style.opacity = 1
+	window.thestatus.style.opacity = 1}
+      
+      if (summary) {summary.style.opacity = 1}
       dashboard.style.opacity = 0.5
       
       settingsButton.onclick = (event) => {
-	var squeak = window.document.getElementById('embeddedSqueak')
-
-	if (squeak.style.opacity == 0) {
+	if (document.getElementById('embeddedSqueak').style.opacity == 0) {
 	  spinner.style.opacity = 1
-	  squeak.style.opacity = 1
-	  squeak.style.pointerEvents = 'all'}
+	  document.getElementById('embeddedSqueak').style.opacity = 1
+	  document.getElementById('embeddedSqueak').style.pointerEvents = 'all'}
 	else {
 	  spinner.style.opacity = 0
-	  squeak.style.opacity = 0
-	  squeak.style.pointerEvents = 'none'}}
+	  document.getElementById('embeddedSqueak').style.opacity = 0
+	  document.getElementById('embeddedSqueak').style.pointerEvents = 'none'}}
 
-      WebMidi.enable()},
+      if (window.WebMidi) {WebMidi.enable()}},
     1500)
 
-  window.setTimeout(
-    function () {
-      window.document.getElementById('movie').style.opacity = 1},
-    2000)}
+    window.setTimeout(
+      function () {
+	var movie = window.document.getElementById('movie')
+
+	if (movie) {movie.style.opacity = 1}},
+      2000)}
