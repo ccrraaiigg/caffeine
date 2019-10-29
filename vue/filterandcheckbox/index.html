@@ -21,7 +21,6 @@
           :data="treeData"
           :options="treeOptions"
 	  :filter="treeFilter"
-          @node:expanded="onNodeExpand"
 	  v-model="selectedNode">
 	  <div class="tree-scope" slot-scope="{ node }">
             <template v-if="node.data.isRoot">
@@ -61,6 +60,7 @@
 	  treeFilter: '',
           treeData: getTreeData(),
           treeOptions: {
+	    dnd: true,
             checkbox: true,
 	    filter: {plainList: true}
           }
