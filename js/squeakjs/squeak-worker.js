@@ -446,6 +446,9 @@
 	  proxy: "http://localhost/",
 	  parameters: {fibbly: 'wibbly'}})
 
+      break
+    case 'debug':
+      debugger
       break}}
 
 })()

@@ -127,16 +127,16 @@
 
               ---
 
-                fetch('http://localhost/js/squeakjs/tether/handler.js')
+                fetch('https://caffeine.js.org/js/squeakjs/tether/handler.js')
                   .then((handlerSourceResult) => {handlerSourceResult.text()
                     .then((handlerSource) => {
-                      fetch('http://localhost/js/squeakjs/squeak-worker.js')
+                      fetch('https://caffeine.js.org/js/squeakjs/squeak-worker.js')
                         .then((virtualMachineSourceResult) => {virtualMachineSourceResult.text()
                           .then((virtualMachineSource) => {
                             window.caffeineWorker = new Worker(URL.createObjectURL(new Blob([virtualMachineSource])))
 
-                            worker.onmessage = (new Function(handlerSource))()
-                            worker.postMessage('start')})})})})
+                            window.caffeineWorker.onmessage = (new Function(handlerSource))()
+                            window.caffeineWorker.postMessage('start')})})})})
 
               ---
 
@@ -203,7 +203,7 @@
                 div.style.zIndex = 1
 
                 frame.style = 'overflow; hidden;'
-                frame.src = 'http://localhost/squeak.html'
+                frame.src = 'https://caffeine.js.org/squeak.html'
                 frame.id = 'Caffeine'
                 frame.marginheight = '0'
                 frame.marginwidth = '0'
