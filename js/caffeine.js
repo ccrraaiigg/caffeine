@@ -104,7 +104,8 @@ window.onload = function () {
   
   window.setTimeout(
     function () {
-      window.document.getElementById('banner').style.opacity = 1},
+      if (window.document.getElementById('banner')) {
+	window.document.getElementById('banner').style.opacity = 1}},
     1000)
   
   window.setTimeout(
@@ -121,14 +122,19 @@ window.onload = function () {
       dashboard.style.opacity = 0.5
       
       settingsButton.onclick = (event) => {
-	if (document.getElementById('embeddedSqueak').style.opacity == 0) {
+	var squeak = document.getElementById('embeddedSqueak')
+		      
+	if (squeak.style.opacity == 0) {
+	  if ((squeak.icon) && (squeak.icon.opacity = 1)) {
+	    squeak.icon.style.opacity = 0}
+	    
 	  spinner.style.opacity = 1
-	  document.getElementById('embeddedSqueak').style.opacity = 1
-	  document.getElementById('embeddedSqueak').style.pointerEvents = 'all'}
+	  squeak.style.opacity = 1
+	  squeak.style.pointerEvents = 'all'}
 	else {
 	  spinner.style.opacity = 0
-	  document.getElementById('embeddedSqueak').style.opacity = 0
-	  document.getElementById('embeddedSqueak').style.pointerEvents = 'none'}}
+	  squeak.style.opacity = 0
+	  squeak.style.pointerEvents = 'none'}}
 
       if (window.WebMidi) {WebMidi.enable()}},
     1500)

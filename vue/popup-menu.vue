@@ -17,4 +17,3 @@
   </hsc-menu-style-white>
 </template>
 
-<style src="/css/devtools.css"></style>
