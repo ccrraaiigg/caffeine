@@ -34,9 +34,10 @@ function dragElement(element, handle) {
     element.style.left = (element.offsetLeft - deltaX) + 'px'}
 
   function closeDragElement() {
-	element.style.pointerEvents = "all"
+    element.style.pointerEvents = "all"
     document.onmouseup = null
-    document.onmousemove = null}}
+    document.onmousemove = null
+    if (element.onmoveend) {element.onmoveend()}}}
 
 
 function resizeElement(element) {

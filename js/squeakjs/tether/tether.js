@@ -30,7 +30,11 @@
 // Caffeine responds with messages sent via postMessage(). See
 // /js/squeakjs/tether/handler.js for the handler to use for them.
 
-window.caffeine = []
+try {window.caffeine = []}
+catch (e) {
+  // NodeJS
+  global.caffeine = []
+  caffeine.caffeineWorker = global.caffeineWorker}
 
 caffeine.exposureHash = () => {return Math.floor(Math.random() * 268435455)}
 caffeine.specialVariables = []
@@ -50,7 +54,7 @@ caffeine.Portal = class {constructor() {
     this.incomingPosition = 0}
   
   this.send = () => {
-    window.caffeineWorker.postMessage(this.outgoingMessage)
+    caffeineWorker.postMessage(this.outgoingMessage)
     this.initializeOutgoingMessage()}
   
   this.startMessage = () => {this.initializeOutgoingMessage}

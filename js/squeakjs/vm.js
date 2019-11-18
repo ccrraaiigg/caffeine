@@ -6411,33 +6411,44 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		  },
 		  'display', {
 		    primitiveBeCursor: function(argCount) {
-		      if (this.display.cursorCanvas) {
-			var cursorForm = this.loadForm(this.stackNonInteger(argCount), true),
-			    maskForm = argCount === 1 ? this.loadForm(this.stackNonInteger(0)) : null;
-			if (!this.success || !cursorForm) return false;
-			var cursorCanvas = this.display.cursorCanvas,
-			    context = cursorCanvas.getContext("2d"),
-			    bounds = {left: 0, top: 0, right: cursorForm.width, bottom: cursorForm.height};
-			//            cursorCanvas.width = cursorForm.width;
-			//          cursorCanvas.height = cursorForm.height;
-			if (cursorForm.depth === 1) {
-			  if (maskForm) {
-			    cursorForm = this.cursorMergeMask(cursorForm, maskForm);
-			    this.showForm(context, cursorForm, bounds, [0x00000000, 0xFF0000FF, 0xFFFFFFFF, 0xFF000000]);
-			  } else {
-			    this.showForm(context, cursorForm, bounds, [0x00000000, 0xFF000000]);
-			  }
-			} else {
-			  this.showForm(context, cursorForm, bounds, true);
-			}
-			var canvas = this.display.context.canvas,
-			    scale = canvas.offsetWidth / canvas.width;
+		      // args: cursorForm, maskForm, canvas
+		      
+		      var cursorCanvas = argCount === 1 ? null : this.stackNonInteger(0).jsObject,
+			  cursorForm = this.loadForm(this.stackNonInteger(argCount), true),
+			  maskForm = argCount === 0 ? null : this.loadForm(this.stackNonInteger(argCount - 1));
 
-			cursorCanvas.style.width = (cursorCanvas.width * scale|0) + "px";
-			cursorCanvas.style.height = (cursorCanvas.height * scale|0) + "px";
+		      if (!this.success || !cursorForm) return false;
+
+		      if (cursorCanvas) {
+			cursorCanvas.style.visibility = 'visible';
+			cursorCanvas.style.opacity = 1;
+			if (cursorCanvas.parentNode) {cursorCanvas.parentNode.style.cursor = 'none';}}
+		      
+		      var cursorCanvas = cursorCanvas ? cursorCanvas : this.display.cursorCanvas,
+			  context = cursorCanvas.getContext("2d"),
+			  bounds = {
+			    left: 0,
+			    top: 0,
+			    right: cursorForm.width,
+			    bottom: cursorForm.height};
+
+		      if (cursorForm.depth === 1) {
+			if (maskForm) {
+			  cursorForm = this.cursorMergeMask(cursorForm, maskForm);
+			  this.showForm(context, cursorForm, bounds, [0x00000000, 0xFF0000FF, 0xFFFFFFFF, 0xFF000000]);}
+			else {this.showForm(context, cursorForm, bounds, [0x00000000, 0xFF000000]);}}
+		      else {this.showForm(context, cursorForm, bounds, true);}
+
+		      var canvas = this.display.context.canvas,
+			  scale = canvas.offsetWidth / canvas.width;
+
+		      cursorCanvas.style.width = (cursorCanvas.width * scale|0) + "px";
+		      cursorCanvas.style.height = (cursorCanvas.height * scale|0) + "px";
+
+		      if (cursorCanvas === this.display.cursorCanvas) {
 			this.display.cursorOffsetX = cursorForm.offsetX * scale|0;
-			this.display.cursorOffsetY = cursorForm.offsetY * scale|0;
-		      }
+			this.display.cursorOffsetY = cursorForm.offsetY * scale|0;}
+
 		      this.vm.popN(argCount);
 		      return true;
 		    },
