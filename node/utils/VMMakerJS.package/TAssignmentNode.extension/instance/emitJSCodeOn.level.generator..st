@@ -1,0 +1,20 @@
+*vmmakerjs
+emitJSCodeOn: aStream level: level generator: aCodeGen
+	expression isSwitch ifTrue:
+		[^expression emitJSCodeOn: aStream addToEndOfCases: self level: level generator: aCodeGen].
+	(self isVariableUpdatingAssignment and: [(aCodeGen isPointer: variable) not])
+		ifTrue:
+			[(expression args first isConstant and: [expression args first value = 1])
+				ifTrue: [aStream nextPutAll: expression selector, expression selector.
+					variable emitJSCodeOn: aStream level: level generator: aCodeGen]
+				ifFalse: [
+					variable emitJSCodeOn: aStream level: level generator: aCodeGen.
+					aStream nextPutAll: ' ', expression selector, '= '.
+					expression args first emitJSCodeAsArgumentOn: aStream level: level generator: aCodeGen]]
+		ifFalse:
+			[ | coerceToInt |
+			coerceToInt := (variable isFloatIn: aCodeGen) not and: [expression isFloatIn: aCodeGen].
+			variable emitJSCodeOn: aStream level: level generator: aCodeGen.
+			aStream nextPutAll: ' = '.
+			expression emitJSCodeAsArgumentOn: aStream level: level generator: aCodeGen.
+			coerceToInt ifTrue: [aStream nextPutAll: '|0'].]

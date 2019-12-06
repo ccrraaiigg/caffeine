@@ -1,0 +1,57 @@
+body {
+    background-color: #eae6d1;
+    font-family: sans-serif;
+}
+canvas {
+    position: fixed;
+    background: #000;
+    display: none;
+}
+canvas.pixelated {
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: pixelated;
+    -ms-interpolation-mode: nearest-neighbor;
+}
+h1 {
+    color: #F90;
+}
+#logo {
+    border-radius: 20px;
+    box-shadow: 0 0 5px 5px #F90;
+    margin: 0 20px 0 5px;
+}
+div#sqSpinner {
+    position: fixed;
+    margin: auto; top: 0; left: 0; bottom: 0; right: 0;
+    width: 100px;
+    height: 100px;
+    border-radius: 50px;
+    background: rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 5px 5px #F90;
+    display: none;
+    transform: rotate(30deg);
+}
+div#sqSpinner > div {
+    position: absolute;
+    top: 45px;
+    left: 5px;
+    width: 90px; 
+    height: 10px;
+    border-radius: 5px;
+    box-shadow: 0 0 5px 5px #F90;
+}
+#drop {
+    color: #9b988a;
+    border: 6px dashed #9b988a;
+    min-height: 50px;
+    max-width: 600px;
+    margin: 10px 0;
+    padding: 10px;
+}
+.filelist > ul {
+    max-height: 75px;
+    overflow: scroll;
+    margin: 10px 0;
+    padding: 10px;
+}

@@ -11,15 +11,16 @@ module("SqueakJS.plugins.Flow").requires("users.bert.SqueakJS.vm").toRun(
       interpreterProxy = interpreter
       self.interpreter = interpreter
 
-      top.WebMidi.writePacketsTo = (packets, output) => {
-	var index
+      if (top.WebMidi) {
+	top.WebMidi.writePacketsTo = (packets, output) => {
+	  var index
 	
-	for (index = 0; index < packets.length; index = index + 4) {
-	  output.send(
-	    packets[index],
-	    [packets[index + 1],
-	     packets[index + 2]],
-	    packets[index + 3])}}
+	  for (index = 0; index < packets.length; index = index + 4) {
+	    output.send(
+	      packets[index],
+	      [packets[index + 1],
+	       packets[index + 2]],
+	      packets[index + 3])}}}
       
       if ((interpreterProxy.majorVersion() == VM_PROXY_MAJOR) === false) return false
       else return (interpreterProxy.minorVersion() >= VM_PROXY_MINOR)}
@@ -52,7 +53,7 @@ module("SqueakJS.plugins.Flow").requires("users.bert.SqueakJS.vm").toRun(
 	    ["out: " + top.WebMidi.outputs[portIndex - numberOfInterfaces].name]))}}
 
     function newMIDIPortHandleInto () {
-      // No handles are necessary with WebMidi.js.
+      // With WebMidi.js, no handles are necessary.
     }
       
     function outputPortIndexInputPortIndex () {
@@ -76,30 +77,6 @@ module("SqueakJS.plugins.Flow").requires("users.bert.SqueakJS.vm").toRun(
       interpreterProxy.pop(2)}
     
     
-    // HTML UI support
-
-    function htmlSelectElementSetOptions () {
-      var self = (interpreterProxy.stackValue(1)).pointers[0].jsObject,
-	  strings = interpreterProxy.vm.primHandler.loadedModules.JavaScriptPlugin.primitiveFromStObject(interpreterProxy.stackValue(0))
-
-      while (self.children.length > 0) {
-	var child = self.firstChild
-	
-	self.removeChild(child)}
-
-      (
-	strings.map(function (string) {
-	  var option = document.createElement('option')
-
-	  option.value = string
-	  option.innerHTML = string
-
-	  return option})
-      )
-	.forEach(function (element) {self.appendChild(element)})
-
-      interpreterProxy.pop(1)}
-
     // read from Blobs, for sending binary WebSocket frames
 
     function setBytesFrom () {
@@ -110,26 +87,23 @@ module("SqueakJS.plugins.Flow").requires("users.bert.SqueakJS.vm").toRun(
 
       interpreterProxy.pop(1)}
     
-    // VisualWorks support
 
-    function decompressVisualWorksBitmapFromByteArray () {
-      var words = interpreterProxy.stackValue(1).words,
-	  bytes = interpreterProxy.stackValue(0).bytes,
-	  numberOfBytes = bytes.length,
-	  bytesPosition = 0,
-	  wordIndex = 0,
-	  word
+    // Ensure that a websocket's "open" event handler is set before
+    // the event occurs, by creating the websocket and setting the
+    // handler in the same JS context (JS is single-threaded).
 
-      while (bytesPosition < numberOfBytes) {
-	word = (bytes[bytesPosition++] << 24) + bytes[bytesPosition++]
+    function urlonOpenonErroronMessageonClose () {
+      var websocket = new WebSocket(interpreterProxy.stackValue(4).bytesAsString())
 
-	if (bytesPosition < numberOfBytes) {
-	  word = word + (bytes[bytesPosition++] << 8) + (bytes[bytesPosition++] << 16)}
+      websocket.onopen = interpreterProxy.vm.primHandler.js_fromStBlock(interpreterProxy.stackValue(3))
+      websocket.onerror = interpreterProxy.vm.primHandler.js_fromStBlock(interpreterProxy.stackValue(2))
+      websocket.onmessage = interpreterProxy.vm.primHandler.js_fromStBlock(interpreterProxy.stackValue(1))
+      websocket.onclose = interpreterProxy.vm.primHandler.js_fromStBlock(interpreterProxy.stackValue(0))
 
-	words[wordIndex++] = word}
+      interpreterProxy.stackValue(5).jsObject = websocket
+      interpreterProxy.pop(5)}
 
-      interpreterProxy.pop(1)}
-
+    
     // Naiad support
 
     function isMethodFused () {
@@ -164,9 +138,8 @@ module("SqueakJS.plugins.Flow").requires("users.bert.SqueakJS.vm").toRun(
 	nameOfMIDIPortAt: nameOfMIDIPortAt,
 	newMIDIPortHandleInto: newMIDIPortHandleInto,
 	outputPortIndexInputPortIndex: outputPortIndexInputPortIndex,
-	htmlSelectElementSetOptions: htmlSelectElementSetOptions,
-	decompressVisualWorksBitmapFromByteArray: decompressVisualWorksBitmapFromByteArray,
 	setBytesFrom: setBytesFrom,
+	urlonOpenonErroronMessageonClose: urlonOpenonErroronMessageonClose,
 	isMethodFused: isMethodFused,
 	fuseMethod: fuseMethod,
 	defuseMethod: defuseMethod,

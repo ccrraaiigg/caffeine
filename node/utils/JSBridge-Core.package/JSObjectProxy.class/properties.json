@@ -1,0 +1,15 @@
+{
+	"category" : "JSBridge-Core",
+	"classinstvars" : [
+		 ],
+	"classvars" : [
+		"CallbackProcess",
+		"CallbackSemaphore" ],
+	"commentStamp" : "bf 07/12/2016 21:05",
+	"instvars" : [
+		 ],
+	"name" : "JSObjectProxy",
+	"pools" : [
+		 ],
+	"super" : "Object",
+	"type" : "normal" }

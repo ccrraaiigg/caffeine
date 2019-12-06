@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html manifest="offline.appcache">
+<head>
+<meta charset="utf-8">
+<title>SqueakJS</title>
+<!--
+Copyright (c) 2013-2016 Bert Freudenberg
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+-->
+<link rel="icon" type="image/png" href="icon.png">
+<link rel="apple-touch-icon" href="icon.png" sizes="152x152">
+<meta name="viewport" content="minimum-scale=1,maximum-scale=1,width=device-width">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="msapplication-TileImage" content="icon.png">
+
+<link rel="stylesheet" href="../lib/gh-fork-ribbon.css">
+<link rel="stylesheet" href="../lib/addtohomescreen.css">
+<script src="../lib/addtohomescreen.js"></script>
+
+<link rel="stylesheet" href="simple.css">
+<script src="../squeak.js"></script>
+<script src="simple.js"></script>
+<script src="SimplePlugin.js"></script>
+
+</head>
+<body>
+    <div id="sqHeader">
+        <h1>SqueakJS</h1>
+        <label title="Swap middle and right mouse buttons"><input id="sqSwapButtons" type="checkbox">swap buttons</label>
+        <label title="Make Squeak as large as possible"><input id="sqFullscreen" type="checkbox">full screen</label>
+        <div class="github-fork-ribbon-wrapper right">
+            <div class="github-fork-ribbon">
+                <a href="https://github.com/bertfreudenberg/SqueakJS" target="_blank">Fork me on GitHub</a>
+            </div>
+        </div>
+    </div>
+    <div id="sqFooter">
+        <p><a href="../" target="_blank">SqueakJS</a> is a Virtual Machine
+        for the Squeak dialect of Smalltalk, written in pure JavaScript by Bert Freudenberg.
+        Above is a stripped-down version of Squeak 2.2, which was released in 1998.
+        Modern Squeak versions are much more advanced, but more demanding, too. You can try
+        them on the SqueakJS <a href="../run">launcher page</a>.
+        Also, you may want to try the <a href= "http://lively-web.org/users/bert/squeak.html">Lively SqueakJS Debugger</a>.
+        </p>
+    </div>
+    <canvas id="sqCanvas"></canvas>
+    <div id="sqSpinner"><div></div></div>
+</body>
+</html>

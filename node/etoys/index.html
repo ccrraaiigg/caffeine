@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html manifest="offline.appcache">
+<head>
+<meta charset="utf-8">
+<title>EtoysJS</title>
+<!--
+Copyright (c) 2013-2016 Bert Freudenberg
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+-->
+<link rel="icon" type="image/png" href="etoys.png">
+<link rel="apple-touch-icon" href="etoys.png" sizes="152x152">
+<meta name="viewport" content="minimum-scale=1,maximum-scale=1,width=device-width">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="msapplication-TileImage" content="etoys.png">
+
+<link rel="stylesheet" href="../lib/gh-fork-ribbon.css">
+<link rel="stylesheet" href="../lib/addtohomescreen.css">
+<script src="../lib/addtohomescreen.js"></script>
+
+<link rel="stylesheet" href="etoys.css">
+<script src="../squeak.js"></script>
+<script src="etoys.js"></script>
+
+</head>
+<body>
+    <div id="sqHeader">
+        <h1>SqueakJS/Etoys</h1>
+        <div class="github-fork-ribbon-wrapper right">
+            <div class="github-fork-ribbon">
+                <a href="https://github.com/bertfreudenberg/SqueakJS" target="_blank">Fork me on GitHub</a>
+            </div>
+        </div>
+    </div>
+    <div id="sqFooter">
+        <p>This is <a href="../" target="_blank">SqueakJS</a>
+        running <a href="http://squeakland.org/" target="_blank">Etoys</a> without the usual browser plugin.
+        You can also run it in the <a href= "http://lively-web.org/users/bert/squeak.html">Lively SqueakJS</a> debugger.
+        Feedback and contributions welcome! — Bert Freudenberg
+        </p>
+    </div>
+    <canvas id="sqCanvas" width="1200" height="900"></canvas>
+    <div id="sqSpinner"><div></div></div>
+</body>
+</html>
