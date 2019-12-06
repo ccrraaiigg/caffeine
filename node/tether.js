@@ -1,1 +1,1 @@
-/Users/craig/caffeine/js/squeakjs/tether/tether.js
+../js/squeakjs/tether/tether.js
