@@ -114,6 +114,14 @@ function notifyAllRelays(payload) {
 
 
 function notifyAllPeers(payload) {
+  // notify my worker
+  caffeine.tether.sendMessage(
+    {
+      'selector': payload.selector,
+      'arguments': payload.arguments},
+    (result) => {
+      log('Caffeine responds to notification with: ' + JSON.stringify(result))})
+  
   // notify all my clients
   notifyAllClients(payload.selector, payload.arguments)
     

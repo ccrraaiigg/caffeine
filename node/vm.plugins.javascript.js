@@ -241,7 +241,7 @@ Object.extend(Squeak.Primitives.prototype,
         this.signalSemaphoreWithIndex(this.js_callbackSema);
         this.vm.forceInterruptCheck();
         // interpret until primitiveReturnFromCallback sets result
-        var timeout = Date.now() + 1000;
+        var timeout = Date.now() + 1500;
         while (Date.now() < timeout && !this.js_activeCallback.result)
             this.vm.interpret();
         var result = this.js_activeCallback.result;
