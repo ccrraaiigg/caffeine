@@ -1,6 +1,8 @@
 // This is a quick-and-dirty fork of
 // https://github.com/ErikOnBike/SqueakJS/tree/nodejs. I intend to
-// merge it with https://github.com/bertfreudenberg/SqueakJS.
+// merge it with https://github.com/bertfreudenberg/SqueakJS, and with
+// the work I've already done on running SqueakJS headlessly in Web
+// Workers in web browsers, elsewhere in this repository.
 
 var fs = require("fs");
 var process = require("process");
