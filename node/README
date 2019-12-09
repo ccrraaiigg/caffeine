@@ -1,0 +1,3 @@
+Install ndb (https://github.com/GoogleChromeLabs/ndb) and run "ndb
+squeak_node.js". That runs an alpha version of a team livecoding
+services relay network; happy hacking. :)
