@@ -1,3 +1,7 @@
+// This is a quick-and-dirty fork of
+// https://github.com/ErikOnBike/SqueakJS/tree/nodejs. I intend to
+// merge it with https://github.com/bertfreudenberg/SqueakJS.
+
 var fs = require("fs");
 var process = require("process");
 var path = require("path");
