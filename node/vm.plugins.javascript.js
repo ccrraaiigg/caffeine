@@ -251,7 +251,9 @@ Object.extend(Squeak.Primitives.prototype,
             try { resolve(this.js_fromStObject(result)); }
             catch(err) { resolve(result.toString()); }
         } else {
-          reject(Error("SqueakJS timeout"));
+	  // Unhandled promise rejections will result in process
+	  // termination; write to the console instead.
+          console.log("SqueakJS callback timeout");
         }
     },
     js_objectOrGlobal: function(sqObject) {

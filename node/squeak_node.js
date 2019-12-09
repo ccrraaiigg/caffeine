@@ -115,6 +115,8 @@ function notifyAllRelays(payload) {
 
 function notifyAllPeers(payload) {
   // notify my worker
+  log('Notifying Caffeine with payload ' + JSON.stringify(payload))
+  
   caffeine.tether.sendMessage(
     {
       'selector': payload.selector,
@@ -283,8 +285,6 @@ var server = new ws.Server({
 server.on(
   'connection',
   (websocket, request) => {
-    console.log('Websocket opened.')
-
     websocket
       .on(
 	'message',
