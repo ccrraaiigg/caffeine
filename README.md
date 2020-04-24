@@ -11,7 +11,7 @@ Caffeine's underlying computation engine is [SqueakJS](https://squeak.js.org), a
 
 Caffeine has support for [Squeak](http://squeak.org), [Pharo](https://pharo.org), [Cuis](http://cuis-smalltalk.org), 3D VR (via [A-Frame](https://aframe.io) and [OSC](http://opensoundcontrol.org)), zooming 3D presentations (via [impress.js](https://impress.js.org)), [VueJS](https://vuejs.org), [WebMIDI](https://github.com/djipco/webmidi), [Observable](https://observablehq.com), [Web Workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API), [DevTools](https://chrome.google.com/webstore/detail/caffeine/jhbbonmkjnodgkammmgfhaljmicpeakb) and many other JS frameworks.
 
-You can read more about the design of Caffeine, and new features, at my blog, [https://thiscontext.com](https://thiscontext.com).
+You can read more about the design of Caffeine, and new features, at my blog, [https://thiscontext.com](https://thiscontext.com). Check out the [teaser trailer](https://www.youtube.com/watch?v=8VzXmgAQWjc&t=8s) on YouTube.
 
 [This repository](https://github.com/ccrraaiigg/caffeine) is the content for [the Caffeine website](https://caffeine.js.org), **caffeine.js.org**. It provides these endpoints:
 
