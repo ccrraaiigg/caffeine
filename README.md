@@ -19,7 +19,7 @@ You can read more about the design of Caffeine, and new features, at my blog, [h
 | [/](https://caffeine.js.org/)                     | this page  |
 | [/talk](https://caffeine.js.org/talk)             | an [impress](https://impress.js.org)-powered presentation about Caffeine and livecoding |
 | [/developer](https://caffeine.js.org/developer)   | a developer-oriented overview of Caffeine, with a tutorial for developing with it |
-| [/2d](https://caffeine.js.org/2d)               | Caffeine on a single-page application site |
+| [/2d](https://caffeine.js.org/2d)               | Caffeine on a single-page-application site |
 | [/3d](https://caffeine.js.org/3d)       | an [A-Frame](https://aframe.io)-powered in-world virtual reality livecoding space |
 | [/pharo](https://caffeine.js.org/pharo)           | a demo of [Pharo](https://pharo.org) 7 |
 | [/cuis](https://caffeine.js.org/cuis)             | a demo of [Cuis](http://cuis-smalltalk.org) |
