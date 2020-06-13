@@ -26,7 +26,7 @@ var magicWindow = window,
     isMagic;
 
 while ((magicWindow != window.top) && (magicWindow.document.head.id != "magic")) {
-  magicWindow = window.parent;}
+  magicWindow = magicWindow.parent;}
 
 try {isMagic = (magicWindow.document.head.id == "magic")}
 catch (exception) {

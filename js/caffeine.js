@@ -146,3 +146,25 @@ window.onload = function () {
 
 	if (movie) {movie.style.opacity = 1}},
       2000)}
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('js/serviceWorker.js')
+    .then(function(reg) {
+      // registration worked
+      console.log('Registration succeeded. Scope is ' + reg.scope)
+      reg.addEventListener(
+	'push',
+	function(event) {
+	  debugger
+	  console.log('Received a push message', event)
+          caches.keys().then(function(keyList) {
+	    return Promise.all(keyList.map(function(key) {
+	      return caches.delete(key)}))})})
+      
+      window.onbeforeunload = () => {
+	reg.emitEvent('push')}})
+    .catch(function(error) {
+      // registration failed
+      console.log('Registration failed with ' + error)})}
+else console.log('Service Worker API not available.')
+

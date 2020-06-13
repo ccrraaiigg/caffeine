@@ -1,6 +1,6 @@
-// Provide public collaboration and history services, from a network
-// of relay servers, each of which serves web-browser-based clients
-// and has a headless Caffeine worker thread.
+// Provide public collaboration and history services ("Naiad"), from a
+// network of relay servers, each of which serves web-browser-based
+// clients and has a headless Caffeine worker thread.
 //
 // Author: Craig Latta <craig@blackpagedigital.com>
 
