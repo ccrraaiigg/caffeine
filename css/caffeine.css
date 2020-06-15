@@ -1,5 +1,9 @@
 @import url(https://fonts.googleapis.com/css?family=Didact+Gothic);
 
+:root {
+    color-scheme: light dark;
+}
+     
 * {
   box-sizing: border-box;
 }
