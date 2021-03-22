@@ -3,6 +3,7 @@
     <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
     <script src="js/aframe/components/aframe-environment-component.min.js"></script>
     <script src="js/aframe/components/canvas-updater.js"></script>
+    <script src = "https://cdn.jsdelivr.net/npm/webmidi"></script>
 
     <link href="css/squeakjs.css"
 	  rel="stylesheet" />
@@ -15,6 +16,15 @@
     <script src="https://unpkg.com/aframe-teleport-controls/dist/aframe-teleport-controls.min.js"></script>
     
     <a-scene id="scene"
+
+	     raycaster="showLine: false;
+			far: 100;
+			objects: .squeaky"
+
+	     line="color: orange;
+		   opacity: 0.5"
+
+	     cursor="rayOrigin: mouse"
 	     keyboard-shortcuts="enterVR: false">
 
       <a-assets>
@@ -64,6 +74,7 @@
 	<!-- no "spokes" div, so the spinner just glows -->
 		  
 	     <div id="sqSpinnerSpokes"
+
 		  style="top: 21px;
                          width: 42px;"></div></div>
 
@@ -81,18 +92,9 @@
 
 		sound="src: #wind-sound;
 		       loop: true"></a-entity>
-
-<!--      <a-entity id="ground"
-
-		geometry="primitive: box;
-			  width: 12;
-			  height: 0.01;
-			  depth: 12;
-			  color: blue"></a-entity> -->
-
-      <!-- virtual keyboard keys -->
       
-
+      <!-- virtual keyboard keys -->
+<!--		
       <a-box class="squeaky"
 	     position="-7.5 5.7 -6"
 	     id="`"
@@ -633,13 +635,15 @@
 	     width="0.5"
 	     color="#4CC4D9"></a-box>
 
+      -->
+      
       <a-entity id="cameraRig"
-		position="0 5 5"
+		position="0 10 0"
 		rotation>
 
 	<a-entity id="left-hand"
 		  laser-controls="hand: left"
-		  oculus-touch-controls="hand: left"
+		  hand-controls="hand: left"
 
 		  raycaster="objects: .squeaky;
 			     far: 1000"
@@ -659,7 +663,7 @@
 
 	<a-entity id="right-hand"
 		  laser-controls="hand: right"
-		  oculus-touch-controls="hand: right"
+		  hand-controls="hand: right"
 
 		  raycaster="objects: .squeaky;
 			     far: 1000"
@@ -675,6 +679,20 @@
 		  look-controls
 		  wasd-controls></a-entity></a-entity>
 
+      <input id="home"
+	     type="image"
+	     src="pictures/icons/a-frame/home.png"
+	     tabindex="-1"
+	     width="70"
+	     height="70"
+	     style="opacity: 0.5;
+		    user-select: none;
+		    outline: none;
+		    z-index: 10;
+		    position: absolute;
+		    right: 10;
+		    top: 10"></a-scene>
+    
     </a-scene>
 
     <script>
@@ -696,11 +714,10 @@
           wind.components.sound.playSound()
           window.startCaffeine(
             canvas,
-            "caffeine",
+            "snowglobe",
             "SqueakV46",
             {
-              appID: "d93ea2a2-bf59-4f59-bb21-c36c596c4488",
-              appName: "A-Frame livecoding demo",
-              appServer: "demo.blackpagedigital.com:8091"})},
+              appID: "b7837a39-aead-40a9-818e-48bf196d55d9",
+              appName: "Lam2300"})},
         6000)
     </script></body></html>

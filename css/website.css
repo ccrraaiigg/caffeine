@@ -64,7 +64,7 @@
       opacity: 0;
    }
 
-div#sqSpinner {
+div#progress-spinner {
     position: absolute;
     margin: auto; top: 0; left: 0; bottom: 0; right: 0;
     width: 100px;
@@ -75,7 +75,7 @@ div#sqSpinner {
     display: none;
     transform: rotate(30deg);
 }
-div#sqSpinner > div {
+div#progress-spinner > div {
     position: absolute;
     top: 45px;
     left: 5px;

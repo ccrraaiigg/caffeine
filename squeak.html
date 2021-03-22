@@ -1,12 +1,36 @@
+<!--
+
+         This is a container for a live Caffeine system, run by the
+    SqueakJS virtual machine and suitable for inclusion in larger
+    webpages.
+
+         As many elements as possible (for example, text-recognizer)
+    should be created and inserted dynamically by Caffeine when it
+    resumes, not expressed statically here. In this era of
+    development, we prototype with handwritten elements (either in
+    HTML files or in the web browser's devtools), and move them to
+    Caffeine after they're stable. Ultimately, we'd like to provide
+    all the devtools functionality from Caffeine, since some host
+    platforms (like iOS and iPadOS) don't provide access to them from
+    their web browsers.
+
+  -->
+
 <html>
   <head>
     <meta charset="utf-8">
     <title>Caffeine</title>
-    <link rel="icon" type="image/png" href="pictures/squeakjs.png">
-    <link rel="stylesheet" href="css/squeakjs.css">
-  </head>
+
+    <link rel="icon"
+	  type="image/png"
+	  href="pictures/squeakjs.png">
+
+    <link rel="stylesheet"
+	  href="css/squeakjs.css"></head>
+
   <body>
-    <canvas id="squeak"
+
+    <canvas id="caffeine-canvas"
 	    width="1000"
 	    height="400"
 	    onselectstart="return false;"
@@ -17,73 +41,50 @@
 		   position: absolute;
 		   top: 0px;
 		   left: 0px"></canvas>
-    <div id="sqSpinner"><div></div></div>
 
+    <!--
+
+	 This invisible text-recognizer element should be created and
+    inserted dynamically by Caffeine, not expressed here. We use it to
+    capture recognized Apple QuickPath swiped-keyboard gestures and
+    Apple Scribble stylus handwriting, for redisplay in
+    Smalltalk-rendered UIs.
+
+         Whenever a Smalltalk-rendered text field gets Smalltalk
+    focus, Caffeine gives DOM focus to the recognizer element, and
+    positions it to match the dimensions of the field. Initially, the
+    element is intended for use with QuickPath, and is placed below
+    Caffeine's DOM canvas. After a two-finger tap, Caffeine raises the
+    element above the canvas, making it usable for Scribble. (A
+    two-finger drag is a separate gesture, and invokes a different
+    feature.) Scribble and QuickPath are usable simultaneously.
+
+         While using Scribble, stylus input originating inside the
+    field is displayed and used as ink, not pointer events. Some
+    familiar Scribble behavior that mixes pointing and scribbling is
+    therefore not available; we only have 'inputchanged' events from
+    the element. This means, however, that we can always use the
+    entire field for text entry. This is in contrast to the
+    unpredictable and destructive edits one gets by scribbling new
+    words over existing text in the Apple Notes app.
+
+         After a further one-finger tap, Caffeine lowers the element
+    offscreen, so that one may use the stylus for pointer events in
+    the field again.
+
+      -->
+
+    <input id="text-recognizer"
+	   style="position: fixed;
+		  top: -1000;
+		  opacity: 0;
+		  z-index: -10"
+	   autocomplete="off"
+	   autocorrect="off"
+	   autocapitalize="off"
+	   spellcheck="off"></input>
+    
+    <div id="progress-spinner"><div></div></div>
     <script src="js/squeakjs/squeak.js"></script>
-    <script src="js/html/utilities.js"></script>
-    <script>
-        // We shouldn't be using setTimeout() anywhere...
-        setTimeout(
-          function () {
-            // Attempt to keep this page embeddable in external non-secure origins.
-            var magicWindow
-            try {magicWindow = window.top.magicWindow}
-            catch (exception) {magicWindow = null}
+    <script src="js/startup.js"></script></body></html>
 
-	    window.top.document.ontouchend = (event) => {
-	      if (!window.top.muteButtonOverridden) {
-		// Unlock HTML5 Audio - load a data url of short silence and play it
-		// This will allow us to play web audio when the Apple iPhone/iPad hardware
-		// mute toggle is on.
-	      
-		var silenceDataURL = "data:audio/mp3;base64,//MkxAAHiAICWABElBeKPL/RANb2w+yiT1g/gTok//lP/W/l3h8QO/OCdCqCW2Cw//MkxAQHkAIWUAhEmAQXWUOFW2dxPu//9mr60ElY5sseQ+xxesmHKtZr7bsqqX2L//MkxAgFwAYiQAhEAC2hq22d3///9FTV6tA36JdgBJoOGgc+7qvqej5Zu7/7uI9l//MkxBQHAAYi8AhEAO193vt9KGOq+6qcT7hhfN5FTInmwk8RkqKImTM55pRQHQSq//MkxBsGkgoIAABHhTACIJLf99nVI///yuW1uBqWfEu7CgNPWGpUadBmZ////4sL//MkxCMHMAH9iABEmAsKioqKigsLCwtVTEFNRTMuOTkuNVVVVVVVVVVVVVVVVVVV//MkxCkECAUYCAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV",
-		    tag = document.createElement("audio")
-		
-		tag.controls = false
-		tag.preload = "auto"
-		tag.loop = false
-		tag.src = silenceDataURL
-
-		tag.onended = () => {
-		  window.top.muteButtonOverridden = true
-		  console.log("iOS hardware mute switch overridden")}
-
-		var p = tag.play()
-
-		if (p) p.then(
-		  () => {},
-		  (reason) => {console.log("iOS hardware mute switch not overridden, HTML5 audio play failed", reason)})}
-
-	      var caffeineElement = window.top.document.getElementById("Caffeine"),
-                  embeddedSqueakElement = window.top.document.getElementById("embeddedSqueak")
-
-              if (caffeineElement) {
-                caffeineElement.contentWindow.focus()
-                caffeineElement.ontouchend = window.top.document.ontouchend}
-
-              embeddedSqueakElement.ontouchend = window.top.document.ontouchend
-              embeddedSqueakElement.style.zIndex = 1000}
-
-
-            if (magicWindow) {
-              magicWindow.squeakDisplay = window.startCaffeine(
-                squeak,
-                "caffeine",
-                "SqueakV46",
-                {
-                  appID: "4599d316-a13e-46ef-92be-c7337899038c",
-                  appName: "Caffeine",
-                  appServer: "demo.blackpagedigital.com:8091"})}
-            else {
-              window.startCaffeine(
-                squeak,
-                "caffeine",
-                "SqueakV46",
-                {
-                  appID: "4599d316-a13e-46ef-92be-c7337899038c",
-                  appName: "Caffeine",
-                  appServer: "demo.blackpagedigital.com:8091"})}},
-          2000)
-    </script>
-  </body>
-</html>

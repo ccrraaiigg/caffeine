@@ -19,7 +19,7 @@ h1 {
     box-shadow: 0 0 5px 5px #F90;
     margin: 0 20px 0 5px;
 }
-div#sqSpinner {
+div#progress-spinner {
     position: absolute;
     margin: auto; top: 0; left: 0; bottom: 0; right: 0;
     width: 100px;
@@ -30,7 +30,7 @@ div#sqSpinner {
     display: none;
     transform: rotate(30deg);
 }
-div#sqSpinner > div {
+div#progress-spinner > div {
     position: absolute;
     top: 45px;
     left: 5px;

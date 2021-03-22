@@ -551,17 +551,20 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
       }
     };
     canvas.onmousedown = function(evt) {
+      if (!document.body.style.softwareCursor) document.body.style.cursor = '';
       checkFullscreen();
       recordMouseEvent('mousedown', evt, canvas, display, eventQueue, options);
       evt.preventDefault();
       return false;
     };
     canvas.onmouseup = function(evt) {
+      if (!document.body.style.softwareCursor) document.body.style.cursor = '';
       recordMouseEvent('mouseup', evt, canvas, display, eventQueue, options);
       checkFullscreen();
       evt.preventDefault();
     };
     canvas.onmousemove = function(evt) {
+      if (!document.body.style.softwareCursor) document.body.style.cursor = '';
       recordMouseEvent('mousemove', evt, canvas, display, eventQueue, options);
       evt.preventDefault();
     };
@@ -578,9 +581,24 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
       down: {},
     };
     window.top.touch = touch;
+
+    var recognizer = document.getElementById('text-recognizer');
+    recognizer.setAttribute('autocomplete', 'on');
+    recognizer.setAttribute('autocorrect', 'on');
+    recognizer.setAttribute('autocapitalize', 'on');
+    recognizer.setAttribute('spellcheck', 'on');
+
+    document.ontouchstart = (event) => {
+      if (event.touches[0].touchType != 'stylus') {
+	recognizer.style.zIndex = -10;
+	canvas.contentEditable = false;}}
+      
     function touchToMouse(evt) {
+      var type = null;
+      
       if (evt.touches.length) {
         // average all touch positions
+	type = evt.touches[0].touchType;
         touch.x = touch.y = 0;
         for (var i = 0; i < evt.touches.length; i++) {
           touch.x += evt.touches[i].pageX / evt.touches.length;
@@ -592,6 +610,7 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
         button: touch.button,
         offsetX: touch.x - canvas.offsetLeft,
         offsetY: touch.y - canvas.offsetTop,
+	type: type,
       };
     }
     function dd(ax, ay, bx, by) {var x = ax - bx, y = ay - by; return Math.sqrt(x*x + y*y);}
@@ -676,10 +695,11 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
     // State machine to distinguish between 1st/2nd mouse button and zoom/pan:
     // * if moved, or no 2nd finger within 100ms of 1st down, start mousing
     // * if fingers moved significantly within 200ms of 2nd down, start zooming
-    // * if touch ended within this time, generate click (down+up)
-    // * otherwise, start mousing with 2nd button
+    // * if touch ended within this time, generate click (down+up) from one finger,
+    //   enter recognizer mode from two fingers.
+    // * otherwise, start mousing with button 2.
     // When mousing, always generate a move event before down event so that
-    // mouseover eventhandlers in image work better
+    // mouseover eventhandlers in image work better.
     canvas.ontouchstart = function(evt) {
       evt.preventDefault();
       var e = touchToMouse(evt);
@@ -688,6 +708,7 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
         case 'idle':
           touch.state = 'got1stFinger';
           touch.first = e;
+	  
           setTimeout(function(){
             if (touch.state !== 'got1stFinger') return;
             touch.state = 'mousing';
@@ -706,10 +727,10 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
             if (didMove) {
               touch.state = 'zooming';
             } else {
-              touch.state = 'mousing';
-              touch.button = e.button = 2;
-              recordMouseEvent('mousemove', e, canvas, display, eventQueue, options);
-              recordMouseEvent('mousedown', e, canvas, display, eventQueue, options);
+	      touch.state = 'mousing';
+	      touch.button = e.button = 2;
+	      recordMouseEvent('mousemove', e, canvas, display, eventQueue, options);
+	      recordMouseEvent('mousedown', e, canvas, display, eventQueue, options);
             }
           }, 200);
           break;
@@ -744,6 +765,9 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
       var e = touchToMouse(evt);
       for (var i = 0; i < evt.changedTouches.length; i++) {
         switch (touch.state) {
+	case 'scribbling':
+	  touch.state = 'idle';
+	  return;
         case 'mousing':
           if (evt.touches.length > 0) break;
           touch.state = 'idle';
@@ -757,10 +781,24 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
           recordMouseEvent('mouseup', e, canvas, display, eventQueue, options);
           return;
         case 'got2ndFinger':
-          touch.state = 'mousing';
-          touch.button = e.button = 2;
-          recordMouseEvent('mousemove', e, canvas, display, eventQueue, options);
-          recordMouseEvent('mousedown', e, canvas, display, eventQueue, options);
+  	  // Enable scribbling, by raising the recognizer input
+  	  // element above the Caffeine canvas. Caffeine has already
+  	  // set the dimensions of the element to match the active
+  	  // Smalltalk-rendered text field.
+	  touch.state = 'scribbling';
+	  recognizer.style.zIndex = 10;
+
+	  // This invokes the onscreen stylus controls?
+	  canvas.contentEditable = true;
+
+	  // Do this from Caffeine when activating the field... and is
+	  // it all still necessary?
+	  canvas.setAttribute('autocomplete', 'on');
+          canvas.setAttribute('autocorrect', 'on');
+          canvas.setAttribute('autocapitalize', 'on');
+          canvas.setAttribute('spellcheck', 'on');
+
+	  recognizer.focus();
           break;
         case 'zooming':
           if (evt.touches.length > 0) break;
@@ -820,6 +858,7 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
 */
     };
     document.onkeydown = function(evt) {
+      document.body.style.cursor = 'none';
       checkFullscreen();
       if (canvas.otherCanvasActive) {
 	evt.preventDefault();
@@ -900,24 +939,7 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
       display.executeClipboardPaste(text, evt.timeStamp);
       evt.preventDefault();
     };
-    // touch keyboard button
-    if ('ontouchstart' in document) {
-      var keyboardButton = document.createElement('div');
-keyboardButton.id = 'keyboardButton';
-keyboardButton.innerHTML = '<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg width="50px" height="50px" viewBox="0 0 150 150" version="1.1" xmlns="http://www.w3.org/2000/svg"><g id="Page-1" stroke="none" fill="#000000"><rect x="33" y="105" width="10" height="10" rx="1"></rect><rect x="26" y="60" width="10" height="10" rx="1"></rect><rect x="41" y="60" width="10" height="10" rx="1"></rect><rect x="56" y="60" width="10" height="10" rx="1"></rect><rect x="71" y="60" width="10" height="10" rx="1"></rect><rect x="86" y="60" width="10" height="10" rx="1"></rect><rect x="101" y="60" width="10" height="10" rx="1"></rect><rect x="116" y="60" width="10" height="10" rx="1"></rect><rect x="108" y="105" width="10" height="10" rx="1"></rect><rect x="33" y="75" width="10" height="10" rx="1"></rect><rect x="48" y="75" width="10" height="10" rx="1"></rect><rect x="63" y="75" width="10" height="10" rx="1"></rect><rect x="78" y="75" width="10" height="10" rx="1"></rect><rect x="93" y="75" width="10" height="10" rx="1"></rect><rect x="108" y="75" width="10" height="10" rx="1"></rect><rect x="41" y="90" width="10" height="10" rx="1"></rect><rect x="26" y="90" width="10" height="10" rx="1"></rect><rect x="56" y="90" width="10" height="10" rx="1"></rect><rect x="71" y="90" width="10" height="10" rx="1"></rect><rect x="86" y="90" width="10" height="10" rx="1"></rect><rect x="101" y="90" width="10" height="10" rx="1"></rect><rect x="116" y="90" width="10" height="10" rx="1"></rect><rect x="48" y="105" width="55" height="10" rx="1"></rect><path d="M20.0056004,51 C18.3456532,51 17.0000001,52.3496496 17.0000001,54.0038284 L17.0000001,85.6824519 L17,120.003453 C17.0000001,121.6584 18.3455253,123 20.0056004,123 L131.9944,123 C133.654347,123 135,121.657592 135,119.997916 L135,54.0020839 C135,52.3440787 133.654475,51 131.9944,51 L20.0056004,51 Z" fill="none" stroke="#000000" stroke-width="2"></path><path d="M52.0410156,36.6054687 L75.5449219,21.6503905 L102.666016,36.6054687" id="Line" stroke="#000000" stroke-width="3" stroke-linecap="round" fill="none"></path></g></svg>';
-      keyboardButton.setAttribute('style', 'position:fixed;left:0;bottom:0;background-color:rgba(128,128,128,0.5);border-radius:5px');
-      canvas.parentElement.appendChild(keyboardButton);
-      keyboardButton.onmousedown = function(evt) {
-        canvas.contentEditable = true;
-        canvas.setAttribute('autocomplete', 'off');
-        canvas.setAttribute('autocorrect', 'off');
-        canvas.setAttribute('autocapitalize', 'off');
-        canvas.setAttribute('spellcheck', 'off');
-        canvas.focus();
-        evt.preventDefault();
-      }
-      keyboardButton.ontouchstart = keyboardButton.onmousedown
-    }
+
     // do not use addEventListener, we want to replace any previous drop handler
     function dragEventHasFiles(evt) {
       for (var i = 0; i < evt.dataTransfer.types.length; i++)
