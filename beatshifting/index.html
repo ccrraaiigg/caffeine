@@ -46,52 +46,13 @@
     <script type="text/javascript" src="/js/importDraggable.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/webmidi"></script>
     <script type="text/javascript" src="https://unpkg.com/@croquet/croquet"></script>
-    <script type="text/javascript" src="/js/tonejs/Tone.js"></script>
-    <script type="text/javascript" src="/js/tonejs/tonejs-instruments/Tonejs-Instruments.js"></script>
-
-    <script>
-      // load samples //
-
-      top.samples = (
-	SampleLibrary.load({
-          instruments: [
-	    'piano',
-	    'bass-electric',
-	    'bassoon',
-	    'cello',
-	    'clarinet',
-	    'contrabass',
-	    'flute',
-	    'french-horn',
-	    'guitar-acoustic',
-	    'guitar-electric',
-	    'guitar-nylon',
-	    'harmonium',
-	    'harp',
-	    'organ',
-	    'saxophone',
-	    'trombone',
-	    'trumpet',
-	    'tuba',
-	    'violin',
-	    'xylophone'],
-          baseUrl: "js/tonejs/tonejs-instruments/samples/"}))
-
-      Tone.ToneAudioBuffer.loaded().then(
-	() => {
-	  // loop through instruments, set the release times and destinations
-          for (var property in samples) {
-            if (samples.hasOwnProperty(property)) {
-              console.log(samples[property])
-              samples[property].release = .5
-	      samples[property].toDestination()}}})
-    </script>
+    <script type="text/javascript" src="https://unpkg.com/tone@latest/build/Tone.js"></script>
 
     <br>
 
     <div id="banner"
 	 style="position: absolute;
-		left: 30%;
+		left: 25%;
 		margin: 0 auto;
 		transition: opacity 500ms;
 		opacity: 0;">
@@ -102,7 +63,7 @@
 	   style="border-radius: 10px;
 		  opacity: 0.7;">
 
-      <h1 style="width: 350px;
+      <h1 style="width: 450px;
 		 background-color: rgba(255, 255, 255, 0.6);
 		 color: black;
 		 border-radius: 10px;">

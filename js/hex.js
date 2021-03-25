@@ -107,12 +107,6 @@ window.onload = function () {
   
   window.setTimeout(
     function () {
-      if (window.document.getElementById('banner')) {
-	window.document.getElementById('banner').style.opacity = 1}},
-    1000)
-  
-  window.setTimeout(
-    function () {
       var dashboard = window.document.getElementById('dashboard'),
 	  settingsButton = window.document.getElementById('settings.button'),
 	  spinner = window.document.getElementById('progress-spinner')
@@ -164,7 +158,7 @@ if ('serviceWorker' in navigator) {
 	      return caches.delete(key)}))})})
       
       window.onbeforeunload = (function () {
-	reg.emitEvent('push')})})
+	reg.dispatchEvent(new Event('push'))})})
     .catch(function(error) {
       // registration failed
       console.log('Registration failed with ' + error)})}
