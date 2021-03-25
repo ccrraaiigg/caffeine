@@ -1,7 +1,7 @@
-<!-- Caffeine in a "single-page application" context, version 4 -->
+<!-- The Beatshifting single-page web app, powered by Caffeine version 4 -->
 <html charset="utf-8">
   <head id="magic">
-    <title>Caffeine :: livecode the web</title>
+    <title>Beatshifting</title>
 
     <link rel="manifest"
 	  href="/manifest.webmanifest">
@@ -22,7 +22,7 @@
 	  content="black-translucent">
 
     <meta name="apple-mobile-web-app-title"
-	  content="Caffeine" />
+	  content="Beatshfting" />
 
     <meta name="viewport"
 	  content="width=1200, user-scalable=0"/></head>
@@ -32,9 +32,7 @@
 	       min-width: 100%;
 	       font-size: 16px;">
 
-
     <script type="text/javascript" src="/js/hex.js"></script>
-    <script type="text/javascript" src="https://player.vimeo.com/api/player.js"></script>
     <script type="text/javascript" src="https://unpkg.com/vue"></script>
     <script type="text/javascript" src="https://unpkg.com/http-vue-loader"></script>
     
@@ -81,7 +79,7 @@
 
       Tone.ToneAudioBuffer.loaded().then(
 	() => {
-	  // loop through instruments and set the release times
+	  // loop through instruments, set the release times and destinations
           for (var property in samples) {
             if (samples.hasOwnProperty(property)) {
               console.log(samples[property])
@@ -109,29 +107,11 @@
 		 color: black;
 		 border-radius: 10px;">
 
-	caffeine.js.org :: <i>Livecode the Web</i></h1>
+	Beatshifting :: <i>Play in Sync and Out of Phase</i></h1>
 
       <img src="/pictures/icons/browser/qr.png"
 	   width="65"
 	   style="border-radius: 6px; opacity: 0.7;"></div>
-
-    <div id="movie"
-	 style="opacity: 0;
-		border: 2px inset gray;
-		position: absolute;
-		top: 200;
-		left: 150;
-		transition: opacity 500ms, box-shadow 300ms;">
-
-      <iframe
-	src="https://player.vimeo.com/video/286872152?api=1"
-	width="640"
-	height="400"
-	frameborder="0"
-	allow="fullscreen"
-	webkitallowfullscreen
-	mozallowfullscreen
-	allowfullscreen></iframe></div>
 
     <div id="caffeine-div"
 	 style="pointer-events: none;
