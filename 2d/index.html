@@ -37,55 +37,11 @@
     <script type="text/javascript" src="https://player.vimeo.com/api/player.js"></script>
     <script type="text/javascript" src="https://unpkg.com/vue"></script>
     <script type="text/javascript" src="https://unpkg.com/http-vue-loader"></script>
-    
-    <script type="module">
-      import * as VueMenu from '/vue/vue-menu-standalone.js'
-
-      Vue.use(VueMenu)
-    </script>
-
     <script type="text/javascript" src="/js/hydra.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/webmidi"></script>
     <script type="text/javascript" src="https://unpkg.com/@croquet/croquet"></script>
-    <script type="text/javascript" src="/js/tonejs/tonejs-instruments/Tonejs-Instruments.js"></script>
-
-    <script>
-      // load samples //
-
-      top.samples = (
-	SampleLibrary.load({
-          instruments: [
-	    'piano',
-	    'bass-electric',
-	    'bassoon',
-	    'cello',
-	    'clarinet',
-	    'contrabass',
-	    'flute',
-	    'french-horn',
-	    'guitar-acoustic',
-	    'guitar-electric',
-	    'guitar-nylon',
-	    'harmonium',
-	    'harp',
-	    'organ',
-	    'saxophone',
-	    'trombone',
-	    'trumpet',
-	    'tuba',
-	    'violin',
-	    'xylophone'],
-          baseUrl: "js/tonejs/tonejs-instruments/samples/"}))
-
-      Tone.ToneAudioBuffer.loaded().then(
-	() => {
-	  // loop through instruments and set the release times
-          for (var property in samples) {
-            if (samples.hasOwnProperty(property)) {
-              console.log(samples[property])
-              samples[property].release = .5
-	      samples[property].toDestination()}}})
-    </script>
+    <script type="text/javascript" src="https://unpkg.com/tone@latest/build/Tone.js"></script>
+    <script type="text/javascript" src="/js/tonejs-instruments/Tonejs-Instruments.js"></script>
 
     <br>
 
