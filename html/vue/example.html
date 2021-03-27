@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>VueMenu standalone</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.2/dist/vue.js"></script>
+    <script src="./vue-window-standalone.js"></script>
+    <script>
+        window.addEventListener('load', e => {
+            var vm = new Vue({
+                el: document.getElementById('root'),
+                data: {
+                    title: null,
+                }
+            })
+            var refreshTitle = function () {
+                vm.$data.title = String(new Date())
+            }
+            setInterval(refreshTitle, 1000)
+        })
+    </script>
+    <style>
+        body {
+            margin: 0;
+            background-color: #777;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root">
+        <hsc-window-style-metal>
+            <hsc-window :title="title">
+                Parameters:
+                <fieldset>
+                    <legend>&gamma;</legend>
+                    <input type="range" />
+                </fieldset>
+                <fieldset>
+                    <legend>&delta;</legend>
+                    <input type="range" />
+                </fieldset>
+            </hsc-window>
+        </hsc-window-style-metal>
+    </div>
+</body>
+
+</html>
