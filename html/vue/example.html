@@ -28,21 +28,44 @@
 </head>
 
 <body>
-    <div id="root">
-        <hsc-window-style-metal>
-            <hsc-window :title="title">
-                Parameters:
-                <fieldset>
-                    <legend>&gamma;</legend>
-                    <input type="range" />
-                </fieldset>
-                <fieldset>
-                    <legend>&delta;</legend>
-                    <input type="range" />
-                </fieldset>
-            </hsc-window>
-        </hsc-window-style-metal>
-    </div>
-</body>
+  <div id="root">
+    <hsc-window-style-metal>
+      <hsc-window :title="title"
+		  style="display: flex;
+			 flex-direction: column;
+			 flex: 1;
+			 opacity: 0.9;">
 
-</html>
+	<div id="titlebar"
+	     style="flex: 0 0 25px;
+		    background: #CCCCCC;">
+
+	  <div style="text-align: left;
+		      margin-top: 3px;">&nbsp;&nbsp;<i>a workspace</i></div></div>
+    
+	<hsc-menu-style-white>
+	  <hsc-menu-context-menu>
+	    <textarea id="smalltalk-workspace-text"
+		      class="textarea"
+		      style="flex: 1;
+			     font-size: 16;">3 + 4</textarea>
+
+	    <template slot="contextmenu">
+
+              <hsc-menu-item
+		id="do it"
+		label="do it"></hsc-menu-item>
+
+              <hsc-menu-item
+		id="print it"
+		label="print it"></hsc-menu-item>
+	    </template>
+	  </hsc-menu-context-menu>
+	</hsc-menu-style-white>
+      </hsc-window>
+    </hsc-window-style-metal>
+  </div>
+
+  <style src="/css/devtools.css"></style>
+
+</div></body></html>

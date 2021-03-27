@@ -151,7 +151,6 @@ if ('serviceWorker' in navigator) {
       reg.addEventListener(
 	'push',
 	function(event) {
-	  debugger
 	  console.log('Received a push message', event)
           caches.keys().then(function(keyList) {
 	    return Promise.all(keyList.map(function(key) {

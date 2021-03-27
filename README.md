@@ -17,14 +17,14 @@ You can read more about the design of Caffeine, and new features, at my blog, [h
 
 | ------------------------------------------------- | ---------------------------- |
 | [/](https://caffeine.js.org/)                     | this page  |
-<!-- | [/talk](https://caffeine.js.org/talk)             | an [impress](https://impress.js.org)-powered presentation about Caffeine and livecoding |
+| [/talk](https://caffeine.js.org/talk)             | an [impress](https://impress.js.org)-powered presentation about Caffeine and livecoding |
 | [/developer](https://caffeine.js.org/developer)   | a developer-oriented overview of Caffeine, with a tutorial for developing with it |
 | [/2d](https://caffeine.js.org/2d)                 | Caffeine on a single-page-application site |
-| [/3d](https://caffeine.js.org/3d)                 | an [A-Frame](https://aframe.io)-powered in-world virtual reality livecoding space | -->
+| [/3d](https://caffeine.js.org/3d)                 | an [A-Frame](https://aframe.io)-powered in-world virtual reality livecoding space |
 | [/beatshifting](https://caffeine.js.org/beatshifting) | Beatshifting :: Play in Sync and Out of Phase |
-<!-- | [/pharo](https://caffeine.js.org/pharo)           | a demo of [Pharo](https://pharo.org) 7 |
+| [/pharo](https://caffeine.js.org/pharo)           | a demo of [Pharo](https://pharo.org) 7 |
 | [/cuis](https://caffeine.js.org/cuis)             | a demo of [Cuis](http://cuis-smalltalk.org) |
-| [/tabulator](https://caffeine.js.org/tabulator)   | a tabs-management app, with a [VueJS](https://vuejs.org) user interface | -->
+| [/tabulator](https://caffeine.js.org/tabulator)   | a tabs-management app, with a [VueJS](https://vuejs.org) user interface |
 | [/files](https://caffeine.js.org/files)           | a listing of the files Caffeine has stored in your web browser's cache. You can download files from it, and drop new files into it. |
 
 There are [issues](https://github.com/ccrraaiigg/caffeine/issues) and [projects](https://github.com/ccrraaiigg/caffeine/projects) to follow; please do! Current activity is focused on [making Caffeine a productive in-world VR livecoding environment](https://github.com/ccrraaiigg/caffeine/projects/1), and deploying livecoded [VueJS](https://vuejs.org) web apps.

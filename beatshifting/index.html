@@ -39,6 +39,8 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/webmidi"></script>
     <script type="text/javascript" src="https://unpkg.com/@croquet/croquet"></script>
     <script type="text/javascript" src="https://unpkg.com/tone@latest/build/Tone.js"></script>
+    <script type="text/javascript" src="/html/vue/vue-window-standalone.js"></script>
+    <script type="text/javascript" src="/html/vue/vue-menu-standalone.js"></script>
 
     <br>
 
@@ -68,9 +70,11 @@
 
     <div id="caffeine-div"
 	 style="pointer-events: none;
-		border: 1px solid black;
+		border: 2px solid black;
 		position: absolute;
-		background-color: black;
+		border-radius: 5px;
+		box-shadow: 0px 4pt 8pt rgba(0, 0, 0, 0.5);
+		background-color: rgba(255, 255, 255, 0.6);
 		top: 280;
 		left: 120;
 		z-index: 1;
@@ -80,7 +84,8 @@
       <center>
 
 	<iframe id="caffeine-frame"
-		style="overflow: hidden; display: block;"
+		style="overflow: hidden;
+		       display: block;"
 		src="/squeak.html"
 		marginheight="0"
 		marginwidth="0"

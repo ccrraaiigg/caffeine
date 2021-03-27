@@ -8,6 +8,12 @@
   box-sizing: border-box;
 }
 
+textarea {
+    background-color: green;}
+
+select option:checked {
+    background-color: green!important;}
+
 html {
     text-align: center;
     background: url(../pictures/backgrounds/scenes/8.jpg) no-repeat center center fixed; 
