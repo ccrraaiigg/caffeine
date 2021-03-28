@@ -53,26 +53,6 @@ window.onload = function () {
     div.ontouchend = window.top.document.ontouchend
     div.style.zIndex = 1000}
 
-  // This event handler should be inserted by Caffeine, not expressed
-  // here.
-
-  document.getElementById('text-recognizer').oninput = (event) => {
-    console.log(event.target.value)
-
-    // Transcribe each character of the recognized word to Caffeine as
-    // a keyboard event.
-
-    event.target.value.split('').forEach(key => {
-      iframe.contentWindow.document.onkeydown(
-	new KeyboardEvent(
-	  'keydown',
-	  {key: key}))})
-
-    // Clear the text-recognizer element.
-
-    event.target.select()
-    event.target.setRangeText('')}
-  
   squeakDisplay = (
     window.startCaffeine(
       (document.getElementById('caffeine-canvas')),
