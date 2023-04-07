@@ -1,0 +1,2 @@
+*.image filter=lfs diff=lfs merge=lfs -text
+*.changes filter=lfs diff=lfs merge=lfs -text
