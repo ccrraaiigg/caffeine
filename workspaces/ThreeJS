@@ -1,0 +1,19 @@
+ThreeJS initialize
+
+
+| geometry material cube |
+
+geometry := ThreeJS BoxGeometry newWithParameters: {1. 1. 1}.
+material := ThreeJS MeshBasicMaterial newWithParameters: {{#color -> 16rFF00} asJSObject}.
+cube := ThreeJS Mesh newWithParameters: {geometry. material}.
+ThreeJS scene add: cube.
+ThreeJS camera position at: #z put: 5.
+
+[
+	[ThreeJS isRendering] whileTrue: [
+		cube rotation x: (cube rotation x + 0.1).
+		cube rotation y: (cube rotation y + 0.1)
+	]
+]
+	fork
+	

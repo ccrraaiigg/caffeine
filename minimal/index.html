@@ -1,0 +1,33 @@
+<html>
+  <head>
+    <script src="https://cdn.jsdelivr.net/gh/aframevr/aframe@b78a9f4552e01d2cd933f26b07a223c43007a97c/dist/aframe-master.min.js"></script>
+    <script src="js/aframe/components/snozzy.js"></script>
+  </head>
+  <body>
+    <a-scene id="scene"
+
+	     raycaster="showLine: false;
+			far: 100;
+			objects: .squeaky"
+
+	     line="color: orange;
+		   opacity: 0.5"
+
+	     cursor="rayOrigin: mouse"
+	     keyboard-shortcuts="enterVR: false">
+
+      <a-box id="squeak-frame-bottom"
+	     position="0 5.25 -7.9"
+	     width="15.4"
+	     height="0.25"
+	     depth="0.25"
+	     color="gray"
+	     snozzy></a-box>
+      
+      <a-entity id="cameraRig"
+		position="0 10 0"
+		rotation>
+
+	<a-entity id="camera"
+		  position="0 10 50"
+		  camera</a-entity></a-entity></a-scene></body></html>

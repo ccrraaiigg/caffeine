@@ -1,0 +1,175 @@
+<!-- slides for "WebAssembly as a Smalltalk compilation target (v1)", 2023-02-22 -->
+<html lang="en" data-darkreader-scheme="dark" data-darkreader-mode="dynamic">
+  <head profile="http://www.w3.org/2005/10/profile">
+
+    <link rel="icon" 
+	  type="image/png" 
+	  href="favicon.png">
+
+    <link rel="apple-touch-icon"
+	  href="/pictures/icons/caffeine/caffeineWebAppIcon.png">
+    
+    <link rel="apple-touch-startup-image"
+	  href="/pictures/backgrounds/bootscreen/bootscreen.png">
+    
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:regular,semibold,italic,italicsemibold|PT+Sans:400,700,400italic,700italic|PT+Serif:400,700,400italic,700italic"
+	  rel="stylesheet" />
+
+    <link href="/css/livecoding-talk.css"
+	  rel="stylesheet" />
+
+    <link href="/css/squeakjs.css"
+	  rel="stylesheet" />
+
+    <link rel="shortcut icon"
+	  href="/favicon.png" />
+
+    <meta name="apple-mobile-web-app-capable"
+	  content="yes" />
+
+    <meta name="apple-mobile-web-app-status-bar-style"
+	  content="black-translucent">
+
+    <meta name="apple-mobile-web-app-title"
+	  content="Caffeine" />
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+	  content="width=1024" />
+
+    <title>WebAssembly as a Smalltalk compilation target (v1)</title></head>
+
+  <body class="impress-not-supported"
+	style="background-color: gray;">
+
+    <div class="fallback-message">
+
+      <p>
+
+	Your browser <b>doesn't support the features required</b> by
+	impress.js; the presentation has been simplified.
+
+      </p>
+      <p>
+
+	For the best experience, please use the
+	latest <a href="https://google.com/chrome"><b>Chrome</b></a>,
+	<b>Safari</b>
+	or <a href="https://mozilla.org/en-US/firefox/new"><b>Firefox</b></a>
+	browser.
+
+      </p></div>
+
+    <div id="impress">
+
+      <div class="step skip"
+	   data-x="12000"
+	   data-y="9500"
+	   data-z="-10000"
+	   data-scale="40"
+	   style="position: absolute;
+		  left: 0px;
+		  top: 0px;
+		  width: 1300px;
+		  pointer-events: none;">
+
+	<img src="/pictures/backgrounds/bootscreen/bootscreen.png"
+             style="z-index: -1;
+		    width: 100%;
+		    opacity: 0.15" /></div>
+
+      <div id="title"
+	   class="step"
+	   data-x="5000"
+	   data-y="1000"
+	   data-scale="20"
+	   style="width: 1000px;">
+
+	<span class="try">
+
+	  <i>WebAssembly</i> as a <br> Smalltalk compilation target
+
+      </span></div>
+
+      <div id="work-in-progress"
+	   class="step"
+	   data-x="30000"
+	   data-y="10000"
+	   data-z="20000"
+	   data-rotate-z="20"
+	   data-scale="10">
+
+        <p contentEditable=true>
+
+	 Both this work and this talk are young works in
+	 progress... Please follow my blog at thiscontext.com.
+
+	</p></div>
+
+      <div id="roadmap"
+	   class="step"
+	   data-x="35000"
+	   data-y="15000"
+	   data-z="25000"
+	   data-rotate-x="20"
+	   data-rotate-z="40"
+	   data-scale="10">
+
+        <p contentEditable=true>
+
+	  <i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;roadmap</i>...<br><br>-
+	  "hello WASM"<br>- minimal virtual machine plugin<br> -
+	  BitBLT virtual machine plugin<br>- stack interpreter running
+	  '3 + 4'<br>- stack interpreter running everything<br>- Cog
+	  running the Sista instruction set
+
+	</p><br></div>
+
+      <div id="Hello-WASM"
+	   class="step"
+	   data-x="40000"
+	   data-y="20000"
+	   data-z="35000"
+	   data-rotate-x="40"
+	   data-rotate-z="60"
+	   data-scale="10">
+
+        <p contentEditable=true>
+
+	  Hello WASM: reading and writing a WASM global from
+	  Smalltalk, JavaScript, and WASM
+
+	</p><br></div>
+
+      <div id="author"
+	   class="step"
+	   data-x="24000"
+	   data-y="18000"
+	   data-scale="20"
+	   style="width: 1000px;">
+
+	<span class="try">
+
+	  Craig Latta :: thiscontext.com
+
+       </span></div>
+       
+      <div id="overview"
+	   class="step"
+	   data-x="12000"
+	   data-y="9500"
+	   data-scale="27"
+	   style="position: absolute;
+		  left: 0px;
+		  top: 0px;
+		  width: 1400px;" /></div>
+
+    <script src="js/impress/impress.js"></script>
+    <script src="js/impress/lib/gc.js"></script>
+    <script src="js/impress/lib/util.js"></script>
+    <script src="js/impress/plugins/navigation.js"></script>
+    <script src="js/impress/plugins/skip.js"></script>
+    <script src="js/impress/plugins/touch.js"></script>
+    <script>impress().init()</script>
+    <script src="js/talk.js"></script></body></html>

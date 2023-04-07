@@ -1,0 +1,12 @@
+"NodeJSTunnelingClient
+	configureServerAt: 'wss://yourserver:8087'
+	withCredential: 'shared secret';
+	closeConfigurator"
+	
+ForwardingServerWebSocket newThrough: 'wss://yourserver:8087'
+
+"PeerToPeerWebSocket
+	toPort: 1337
+	atServerWithID: 0
+	throughURL: 'wss://yourserver:8087'"
+	

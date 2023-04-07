@@ -1,0 +1,5 @@
+(JS Function new: 'window.thingie = class CaffeineElementTwo extends HTMLElement {hello() {return ''goodbye!''}}') call
+Webpage current window customElements define: 'caffeine-element-two' with: JS thingie
+Webpage current createElement: 'caffeine-element'
+(JS document createElement: 'caffeine-element-two') counterpart
+JS top

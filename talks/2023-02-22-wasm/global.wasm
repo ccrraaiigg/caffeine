@@ -1,0 +1,20 @@
+;; A WASM-compatible Smalltalk class writes itself as a WASM module.
+(module $HelloWASM
+
+  ;; The instance variable defined by the Smalltalk class is imported
+  ;; by WASM.
+  (global $js.global (import "js" "global") (mut i32))
+
+  ;; Each Smalltalk instance method which uses that instance variable
+  ;; is exported by WASM.
+  (func $getGlobal (export "getGlobal") (result i32)
+    global.get $js.global
+  )
+
+  (func $incGlobal (export "incGlobal")
+    global.get $js.global
+    i32.const 1
+    i32.add
+    global.set $js.global
+  )
+)

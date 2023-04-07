@@ -1,0 +1,334 @@
+<!-- Caffeine as a "pod", a JavaScript WebWorker component -->
+<html>
+  <head>
+    <title>Caffeine :: livecode the web</title>
+
+    <link rel="stylesheet"
+	  href="/css/caffeine.css">
+
+    <link rel="apple-touch-icon"
+	  href = "/pictures/icons/caffeine/caffeineWebAppIcon192.png">
+    
+    <link rel="apple-touch-startup-image"
+	  href="/pictures/backgrounds/pods.jpg">
+    
+    <meta name="apple-mobile-web-app-capable"
+	  content="yes" />
+
+    <meta name="apple-mobile-web-app-status-bar-style"
+	  content="black-translucent">
+
+    <meta name="apple-mobile-web-app-title"
+	  content="Caffeine" />
+
+    <meta name="viewport"
+	  content="width=1200">
+
+    <body bgcolor="black"
+	  style="margin: 0px;
+		 min-width: 100%;
+		 transition: bgcolor 2s;">
+
+      <script src="/js/squeakjs/tether/tether.js"></script>
+      
+      <br>
+
+      <div id="banner"
+	   style="position: absolute;
+		  left: 30%;
+		  margin: 0 auto;
+		  transition: opacity 500ms;
+		  opacity: 0;">
+
+	<img src="/pictures/icons/caffeine/caffeineWebAppIcon192.png"
+	     width=65
+	     id="logo"
+	     style="border-radius: 10px;
+		    opacity: 0.7;">
+
+	<h1 style="width: 350px;
+		   background-color: rgba(255, 255, 255, 0.6);
+		   border-radius: 10px;">
+
+	  caffeine.js.org :: <i>Livecode the Web</i>
+
+	</h1>
+
+	<img src="/pictures/icons/browser/qr.png"
+	     width=65
+	     style="border-radius: 6px; opacity: 0.7;"></div>
+
+      <div id="summary"
+	   style="position: absolute;
+		  left: 40px;
+		  top: 130px;
+		  width: 700px;
+		  z-index: 2;
+		  opacity: 0;
+		  transition: opacity 500ms;">
+
+	<blockquote>
+
+	  &nbsp;&nbsp;&nbsp;&nbsp;
+
+	  Caffeine is a <b><i>livecoding</i></b> environment for
+	  the web. After adding it to a webpage, you can use it to
+	  make live persistent changes to that page and other
+	  pages running Caffeine, without reloading.
+
+	  <p>
+
+	    &nbsp;&nbsp;&nbsp;&nbsp;
+
+	    You can interact with Caffeine from JavaScript in
+	    several ways:
+
+	    <ol>
+	      <li> as a headless Web Worker, with which you post
+		and receive messages (you are responsible for all
+		DOM manipulation).
+	      <li> as an IDE in a headful IFrame, with Caffeine
+		able to manipulate the DOM directly.
+	      <li> on a headless Node server, with which you also
+		exchange messages (over a WebSocket).
+	      <li> through a headful DevTools panel IDE, using the
+		Chrome Debugging Protocol to manipulate every page
+		your browser is running.
+	    </ol>
+
+	  <p>
+
+	    &nbsp;&nbsp;&nbsp;&nbsp;
+
+	    Caffeine's underlying computation engine
+	    is <a href="https://github.com/bertfreudenberg/SqueakJS">SqueakJS</a>,
+	    an
+	    open-source <a href="https://en.wikipedia.org/wiki/Smalltalk">Smalltalk</a>. It
+	    features a bi-directional JavaScript bridge, enabling
+	    Smalltalk methods to send messages to JavaScript
+	    objects, and provide Smalltalk block closures as
+	    JavaScript promises or callback functions.
+
+	  <p>
+
+	    &nbsp;&nbsp;&nbsp;&nbsp;
+
+	    To get started, open your browser's DevTools on this
+	    page, and read the comment below this text.
+
+            <!--
+
+                Welcome! This tutorial will take you through running
+                Caffeine in each of the ways mentioned above. We'll
+                begin at the DevTools console.
+
+             1. To start Caffeine as a Web Worker, evaluate the
+                following at the console:
+
+              ---
+
+                fetch('https://caffeine.js.org/js/squeakjs/tether/handler.js')
+                  .then((handlerSourceResult) => {handlerSourceResult.text()
+                    .then((handlerSource) => {
+                      fetch('https://caffeine.js.org/developer/js/squeakjs/squeak-worker.js')
+                        .then((virtualMachineSourceResult) => {virtualMachineSourceResult.text()
+                          .then((virtualMachineSource) => {
+                            window.caffeineWorker = new Worker(URL.createObjectURL(new Blob([virtualMachineSource])))
+
+                            window.caffeineWorker.onmessage = (new Function(handlerSource))()
+                            window.caffeineWorker.postMessage('start')})})})})
+
+              ---
+
+                This creates a worker running the code for the
+                Caffeine virtual machine, establishes a handler for
+                messages from the worker, and posts a message to the
+                worker telling the virtual machine to start. When
+                Caffeine has started, you'll see a message on the
+                console about a completed "fsck" operation.
+
+                Caffeine speaks a remote messaging protocol called
+                "Tether". Each side speaking the protocol uses a
+                special "tether" object to coordinate
+                communication. The browser is the first side to speak,
+                by exposing its tether object to Caffeine. Caffeine
+                responds by exposing its local counterpart tether to
+                the browser. Expose your tether by evaluating:
+
+              ---
+
+                caffeine.tether.push(caffeine.tether)
+
+              ---
+
+	        You can send messages containing either simple JSON
+                objects specifying a method in the other side's tether
+                object to invoke, or containing a more complex format
+                which lets you send messages to any object on the
+                other side.
+
+                You can send messages Caffeine's tether object like so:
+
+              ---
+
+                caffeine.tether.sendMessage(
+                  {
+                    'selector': 'echo:',
+                    'arguments': [3]},
+                  (result) => {console.log(result)})
+
+              ---
+
+                Caffeine responds with messages sent via postMessage(). See
+                /js/squeakjs/tether/handler.js for the handler we use
+                for them.
+
+
+             2. To run Caffeine within the main browser thread, with
+                an IDE and the ability to manipulate the DOM directly,
+                evaluate:
+
+              ---
+
+                let div = document.createElement('div'),
+                    center = document.createElement('center')
+                    frame = document.createElement('iframe')
+
+                div.id = 'embeddedSqueak'
+                div.style.pointerEvents = 'all'
+                div.style.border = '2px inset gray'
+                div.style.position = 'absolute'
+                div.style.top = 280
+                div.style.left = 120
+                div.style.zIndex = 1
+
+                frame.style = 'overflow; hidden;'
+                frame.src = 'https://caffeine.js.org/squeak.html'
+                frame.id = 'Caffeine'
+                frame.marginheight = '0'
+                frame.marginwidth = '0'
+                frame.width = '1000'
+                frame.height = '400'
+                frame.frameborder = '0'
+                frame.scrolling = 'no'
+                frame.setAttribute('allowfullscreen', '')
+
+                center.appendChild(frame)
+                div.appendChild(center)
+                document.body.appendChild(div)
+
+              ---
+
+                This will open the Caffeine IDE in a window on this
+                page. This tutorial continues there, then returns here
+                for the next way of running Caffeine.
+
+
+             3. To run Caffeine as a Node instance, check out
+                https://npmjs.com/xxx
+
+             4. To run Caffeine in a Chrome DevTools panel, install
+                the Caffeine Chrome extension from the Chrome Web
+                store, at https://xxx
+
+              -->
+            
+	  <p>
+
+            &nbsp;&nbsp;&nbsp;&nbsp;
+
+            <a href="http://blackpagedigital.com"><b>Craig Latta</b></a>
+            
+            <br>
+
+            &nbsp;&nbsp;&nbsp;&nbsp;
+
+            version 2019.4
+
+            <br>
+
+            &nbsp;&nbsp;&nbsp;&nbsp;
+
+            22 December 2019
+
+            <br>
+
+            &nbsp;&nbsp;&nbsp;&nbsp;
+
+            <a href="https://twitter.com/ccrraaiigg"
+               class="twitter-follow-button"
+               data-show-count="false">
+
+              Follow @ccrraaiigg</a>
+
+            <script async src="//platform.twitter.com/widgets.js"
+                    charset="utf-8"></script></blockquote></div>
+
+      <div id="dashboard"
+	   style="position: fixed;
+                  right: 10px;
+                  bottom: 10px;
+                  z-index: 2000;
+                  opacity: 0;
+                  transition: opacity 2000ms;">
+
+	<div id="sqSpinner"
+             style="position: absolute;
+                    right: 0px;
+                    bottom: 0px;
+                    width: 50px;
+                    height: 50px;
+                    opacity: 0;
+                    transition: opacity 500ms;">
+
+	  <!-- no "spokes" div, so the spinner just glows -->
+
+	</div>
+	
+	<div id="settings"
+             style="position: absolute;
+                    right: 0px;
+                    bottom: 0px;">
+
+	  <input id="settings.button"
+                 type="image"
+                 src="/pictures/icons/browser/settings.png"
+                 tabindex="-1"
+                 width="50"
+                 height="50"
+                 style="user-select: none;
+                	outline: none;"
+                 </input>
+	</div>
+      </div>
+
+      <script>
+        window.setTimeout(
+          function () {
+            window.scrollTo(0, 0)
+            document.body.style.transition = 'all 1000ms'
+            document.body.bgColor = ''},
+          500)
+
+	window.setTimeout(
+          function () {
+            var banner = document.getElementById('banner')
+
+            banner.style.transition = 'opacity 1000ms'
+            banner.style.opacity = 1},
+          1500)
+
+	window.setTimeout(
+          function () {
+            var summary = document.getElementById('summary'),
+            dashboard= document.getElementById('dashboard')
+
+            summary.style.transition = 'opacity 1000ms'
+            summary.style.opacity = 1
+            dashboard.style.transition = 'opacity 1000ms'
+            dashboard.style.opacity = 0.7},
+          2500)
+      </script>
+      
+</body></html>
+

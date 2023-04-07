@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+
+  <head id = "magic">
+    <title>your tabs</title>
+    <meta charset = "UTF-8">
+
+    <link rel = "stylesheet"
+	  href = "/css/caffeine.css">
+
+    <script src = "https://unpkg.com/vue/dist/vue.js"></script>
+    <script src = "https://unpkg.com/http-vue-loader"></script>
+    <script src = "/tabulator/liquor-tree.js"></script>
+  </head>
+
+  <body bgcolor = "black"
+	style = "margin: 0px;
+		 min-width: 100%;">
+
+    <div id = "tabs"
+	 style = "border: 2px inset gray;
+		  position: absolute;
+		  top: 100px;
+		  left: 70px;
+		  z-index: 1;
+		  transition: opacity 500ms;
+		  background-color: lightGray;">
+
+      <div class = "navigation">
+
+	<div class = "navigation-filter">
+
+	  <input
+	    type = "text"
+	    v-model = "treeFilter"
+	    placeholder = "Type to filter..."
+	    style="display: block;"></div>
+
+	<div class = "navigation-tree">
+	  <tree
+	    ref = "tree"      
+	    :data = "treeData"
+	    :options = "treeOptions"
+	    :filter = "treeFilter"
+	    v-model = "selectedNode">
+
+	    <div
+	      class = "tree-scope"
+	      slot-scope = "{node}">
+
+	      <template v-if = "node.data.isRoot">
+		<!-- We could put an icon here. -->
+
+		<span
+		  @contextmenu="contextMenuHandler($event)"
+		  @dblclick="dblclickHandler($event)"
+		  class = "text">
+
+		  {{node.text}}
+
+		</span>
+
+		<span
+		  class = "release"
+		  v-if = "!node.hasChildren()">
+
+		  {{node.data.release}}
+
+	      </span></template>
+
+	      <template v-else>
+		<!-- We could put a vue-router here. -->
+
+		<span
+		  @contextmenu="contextMenuHandler($event)"
+		  @dblclick="dblclickHandler($event)"
+		  class = "text">
+
+		  {{node.text}}
+		  
+		</span>
+
+		<span class = "release">{{node.data.release}}</span></template></div></tree></div></div></div>
+
+    <br>
+
+    <div id = "embeddedSqueak"
+	 style = "pointer-events: all;
+		  border: 2px inset gray;
+		  position: absolute;
+		  top: 400px;
+		  left: 75px;
+		  z-index: 1;
+		  transition: opacity 500ms;">
+
+      <center>
+
+	<iframe style = "overflow: hidden;"
+		src = "/squeak.html"
+		id = "Caffeine"
+		marginheight = "0"
+		marginwidth = "0"
+		width = "1000"
+		height = "400"
+		frameborder = "0"
+		scrolling = "no"
+		allowfullscreen></iframe></center></div>
+
+    <div id = "dashboard"
+	 style = "position: fixed;
+		  right: 10px;
+		  bottom: 10px;
+		  z-index: 2000;
+		  opacity: 0;
+		  transition: opacity 2000ms;">
+
+      <!-- no "spokes" div, so the spinner just glows -->
+
+      <div id = "sqSpinner"
+	   style = "position: absolute;
+		    right: 0px;
+		    bottom: 4px;
+		    width: 50px;
+		    height: 50px;
+		    opacity: 0;
+		    transition: opacity 500ms;"></div>
+
+      <div id = "settings"
+	   style = "position: absolute;
+		    right: 0px;
+		    bottom: 0px;">
+
+	<input id = "settings.button"
+	       type = "image"
+	       src = "/pictures/icons/browser/settings.png"
+	       tabindex = "-1"
+	       width = "50"
+	       height = "50"
+	       style = "user-select: none;
+			outline: none;" /></div></div>
+
+    <script src = "app.js"></script>
+
+</body></html>

@@ -1,0 +1,38 @@
+"Go to the previous slide."
+ImpressSlide previous.
+
+"Create a new slide, and open an inspector on it, with further expressions to evaluate"
+
+| slide world |
+
+slide := (
+	(ImpressSlide newNamed: 'latest')
+		install;
+		yourself).
+		
+world := HTML5PasteUpMorph newWorld.
+
+Inspector
+	openOn: slide
+	withExpression: '
+		"Add an HTML element."
+		self appendChild: (
+			(Webpage current createParagraph)
+				at: #id put: ''paragraph'';
+				innerHTML: ''hello!'';
+				yourself).
+
+		"Make the element visible."
+		(self childWithID: ''paragraph'') beVisible.
+				
+		"Add window controls to the element."
+		(self childWithID: ''paragraph'') windowize.
+				
+		"Change the text of the element."
+		(self childWithID: ''paragraph'') text: ''<i>woof</i>'''
+	inWorld: world.
+
+slide
+	appendChild: world canvas canvas window;
+	go.
+

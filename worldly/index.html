@@ -1,0 +1,306 @@
+<html>
+  <head>
+    <script type="text/javascript"
+	    src="https://aframe.io/releases/1.4.1/aframe.min.js"></script>
+    
+    <script type="text/javascript"
+	    src="js/aframe/components/aframe-super-keyboard/aframe-super-keyboard.js"></script>
+
+    <script type="text/javascript"
+	    src="https://unpkg.com/aframe-environment-component@1.3.1/dist/aframe-environment-component.min.js"></script>
+
+    <script type="text/javascript"
+	    src="https://cdn.rawgit.com/donmccurdy/aframe-extras/v4.1.2/dist/aframe-extras.min.js"></script>
+    
+    <script type="text/javascript"
+	    src="https://unpkg.com/super-hands@^3.0.1/dist/super-hands.min.js"></script>
+    
+    <script type="text/javascript"
+	    src="js/aframe/components/canvas-updater.js"></script>
+    
+    <script type="text/javascript"
+	    src="js/aframe/components/grip-button-listener.js"></script>
+    
+    <script type="text/javascript"
+	    src="js/aframe/components/raycaster-listener.js"></script>
+    
+    <script type="text/javascript"
+	    src="js/aframe/components/reposition.js"></script>
+    
+    <script type="text/javascript"
+	    src="js/aframe/components/yrotate.js"></script>
+    
+    <link href="css/squeakjs.css"
+	  rel="stylesheet" />
+    
+    <link rel="manifest"
+	  href="manifest.json"></head>
+
+  <body draggable="false">
+
+    <script type="text/javascript"
+	    src="https://unpkg.com/aframe-teleport-controls/dist/aframe-teleport-controls.min.js"></script>
+
+    <script type="text/javascript"
+	    src="/js/hydra.js"></script>
+    
+    <script type="text/javascript"
+	    src="https://cdn.jsdelivr.net/npm/webmidi@next/dist/iife/webmidi.iife.js"></script>
+    
+    <script type="text/javascript"
+	    src="https://unpkg.com/@croquet/croquet@0.5"></script>
+    
+    <script type="text/javascript"
+	    src="https://unpkg.com/tone@latest/build/Tone.js"></script>
+    
+    <script type="text/javascript"
+	    src="/js/hex.js"></script>
+
+    <script>
+      document.oncontextmenu = (event) => {
+	event.stopPropagation()
+	event.preventDefault()
+
+	document.querySelectorAll('.contextmenulistener').forEach(
+	  (listener) => {
+	    if (listener.oncontextmenu && listener.mouseentered)
+	      listener.oncontextmenu(event)})}
+
+      document.addEventListener(
+	'keydown',
+	(event) => {
+	  document.querySelectorAll('.keydownlistener').forEach(
+	    (listener) => {
+	      if (listener.onkeydown && listener.mouseentered)
+		listener.onkeydown(event)})})
+
+      document.addEventListener(
+	'keyup',
+	(event) => {
+	  document.querySelectorAll('.keydownlistener').forEach(
+	    (listener) => {
+	      if (listener.onkeyup && listener.mouseentered)
+		listener.onkeyup(event)})})
+
+      document.addEventListener(
+	'mouseleave',
+	(event) => {
+	  document.querySelectorAll('.mouseleavelistener').forEach(
+	    (listener) => {
+	      if (listener.onmouseleave && listener.mouseentered) {
+		listener.mouseentered = false
+		listener.onmouseleave(event)}})})
+    </script>
+    
+    <a-scene id="scene"
+
+	     raycaster="showLine: false;
+			far: 100;
+			objects: .squeaky"
+
+	     line="color: orange;
+		   opacity: 0.5"
+
+	     cursor="rayOrigin: mouse"
+	     keyboard-shortcuts="enterVR: false">
+
+      <a-assets id="assets">
+
+	<canvas id="caffeine-canvas"
+		width="1440"
+		height="900"
+		tabindex="1"
+		crossorigin="anonymous"
+		appID="d93ea2a2-bf59-4f59-bb21-c36c596c4488"
+
+		style="cursor: default;
+		       opacity: 1;
+		       transition: opacity 500ms"></canvas>
+
+	<img id="logo"
+	     src="pictures/backgrounds/bootscreen/bootscreen1024x512.jpeg">
+
+      </a-assets>
+
+      <a-entity class="squeaky mouseleavelistener"
+		id="squeak-plane"
+
+		material="shader: flat;
+			  transparent: true;
+			  opacity: 0.8;
+			  src: #caffeine-canvas"
+
+                geometry="primitive: plane;
+			  width: 14.4;
+			  height: 9"
+
+                position="0 10 -8"
+		canvas-updater
+      		raycaster-listener>
+
+      </a-entity>
+
+      <a-box id="squeak-frame-top"
+	     position="0 14.75 -7.9"
+	     width="15.4"
+	     height="0.25"
+	     depth="0.25"
+	     color="gray"></a-box>
+
+      <a-box id="squeak-frame-bottom"
+	     position="0 5.25 -7.9"
+	     width="15.4"
+	     height="0.25"
+	     depth="0.25"
+	     color="gray"></a-box>
+
+      <a-box id="squeak-frame-left"
+	     position="-7.45 10 -7.9"
+	     width="0.25"
+	     height="10"
+	     depth="0.25"
+	     color="gray"></a-box>
+
+      <a-box id="squeak-frame-right"
+	     position="7.45 10 -7.9"
+	     width="0.25"
+	     height="10"
+	     depth="0.25"
+	     color="gray"></a-box>
+
+      <div id="progress-spinner"
+	   style="opacity: 0.8;
+		  z-index: 10;
+		  margin: inherit;
+		  top: 9;
+		  left: inherit;
+		  right: 10;
+		  bottom: inherit;
+		  width: 52px;
+		  height: 52px;">
+
+	<!-- no "spokes" div, so the spinner just glows -->
+	
+	<div id="sqSpinnerSpokes"
+
+	     style="top: 21px;
+                    width: 42px;"></div></div>
+
+      <a-entity environment="preset: forest"></a-entity>
+
+      <a-plane id="logo"
+	       src="#logo"
+	       width="14"
+	       height="8.7"
+	       position="0 10 -8.1"
+	       rotation="0 180 0"></a-plane>
+
+      <a-entity id="wind"
+		position="0 10 -8"
+
+		sound="src: #wind-sound;
+		       loop: true"></a-entity>
+      
+      <a-entity id="cameraRig"
+		rotation>
+
+	<a-entity id="left-hand"
+<!--		  laser-controls="hand: left;"
+
+		  raycaster="objects: .none;
+			     far: 1000" -->
+
+		  teleport-controls="cameraRig: #cameraRig; 
+				     button: grip;
+				     hitCylinderColor: #ff3468; 
+				     curveHitColor: #ff3468; 
+				     curveMissColor: #333333; 
+				     curveLineWidth: 0.01"
+
+		  super-hands>
+
+      	  <a-entity id="keyboard"
+		    super-keyboard="hand: #right-hand; imagePath:js/aframe/components/aframe-super-keyboard/"
+		    position="0 -0.4 -1"
+		    rotation="-30 0 0"></a-entity></a-entity>
+
+	<a-entity id="right-hand"
+		  sphere-collider="objects: a-box"
+		  laser-controls="hand: right;"
+
+		  raycaster="objects: .squeaky;
+			     far: 1000"
+
+		  line="color: red; 
+			opacity: 0.75"
+
+		  grip-button-listener
+		  super-hands></a-entity>
+
+	<a-entity id="camera"
+		  position="0 20 50"
+		  camera
+		  look-controls
+		  wasd-controls></a-entity></a-entity>
+
+      <input id="home"
+	     type="image"
+	     draggable="false"
+	     src="pictures/icons/a-frame/home.png"
+	     tabindex="-1"
+	     width="70"
+	     height="70"
+	     style="opacity: 0.5;
+		    user-select: none;
+		    outline: none;
+		    z-index: 10;
+		    position: absolute;
+		    right: 1;
+		    top: 1"></input>
+
+      <input id="worldly"
+	     type="image"
+	     draggable="false"
+	     src="pictures/icons/worldly.png"
+	     tabindex="-1"
+	     width="50"
+	     height="50"
+	     style="opacity: 0.5;
+		    user-select: none;
+		    outline: none;
+		    z-index: 10;
+		    position: absolute;
+		    left: 5;
+		    top: 5"</input></a-scene>
+
+    <script>
+      var hand
+
+      hand = document.getElementById('right-hand')
+      hand.addEventListener('pinchstarted', (event) => {console.log(event)})
+      hand.addEventListener('pinchended', (event) => {console.log(event)})
+
+      document.getElementById('squeak-plane').addEventListener(
+	'mouseenter',
+	(event) => {if (window.squeakDisplay) window.squeakDisplay.vm = window.SqueakJS.vm})
+    </script>
+
+    <script src="js/squeakjs/squeak.js"></script>
+    <script src="js/startup.js"></script>
+    <script src="js/aframe/platform.js"></script>
+    <script src="js/oscrelay/node_modules/osc/dist/osc-browser.min.js"></script>
+    <script>
+      window.onload = () => {
+        [].slice.call(document.getElementsByClassName('environment')).forEach(each => {
+          if (each.components['light']) {each.components['light'].light.intensity = 0}})
+
+          window.startup()
+      
+          window.startCaffeine(
+            document.getElementById('caffeine-canvas'),
+            window.snapshot,
+            "SqueakV46",
+              {
+                appID: 'd93ea2a2-bf59-4f59-bb21-c36c596c4488',
+                appName: "Worldly",
+                appServer: "demo.blackpagedigital.com:8091"})}</script></body></html>

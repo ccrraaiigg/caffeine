@@ -1,0 +1,31 @@
+{
+  "short_name": "Caffeine",
+  "name": "Caffeine :: Livecode the Web!",
+  "description": "an in-browser GUI-enabled HTML5 IDE",
+  "icons": [
+    {
+      "src": "/pictures/icons/caffeine/caffeineWebAppIcon192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/pictures/icons/caffeine/caffeineWebAppIcon512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/spa?source=pwa",
+  "background_color": "#3367D6",
+  "display": "standalone",
+  "scope": "/spa",
+  "theme_color": "#3367D6",
+  "shortcuts": [
+    {
+      "name": "Caffeine :: Livecode the Web!",
+      "short_name": "Caffeine",
+      "description": "an in-browser GUI-enabled HTML5 IDE",
+      "url": "/spa?source=pwa",
+      "icons": [{ "src": "/pictures/icons/caffeine/caffeineWebAppIcon192.png", "sizes": "192x192" }]
+    }
+  ]
+}
