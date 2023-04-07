@@ -1,0 +1,21 @@
+| world |
+
+world := HTML5PasteUpMorph newWorld.
+RectangleMorph new openInWorld: world.
+world beOpaque; beDraggable.
+world
+	
+"| world |
+
+world := HTML5PasteUpMorph newWorld.
+world extent: 700@400.
+SnowglobeMorph
+	show: 'ws://', (Webpage optionAt: 'appServer'), '/snowglobe'
+	on: world.
+world
+	beOpaque;
+	windowizeClosingWith: [
+		SnowglobeMorph activeInstance close.
+		SnowglobeMorph forgetActiveInstance].
+world window dragWith: world window windowButtonsTray moveButton.
+SnowglobeMorph activeInstance"

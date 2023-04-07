@@ -1,0 +1,53 @@
+<html>
+  <head>
+    <title>Whatever</title>
+    
+    <script type="text/javascript"
+	    src="https://unpkg.com/@croquet/croquet@0.5"></script></head>
+
+  <body>
+    <script>
+      class MyModel extends Croquet.Model {
+	init() {
+          this.userData = {};
+          this.subscribe(this.sessionId, "view-join", this.addUser);
+          this.subscribe(this.sessionId, "view-exit", this.deleteUser);
+	}
+	addUser(viewId) {
+	  console.log('model: addUser')
+          this.userData[viewId] = { start: this.now() };
+          this.publish(this.sessionId, "user-added", viewId);
+	}
+	deleteUser(viewId) {
+          const time = this.now() - this.userData[viewId].start;
+          delete this.userData[viewId];
+          this.publish(this.sessionId, "user-deleted", {viewId, time});
+	}
+      }
+      MyModel.register("MyModel");
+      class MyView extends Croquet.View {
+	constructor(model) {
+          super(model);
+          for (const viewId of Object.keys(model.userData)) {
+	    console.log('view: adding direct model state, user ', viewId)
+	    this.userAdded(viewId);}
+          this.subscribe(this.sessionId, "user-added", this.userAdded);
+          this.subscribe(this.sessionId, "user-deleted", this.userDeleted);
+	}
+	userAdded(viewId) {
+          console.log(`${ this.viewId === viewId ? "local" : "remote"} user ${viewId} came in`);
+	}
+	userDeleted({viewId, time}) {
+          console.log(`${ this.viewId === viewId ? "local" : "remote"} user ${viewId} left after ${time / 1000} seconds`);
+	}
+      }
+
+      Croquet.Session.join({
+	appId: "org.js.caffeine.test",             // namespace for session names
+	name: Croquet.App.autoSession(),        // session via URL arg
+	password: Croquet.App.autoPassword(),   // password via URL arg
+	model: MyModel,
+	view: MyView,
+	debug: ["session"],
+});
+</script></body></html>

@@ -1,0 +1,1 @@
+Esprima smalltalkFor: 'var foo = function (bar, baz) {return bar;}'

@@ -1,0 +1,171 @@
+<!-- The Beatshifting single-page web app, powered by Caffeine version 4 -->
+<!-- TODO: Identify rendering quirks-mode dependencies and eliminate them, set DOCTYPE properly. -->
+
+<html charset="utf-8">
+  <head id="magic">
+    <title>Beatshifting</title>
+
+    <link rel="manifest"
+	  href="/manifest.webmanifest">
+
+    <link rel="stylesheet"
+	  href="/css/caffeine.css">
+
+    <link rel="stylesheet"
+	  href="https://cdn.jsdelivr.net/npm/@jledentu/vue-finder@1.20.0/dist/vue-finder.css">
+
+    <link rel="apple-touch-icon"
+	  href="/pictures/icons/caffeine/caffeineWebAppIcon192.png">
+    
+    <link rel="apple-touch-startup-image"
+	  href="/pictures/backgrounds/bootscreen/bootscreen.png">
+    
+    <meta name="apple-mobile-web-app-capable"
+	  content="yes">
+
+    <meta name="apple-mobile-web-app-status-bar-style"
+	  content="black-translucent">
+
+    <meta name="apple-mobile-web-app-title"
+	  content="Beatshfting">
+
+    <meta name="viewport"
+	  content="width=1200, user-scalable=0"></head>
+
+  <body bgcolor="black"
+	style="margin: 0px;
+	       min-width: 100%;
+	       font-size: 16px;">
+
+    <script type="text/javascript"
+	    src="https://unpkg.com/vue"></script>
+    
+    <script type="text/javascript"
+	    src="https://unpkg.com/vue3-sfc-loader"></script>
+    
+    <script type="text/javascript"
+	    src="/html/vue/vue-window-standalone.js"></script>
+    
+    <script type="text/javascript"
+	    src="/html/vue/vue-menu-standalone.js"></script>
+    
+    <script type="text/javascript"
+	    src="https://unpkg.com/vue2-org-tree/dist/index.js"></script>
+    
+    <script type="text/javascript"
+	    src="https://cdn.jsdelivr.net/npm/@jledentu/vue-finder@1.20.0/dist/vue-finder.min.js"></script>
+    
+    <script type="text/javascript"
+	    src="/js/vue/vue-scrolly.js"></script>
+        
+    <script type="text/javascript"
+	    src="/js/hydra.js"></script>
+    
+    <script type="text/javascript"
+	    src="https://cdn.jsdelivr.net/npm/webmidi"></script>
+
+    <!--
+	Undocumented croquet.io features...
+
+	- You can set Croquet.app.root = false;  to disable all our DOM meddling.
+      -->
+    
+    <script type="text/javascript"
+	    src="https://unpkg.com/@croquet/croquet@1.0"></script>
+
+    <script type="text/javascript"
+	    src="https://unpkg.com/tone@latest/build/Tone.js"></script>
+    
+    <script type="text/javascript"
+	    src="/js/hex.js"></script>
+
+    <br>
+
+    <div id="banner"
+	 style="position: absolute;
+		left: 25%;
+		margin: 0 auto;
+		transition: opacity 500ms;
+		opacity: 0;">
+
+      <img src="/pictures/icons/caffeine/caffeineWebAppIcon192.png"
+	   width="65"
+	   id="logo"
+	   style="border-radius: 10px;
+		  opacity: 0.7;">
+
+      <h1 style="width: 450px;
+		 background-color: rgba(255, 255, 255, 0.6);
+		 color: black;
+		 border-radius: 10px;">
+
+	Beatshifting :: <i>Play in Sync and Out of Phase</i></h1>
+
+      <img src="/pictures/icons/browser/qr.png"
+	   width="65"
+	   style="border-radius: 6px; opacity: 0.7;"></div>
+
+    <div id="caffeine-div"
+	 style="pointer-events: none;
+		border: 4px solid black;
+		position: absolute;
+		border-radius: 5px;
+		box-shadow: 0px 4pt 8pt rgba(0, 0, 0, 0.5);
+		background-color: rgba(0, 0, 0, 0.8);
+		top: 280;
+		left: 120;
+		z-index: 1;
+		opacity: 0;
+		transition: opacity 500ms;">
+
+      <center>
+
+	<iframe id="caffeine-frame"
+		style="overflow: hidden;
+		       display: block;
+		       border-radius: 5px;"
+		src="/squeak.html"
+		marginheight="0"
+		marginwidth="0"
+		width="1000"
+		height="400"
+		frameborder="0"
+		scrolling="no"
+		allowfullscreen></iframe></center></div>
+
+    <div id="dashboard"
+	 style="position: fixed;
+		right: 10px;
+		bottom: 10px;
+		z-index: 4000;
+		opacity: 0;
+		transition: opacity 2000ms;">
+
+      <div id="progress-spinner"
+	   style="position: absolute;
+		  right: 0px;
+		  bottom: 0px;
+		  width: 50px;
+		  height: 50px;
+		  opacity: 0;
+		  transition: opacity 500ms;"></div>
+
+      <div id="settings"
+	   style="position: absolute;
+		  right: 0px;
+		  bottom: 0px;">
+
+	<input id="settings.button"
+	       type="image"
+	       src="/pictures/icons/browser/settings.png"
+	       tabindex="-1"
+	       width="50"
+	       height="50"
+	       style="user-select: none;
+		      outline: none;"></div></div>
+    <script>
+      window.appID = "83cb50eb-bda4-4acf-b0f8-6a9d88d3d594"
+</script></body></html>
+
+</body></html>
+

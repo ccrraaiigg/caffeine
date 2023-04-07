@@ -1,0 +1,706 @@
+<html>
+  <head>
+    <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+    <script src="js/aframe/components/aframe-environment-component.min.js"></script>
+    <script src="js/aframe/components/canvas-updater.js"></script>
+
+    <link href="css/squeakjs.css"
+	  rel="stylesheet" />
+    
+    <link rel="manifest"
+	  href="manifest.json">
+
+  <body>
+    <script src="js/aframe/components/mousemove.js"></script>
+    <script src="https://unpkg.com/aframe-teleport-controls/dist/aframe-teleport-controls.min.js"></script>
+    
+    <a-scene id="scene"
+	     keyboard-shortcuts="enterVR: false">
+
+      <a-assets>
+
+	<canvas id="squeak"
+		width="1024"
+		height="512"
+		tabindex="1"
+		crossorigin="anonymous"
+
+		style="cursor: default;
+		       opacity: 1;
+		       transition: opacity 500ms"></canvas>
+
+	<img id="logo"
+	     src="pictures/backgrounds/bootscreen/bootscreen1024x512.jpeg">
+
+      </a-assets>
+      
+      <a-entity class="squeaky"
+		id="squeak-plane"
+
+		material="shader: flat;
+			  transparent: true;
+			  opacity: 0.8;
+			  src: #squeak"
+
+                geometry="primitive: plane;
+			  width: 14;
+			  height: 8.7"
+
+                position="0 10 -8"
+		mousemove
+		canvas-updater></a-entity>
+
+      <div id="sqSpinner"
+	   style="opacity: 0.8;
+		  z-index: 10;
+		  margin: inherit;
+		  top: 18;
+		  left: inherit;
+		  right: 19;
+		  bottom: inherit;
+		  width: 52px;
+		  height: 52px;">
+
+	<!-- no "spokes" div, so the spinner just glows -->
+		  
+	     <div id="sqSpinnerSpokes"
+		  style="top: 21px;
+                         width: 42px;"></div></div>
+
+      <a-entity environment="preset: forest"></a-entity>
+
+      <a-plane id="logo"
+	       src="#logo"
+	       width="14"
+	       height="8.7"
+	       position="0 10 -8.1"
+	       rotation="0 180 0"></a-plane>
+
+      <a-entity id="wind"
+		position="0 10 -8"
+
+		sound="src: #wind-sound;
+		       loop: true"></a-entity>
+
+<!--      <a-entity id="ground"
+
+		geometry="primitive: box;
+			  width: 12;
+			  height: 0.01;
+			  depth: 12;
+			  color: blue"></a-entity> -->
+
+      <!-- virtual keyboard keys -->
+      
+
+      <a-box class="squeaky"
+	     position="-7.5 5.7 -6"
+	     id="`"
+	     src="pictures/alphabet/`.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC3D9"></a-box>
+      
+      <a-box class="squeaky"
+	     position="-6.5 5.7 -6"
+	     id="1"
+	     src="pictures/alphabet/1.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC3D9"></a-box>
+      
+      <a-box class="squeaky"
+	     position="-5.5 5.7 -6"
+	     id="2"
+	     src="pictures/alphabet/2.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC3D9"></a-box>
+      
+      <a-box class="squeaky"
+	     position="-4.5 5.7 -6"
+	     id="3"
+	     src="pictures/alphabet/3.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC3D9"></a-box>
+      
+      <a-box class="squeaky"
+	     position="-3.5 5.7 -6"
+	     id="4"
+	     src="pictures/alphabet/4.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC3D9"></a-box>
+      
+      <a-box class="squeaky"
+	     position="-2.5 5.7 -6"
+	     id="5"
+	     src="pictures/alphabet/5.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC3D9"></a-box>
+      
+      <a-box class="squeaky"
+	     position="-1.5 5.7 -6"
+	     id="6"
+	     src="pictures/alphabet/6.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC3D9"></a-box>
+      
+      <a-box class="squeaky"
+	     position="-0.5 5.7 -6"
+	     id="7"
+	     src="pictures/alphabet/7.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC3D9"></a-box>
+      
+      <a-box class="squeaky"
+	     position="1.5 5.7 -6"
+	     id="8"
+	     src="pictures/alphabet/8.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC3D9"></a-box>
+      
+      <a-box class="squeaky"
+	     position="2.5 5.7 -6"
+	     id="9"
+	     src="pictures/alphabet/9.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC3D9"></a-box>
+      
+      <a-box class="squeaky"
+	     position="3.5 5.7 -6"
+	     id="0"
+	     src="pictures/alphabet/0.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC3D9"></a-box>
+      
+      <a-box class="squeaky"
+	     position="4.5 5.7 -6"
+	     id="-"
+	     src="pictures/alphabet/-.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC3D9"></a-box>
+      
+      <a-box class="squeaky"
+	     position="5.5 5.7 -6"
+	     id="="
+	     src="pictures/alphabet/=.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC3D9"></a-box>
+      
+      <a-box class="squeaky"
+	     position="6.5 5.7 -6"
+	     id="delete"
+	     src="pictures/alphabet/delete.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC3D9"></a-box>
+      
+      <a-box class="squeaky"
+	     position="-7 5 -6"
+	     id="tab"
+	     src="pictures/alphabet/tab.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC3D9"></a-box>
+      
+      <a-box class="squeaky"
+	     position="-6 5 -6"
+	     id="letter-q"
+	     src="pictures/alphabet/q.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC3D9"></a-box>
+      
+      <a-box class="squeaky"
+	     position="-5 5 -6"
+	     id="letter-w"
+	     src="pictures/alphabet/w.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC4D9"></a-box>
+      
+      <a-box class="squeaky"
+	     position="-4 5 -6"
+	     id="letter-e"
+	     src="pictures/alphabet/e.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC4D9"></a-box>
+      
+      <a-box class="squeaky"
+	     position="-3 5 -6"
+	     id="letter-r"
+	     src="pictures/alphabet/r.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC4D9"></a-box>
+      
+      <a-box class="squeaky"
+	     position="-2 5 -6"
+	     id="letter-t"
+	     src="pictures/alphabet/t.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC4D9"></a-box>
+      
+      <a-box class="squeaky"
+	     position="-1 5 -6"
+	     id="letter-y"
+	     src="pictures/alphabet/y.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC4D9"></a-box>
+
+      <a-box class="squeaky"
+	     position="0 5 -6"
+	     id="letter-u"
+	     src="pictures/alphabet/u.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC4D9"></a-box>
+
+      <a-box class="squeaky"
+	     position="1 5 -6"
+	     id="letter-i"
+	     src="pictures/alphabet/i.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC4D9"></a-box>
+      
+      <a-box class="squeaky"
+	     position="2 5 -6"
+	     id="letter-o"
+	     src="pictures/alphabet/o.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC4D9"></a-box>
+
+      <a-box class="squeaky"
+	     position="3 5 -6"
+	     id="letter-p"
+	     src="pictures/alphabet/p.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC4D9"></a-box>
+
+      <a-box class="squeaky"
+	     position="4 5 -6"
+	     id="letter-["
+	     src="pictures/alphabet/[.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC4D9"></a-box>
+
+      <a-box class="squeaky"
+	     position="5 5 -6"
+	     id="letter-]"
+	     src="pictures/alphabet/].png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC4D9"></a-box>
+
+      <a-box class="squeaky"
+	     position="6 5 -6"
+	     id="letter-\"
+	     src="pictures/alphabet/\.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC4D9"></a-box>
+
+      <a-box class="squeaky"
+	     position="-6.5 4.3 -6"
+	     id="ctrl"
+	     src="pictures/alphabet/ctrl.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC4D9"></a-box>
+
+      <a-box class="squeaky"
+	     position="-5.5 4.3 -6"
+	     id="letter-a"
+	     src="pictures/alphabet/a.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC4D9"></a-box>
+
+      <a-box class="squeaky"
+	     position="-4.5 4.3 -6"
+	     id="letter-s"
+	     src="pictures/alphabet/s.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC4D9"></a-box>
+
+      <a-box class="squeaky"
+	     position="-3.5 4.3 -6"
+	     id="letter-d"
+	     src="pictures/alphabet/d.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC4D9"></a-box>
+
+      <a-box class="squeaky"
+	     position="-2.5 4.3 -6"
+	     id="letter-f"
+	     src="pictures/alphabet/f.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC4D9"></a-box>
+
+      <a-box class="squeaky"
+	     position="-1.5 4.3 -6"
+	     id="letter-g"
+	     src="pictures/alphabet/g.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC4D9"></a-box>
+
+      <a-box class="squeaky"
+	     position="-0.5 4.3 -6"
+	     id="letter-h"
+	     src="pictures/alphabet/h.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC4D9"></a-box>
+
+      <a-box class="squeaky"
+	     position="0.5 4.3 -6"
+	     id="letter-j"
+	     src="pictures/alphabet/j.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC4D9"></a-box>
+
+      <a-box class="squeaky"
+	     position="1.5 4.3 -6"
+	     id="letter-k"
+	     src="pictures/alphabet/k.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC4D9"></a-box>
+
+      <a-box class="squeaky"
+	     position="2.5 4.3 -6"
+	     id="letter-l"
+	     src="pictures/alphabet/l.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC4D9"></a-box>
+
+      <a-box class="squeaky"
+	     position="3.5 4.3 -6"
+	     id="letter-;"
+	     src="pictures/alphabet/;.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC4D9"></a-box>
+
+      <a-box class="squeaky"
+	     position="4.5 4.3 -6"
+	     id="letter-'"
+	     src="pictures/alphabet/'.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC4D9"></a-box>
+
+      <a-box class="squeaky"
+	     position="5.5 4.3 -6"
+	     id="return"
+	     src="pictures/alphabet/return.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC4D9"></a-box>
+
+      <a-box class="squeaky"
+	     position="-6 3.6 -6"
+	     id="shift"
+	     src="pictures/alphabet/shift.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC4D9"></a-box>
+
+      <a-box class="squeaky"
+	     position="-5 3.6 -6"
+	     id="letter-z"
+	     src="pictures/alphabet/z.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC4D9"></a-box>
+
+      <a-box class="squeaky"
+	     position="-4 3.6 -6"
+	     id="letter-x"
+	     src="pictures/alphabet/x.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC4D9"></a-box>
+
+      <a-box class="squeaky"
+	     position="-3 3.6 -6"
+	     id="letter-c"
+	     src="pictures/alphabet/c.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC4D9"></a-box>
+
+      <a-box class="squeaky"
+	     position="-2 3.6 -6"
+	     id="letter-v"
+	     src="pictures/alphabet/v.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC4D9"></a-box>
+
+      <a-box class="squeaky"
+	     position="-1 3.6 -6"
+	     id="letter-b"
+	     src="pictures/alphabet/b.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC4D9"></a-box>
+
+      <a-box class="squeaky"
+	     position="0 3.6 -6"
+	     id="letter-n"
+	     src="pictures/alphabet/n.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC4D9"></a-box>
+
+      <a-box class="squeaky"
+	     position="1 3.6 -6"
+	     id="letter-m"
+	     src="pictures/alphabet/m.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC4D9"></a-box>
+
+      <a-box class="squeaky"
+	     position="1 3.6 -6"
+	     id="letter-,"
+	     src="pictures/alphabet/,.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC4D9"></a-box>
+
+      <a-box class="squeaky"
+	     position="2 3.6 -6"
+	     id="letter-period"
+	     src="pictures/alphabet/period.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC4D9"></a-box>
+
+      <a-box class="squeaky"
+	     position="3 3.6 -6"
+	     id="letter-forwardslash"
+	     src="pictures/alphabet/forwardslash.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC4D9"></a-box>
+
+      <a-box class="squeaky"
+	     position="-2.5 2.9 -6"
+	     id="ctrl"
+	     src="pictures/alphabet/ctrl.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC4D9"></a-box>
+
+      <a-box class="squeaky"
+	     position="-1.5 2.9 -6"
+	     id="opt"
+	     src="pictures/alphabet/opt.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC4D9"></a-box>
+
+      <a-box class="squeaky"
+	     position="-0.5 2.9 -6"
+	     id="cmd"
+	     src="pictures/alphabet/cmd.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC4D9"></a-box>
+
+      <a-box class="squeaky"
+	     position="0.5 2.9 -6"
+	     id="space"
+	     src="pictures/alphabet/space.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC4D9"></a-box>
+
+      <a-box class="squeaky"
+	     position="1.5 2.9 -6"
+	     id="left"
+	     src="pictures/alphabet/left.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC4D9"></a-box>
+
+      <a-box class="squeaky"
+	     position="2.5 2.9 -6"
+	     id="right"
+	     src="pictures/alphabet/right.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC4D9"></a-box>
+
+      <a-box class="squeaky"
+	     position="3.5 2.9 -6"
+	     id="up"
+	     src="pictures/alphabet/up.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC4D9"></a-box>
+
+      <a-box class="squeaky"
+	     position="4.5 2.9 -6"
+	     id="down"
+	     src="pictures/alphabet/down.png"
+	     depth = "0.1"
+	     height="0.5"
+	     width="0.5"
+	     color="#4CC4D9"></a-box>
+
+      <a-entity id="cameraRig"
+		position="0 5 5"
+		rotation>
+
+	<a-entity id="left-hand"
+		  laser-controls="hand: left"
+		  oculus-touch-controls="hand: left"
+
+		  raycaster="objects: .squeaky;
+			     far: 1000"
+
+		  line="color: red; 
+			opacity: 0.75"
+		  
+		  teleport-controls="cameraRig: #cameraRig; 
+				     button: grip;
+				     hitCylinderColor: #ff3468; 
+				     curveHitColor: #ff3468; 
+				     curveMissColor: #333333; 
+				     curveLineWidth: 0.01"
+		  
+		  brush
+		  ui></a-entity>
+
+	<a-entity id="right-hand"
+		  laser-controls="hand: right"
+		  oculus-touch-controls="hand: right"
+
+		  raycaster="objects: .squeaky;
+			     far: 1000"
+
+		  line="color: red; 
+			opacity: 0.75"
+		  
+		  brush
+		  ui></a-entity>
+
+	<a-entity id="camera"
+		  camera
+		  look-controls
+		  wasd-controls></a-entity></a-entity>
+
+    </a-scene>
+
+    <script>
+      document.getElementById('squeak-plane').addEventListener('raycaster-intersected', (event) => {
+        console.log('squeak plane hit')})
+    </script>
+
+    <script src="js/squeakjs/squeak.js"></script>
+    <script src="js/html/utilities.js"></script>
+    <script src="js/oscrelay/node_modules/osc/dist/osc-browser.min.js"></script>
+    <script src="js/aframe/mobileUtilities.js"></script>
+    <script>
+      // Prevent the home button from being dragged.
+      document.body.ondragstart = () => {return false}
+      
+      // canvas is set by mobileUtilities.js.
+      setTimeout(
+        function () {
+          wind.components.sound.playSound()
+          window.startCaffeine(
+            canvas,
+            "caffeine",
+            "SqueakV46",
+            {
+              appID: "d93ea2a2-bf59-4f59-bb21-c36c596c4488",
+              appName: "A-Frame livecoding demo",
+              appServer: "demo.blackpagedigital.com:8091"})},
+        6000)
+    </script></body></html>

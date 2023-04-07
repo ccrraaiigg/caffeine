@@ -1,0 +1,26 @@
+{
+   "name": "nodeserver",
+   "version": "1.0.0",
+   "description": "Provide a websocket connection to Abletion Live via Max",
+   "main": "nodeserver.js",
+   "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1"
+   },
+   "repository": {
+      "type": "git",
+      "url": "https://github.com/ccrraaiigg/nodeserver.git"
+   },
+   "keywords": [
+      "livecoding",
+      "Ableton",
+      "Max for Live",
+      "nodejs",
+      "Caffeine",
+      "websocket"
+   ],
+   "author": "Craig Latta",
+   "license": "MIT",
+   "dependencies": {
+      "ws": "^3.3.1"
+   }
+}

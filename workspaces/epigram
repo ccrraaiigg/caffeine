@@ -1,0 +1,25 @@
+At least keep track of Epigram features that exist in only one version (Squeak or VisualWorks), even if you don't transfer them soon. Or transfer them soon, now that you have a bit of breathing room.
+
+Epigram refactorings to move from Squeak to VisualWorks:
+
++ GrammarSymbol<<original (replace 'originalHash')
++ Alteration<<rejected (remove)
++ Alteration<<isMutallyExclusive (remove)
+
+- remove "parsed" from all parsed* selectors:
+	- parsedAt:
+	- parsedAtPath:
+	- parsedIncludes:
+	- parsedChoose:
+	- parsedDo:
+	
+- ProductionRule<<rejectionTest (add)
+- GrammarSymbol<<doNotDebug (add)
+- GrammarSymbol<<constraints (lift from ProductionRule)
+- ProductionRule<<primitive (rename 'shortcut')
+- GrammarSymbol<<position (rename 'parsedPosition')
+- GrammarSymbol<<parent (rename 'parsedParent')
+
+Epigram refactorings to move from VisualWorks: to Squeak:
+
+- (Grammar>>add:) ?

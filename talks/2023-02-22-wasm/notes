@@ -1,0 +1,55 @@
+
+2023-02-20:
+
+- Fall back to the simplest example that could possibly motivate the
+  audience... the MDN WebAssembly.Global demo. Work your way up to the
+  BitBLT demo in a future talk.
+
+- Roadmap for WASM in Caffeine (does it need its own name?)...
+
+  - "hello world" demo (MSN WebAssembly.Global, complete with simple
+    SUnit test).
+
+  - minimal Squeak plugin example (far less ambitious than BitBLT,
+    probably just as simple as the MDN Global demo, reading and
+    incrementing a variable).
+
+  - BitBLT plugin demo
+
+  - stack interpreter demo running some variety of '3 + 4'
+
+  - stack interpreter running something more elaborate
+
+  - Cog running the Sista instruction set
+
+- Caffeine WASM name...
+
+- What is the Smalltalk structure that translates to global.wasm? Is a
+  WASM module like a Smalltalk class? That would be handy and easy to
+  explain. A WASM global is like a Smalltalk class variable?
+
+- Will WebAssemblyBitBLT and WebAssemblyHelloWorld have different
+  superclasses, which are in turn subclasses of WebAssemblyModule?
+
+- Apparently WebAssemblyHelloWorld should be able to both write
+  global.wasm and create live JS objects that correspond with the WASM
+  objects that instantiating global.wasm creates, using the same
+  methods as much as possible.
+
+- Annotate global.wasm with comments explaining how each part of the
+  file came to be written by the HelloWASM Smalltalk class.
+
+***
+
+slides:
+
+- This is a young work in progress.
+
+- roadmap
+
+- Hello WASM: reading and writing a WASM global from Smalltalk, JS,
+  and WASM
+
+- 
+
+

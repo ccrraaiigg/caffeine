@@ -1,0 +1,17 @@
+"a simplified third-party API"
+WebMIDI startUp: true
+WebMIDI enable
+WebMIDI enabled
+WebMIDI outputs onlyOne
+	playNote: 'C3'
+	with: 10
+	with: {
+		#duration -> 500.
+		#rawVelocity -> true.
+		#velocity -> 80}
+		
+"the WebMIDI API directly"
+MIDIPort numberOfPorts
+MIDIStream allPortNames
+MIDIStream onNetworkNamed: 'IAC Driver Bus 1'
+(3rd c, 5000 milliseconds, 100 percent loudness, 1st channel) scheduleOn: MIDIStream default

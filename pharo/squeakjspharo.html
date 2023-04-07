@@ -1,0 +1,179 @@
+<!--
+
+     This is an example of a webpage which provides a Squeak app,
+     suitable for embedding into other webpages, much like an
+     embeddable YouTube video.
+
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+<title>Pharo</title>
+<link rel="icon" type="image/png" href="pictures/squeakjs.png">
+<link rel="stylesheet" href="css/squeakjs.css">
+
+<!-- Include the SqueakJS virtual machine and its web browser interface. -->
+<script src="js/squeakjs/squeak.js"></script>
+
+<script>
+    function runDemo(imageName) {
+        window.top.magicWindow.squeakDisplay = SqueakJS.runSqueak(
+            "Pharo7.1.4.image",
+            squeak,
+            {
+                zip: ["memories/pharo7.zip", "sources/Pharo7.0-32bit-ccd1f64.sources.zip"],
+                swapButtons: true,
+                spinner: sqSpinner,
+                appID: "4599d316-a13e-46ef-92be-c7337899038c",
+                appName: "Pharo",
+                appServer: "demo.blackpagedigital.com:8091",
+            });
+    }
+    function exportFile(a) {
+        var path = Squeak.splitFilePath(a.innerText);
+        Squeak.fileGet(path.fullname, function(buffer) {
+            var blob = new Blob([buffer], {type: 'application/octet-stream'}),
+                blobURL = URL.createObjectURL(blob);
+            a.setAttribute('href', blobURL);
+            a.setAttribute('download', path.basename);
+            a.onclick = function(){
+                setTimeout(function(){URL.revokeObjectURL(blobURL)}, 0);
+                return true;
+            };
+            a.click();
+        }, alert);
+        return false;
+    }
+    function showFiles() {
+        var imgList = [],
+            fileList = [],
+            dirs = [''],
+            nFiles = nDirs = nBytes = 0;
+        while (dirs.length > 0) {
+            var dir = dirs.pop(),
+                entries = Squeak.dirList(dir);
+            for (var f in entries) {
+                var entry = entries[f],
+                    path = dir + '/' + f;
+                if (!dir && !entry[3] && f.match(/\.image$/))
+                    imgList.push('<li>Run <a href="#image=' + path + '">' + f + '</a></li>');
+                if (entry[3]) {
+                    dirs.push(path);
+                    nDirs++;
+                } else {
+                    nFiles++;
+                    nBytes += entry[4];
+                    fileList.push('<li><a href="squeak:' + path + '" onclick="return exportFile(this)" target="_blank">' + path + '</a>' +
+                        (entry[4] >= 100000 ? ' (' + (entry[4]/1000000).toFixed(1) + ' MB)' 
+                        : ' (' + (entry[4]/1000).toFixed(1) + ' KB)') + '</li>');
+                }
+            };
+        }
+        function fdir(s) { return s.replace(/<[^>]*>/gi,'').replace(/[^\/]*$/, ''); }
+        function fsort(a, b) { return fdir(a).localeCompare(fdir(b)) || a.localeCompare(b); }
+        if (fileList.length) {
+            files.innerHTML = "<ul>" + fileList.sort(fsort).join("") + "</ul>";
+            filestats.innerHTML = nFiles + " files in " + nDirs + " directories, " +
+                (nBytes/1000000).toFixed(1) + " MBytes total";
+        }          
+        if (imgList.length) images.innerHTML = "<p>Previously run local images:</p><ul>" + imgList.sort(fsort).join("") + "</ul>";
+        else images.innerHTML = "<ul>[Once you have dropped local images to this page they will be listed here.]</ul>"
+    }
+
+    window.onhashchange = function() {
+        window.location.reload();
+    }
+    window.onload = function() {
+        window.document.getElementById("squeak").width = window.innerWidth;
+        window.document.getElementById("squeak").height = window.innerHeight;
+        window.document.getElementById("squeak").style.visibility = "visible";
+    
+        // if we have a hash image then we just run Squeak with the options provided in the url
+        if (location.hash.match(/\.image/)) {
+            return runSqueak();
+        }
+        // otherwise we run the demo ...
+	runDemo();
+        setTimeout(function() {
+            Squeak.fsck(function(stats) {});
+        }, 0);
+        // also, enable drag-and-drop even if no image loaded yet
+        // (squeak.js will replace these when an image is running)
+        document.body.ondragover = function(evt) {
+            evt.preventDefault();
+            if (evt.dataTransfer.items[0].kind == "file") {
+                evt.dataTransfer.dropEffect = "copy";
+                drop.style.borderColor = "#0E0";
+            } else {
+                evt.dataTransfer.dropEffect = "none";
+            }
+            return false;
+        };
+        document.body.ondragleave = function(evt) {
+            drop.style.borderColor = "";
+        };
+        document.body.ondrop = function(evt) {
+            evt.preventDefault();
+            drop.style.borderColor = "#080";
+            var files = [].slice.call(evt.dataTransfer.files),
+                todo = files.length,
+                imageName = null;
+            files.forEach(function(f) {
+                var reader = new FileReader();
+                reader.onload = function () {
+                    var buffer = this.result;
+                    console.log("Storing " + f.name + " (" + buffer.byteLength + " bytes)");
+                    if (/.*image$/.test(f.name)) imageName = f.name;
+                    Squeak.filePut(f.name, buffer, function success() {
+                        if (--todo > 0) return;
+                        drop.style.borderColor = "";
+                        if (!imageName) showFiles();
+                        else runSqueak(imageName);
+                    });
+                }
+                reader.onerror = function() { alert("Failed to read " + f.name); }
+                reader.readAsArrayBuffer(f);
+            });
+            return false;
+        };
+    }
+</script>
+<script>
+    window.downloadFile = function(sUrl) {
+    if (window.downloadFile.isChrome || window.downloadFile.isSafari) {
+      //Creating new link node.
+        var link = document.createElement('a');
+        link.href = sUrl;
+ 
+        if (link.download !== undefined){
+          //Set HTML5 download attribute. This will prevent file from opening if supported.
+          var fileName = sUrl.substring(sUrl.lastIndexOf('/') + 1, sUrl.length);
+          link.download = fileName;
+        }
+ 
+        //Dispatching click event.
+        if (document.createEvent) {
+          var e = document.createEvent('MouseEvents');
+          e.initEvent('click' ,true ,true);
+          link.dispatchEvent(e);
+          return true;
+        }
+    } 
+    // Force file download (whether supported by server).
+    var query = '?download';
+ 
+    window.open(sUrl + query);
+  }
+ 
+  window.downloadFile.isChrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
+  window.downloadFile.isSafari = navigator.userAgent.toLowerCase().indexOf('safari') > -1;
+</script>
+</head>
+<body>
+    <canvas id="squeak" width="10" height="10" style="visibility: 'invisible'; overflow: hidden;"
+	    ></canvas>
+    <div id="text-recognizer"></div>
+    <div id="sqSpinner"><div></div></div>
+</body>
+</html>

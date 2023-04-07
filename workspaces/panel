@@ -1,0 +1,33 @@
+Smalltalk garbageCollect.
+EditHistory connectTo: 'ws://localhost:8091/tether'.
+EditHistory local recyclingHash
+Smalltalk recreateSpecialObjectsArray
+Webpage exportSnapshot
+Webpage importSnapshot
+Webpage zoomTo: 650@750
+Webpage zoomTo: 1750@1900
+
+"HTML devtools UIs"
+HTMLSmalltalkTextEditor initialize.
+HTMLSmalltalkClassesBrowser open.
+HTMLSmalltalkWorkspace open.
+
+"Hydra graphics"
+Hydra start
+
+(
+	Noise new blendWith: (
+		Oscillator
+			frequency: 10
+			sync: 0.25
+			offset: 1)
+)
+	render
+
+((Hydra osc: #(20 0 2)) brightness: (JSFunction new: '({time}) => Math.sin(time)') render
+
+"MIDI"
+MIDIStream allPortNames
+MIDIStream onNetworkNamed: 'IAC Driver Bus 1'
+(2nd c, 1 second, 1st channel, 100 percent loudness) schedule
+(2nd d, 1 second, 1st channel, 100 percent loudness) schedule

@@ -1,0 +1,5 @@
+Webpage current recognizeSpeech.
+Webpage current stopRecognizingSpeech.
+SpeechRecognitionState stopTyping.
+SpeechRecognitionState atSentence: 'browse class'.
+SpeechRecognitionState debugBlockAt: 'find class'

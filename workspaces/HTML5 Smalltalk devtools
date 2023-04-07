@@ -1,0 +1,4 @@
+ExternalHTMLAsset
+	withID: 'classes-browser'
+	fromURL: 'html/devtools/basic.html'
+	

@@ -1,0 +1,11 @@
+"TurtleGraphicsTweetcodingClient
+	configureServerAt: 'wss://yourserver:8087'
+	withCredential: 'shared secret'."
+	
+TurtleGraphicsTweetcodingClient to: 'wss://yourserver:8087'
+
+FrontendShellserver
+	connectTo: (WebSocketPeer linkForPort: 8100 atHostNamed: 'frankfurt.demo.blackpagedigital.com')
+	withCredential: '5187d75f-9dfe-425d-a624-021ebea0cf5c'
+	
+(Compiler evaluate: 'Wzpjb25uZWN0aW9uRGlhbG9nIHwgY29ubmVjdGlvbkRpYWxvZyBjb25uZWN0VG9Qb3J0czogIyg4MTAxIDgxMDIpIGF0SG9zdE5hbWVkOiAnZnJhbmtmdXJ0LmRlbW8uYmxhY2twYWdlZGlnaXRhbC5jb20nIHdpdGhDcmVkZW50aWFsOiAnNTE4N2Q3NWYtOWRmZS00MjVkLWE2MjQtMDIxZWJlYTBjZjVjJ10=' base64Decoded) value: FrontendServerConnectionDialog new
