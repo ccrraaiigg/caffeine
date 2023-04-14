@@ -1142,24 +1142,78 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
         display.showBanner("starting app '" + SqueakJS.appName + "'...");
         var spinner = setupSpinner(vm, options);
         function run() {
-          try {
-            if (display.quitFlag) self.onQuit(vm, display, options);
-            else if (!(display.suspend)) {
-	      vm.interpret(50, function runAgain(ms) {
-                if (ms == "sleep") ms = 200;
-                if (spinner) updateSpinner(spinner, ms, vm, display);
-		if (loop) window.clearTimeout(loop);
-                loop = window.setTimeout(run, ms);
-              })};
-          } catch(error) {
-            console.error(error);
-	      //            alert(error);
-	      debugger
-	    loop = window.setTimeout(run, 200);
-          }
-        }
-        display.runNow = function() {
-          window.clearTimeout(loop);
+	  WebAssembly.instantiateStreaming(
+	    fetch("wasm/interpreter.wasm"),
+	    {wasm: {
+	      nextByte: vm.nextByteGuarded.bind(vm),
+	      receiverBeDirty: vm.receiverBeDirty.bind(vm),
+	      pointersAt: vm.pointersAt.bind(vm),
+	      pointersAtPut: vm.pointersAtPut.bind(vm),
+	      homeContextPointersAtPut: vm.homeContextPointersAtPut.bind(vm),
+	      push: vm.pushObjectWithUUID.bind(vm),
+	      extendedPush: vm.extendedPush.bind(vm),
+	      extendedStore: vm.extendedStore.bind(vm),
+	      extendedStorePop: vm.extendedStorePop.bind(vm),
+	      pop: vm.popUsingUUID.bind(vm),
+	      methodGetLiteral: vm.methodGetLiteral.bind(vm),
+	      methodGetSelector: vm.methodGetSelector.bind(vm),
+	      doReturn: vm.doReturnWithUUID.bind(vm),
+	      nono: vm.nono.bind(vm),
+	      top: vm.topUsingUUID.bind(vm),
+	      exportThisContext: vm.exportThisContext.bind(vm),
+	      pushNewArray: vm.pushNewArray.bind(vm),
+	      callPrimBytecode: vm.callPrimBytecode.bind(vm),
+	      pushClosureCopy: vm.pushClosureCopy.bind(vm),
+	      jumpIfFalse: vm.jumpIfFalse.bind(vm),
+	      jumpIfTrue: vm.jumpIfTrue.bind(vm),
+	      checkForInterrupts: vm.checkForInterrupts.bind(vm),
+	      stackIntOrFloat: vm.stackIntOrFloat.bind(vm),
+	      stackInteger: vm.stackInteger.bind(vm),
+	      mod: vm.mod.bind(vm),
+	      pop2AndPushBoolResult: vm.pop2AndPushBoolResultWithUUID.bind(vm),
+	      pop2AndPushIntResult: vm.pop2AndPushIntResult.bind(vm),
+	      send: vm.sendFromUUID.bind(vm),
+	      sendSpecial: vm.sendSpecial.bind(vm),
+	      primitiveMakePoint: vm.primHandler.primitiveMakePoint.bind(vm.primHandler),
+	      quickSendOther: vm.quickSendOtherWithUUID.bind(vm),
+	      pop2AndPushNumResult: vm.pop2AndPushNumResultWithUUID.bind(vm),
+	      doubleExtendedDoAnything: vm.doubleExtendedDoAnything.bind(vm),
+	      setByteCodeCount: vm.setByteCodeCount.bind(vm),
+	      setPC: vm.setPC.bind(vm),
+	      setSuccess: vm.setSuccess.bind(vm),
+	      setResultIsFloat: vm.setResultIsFloat.bind(vm),
+	      thePC: vm.thePC.bind(vm),
+	      theByteCodeCount: vm.theByteCodeCount.bind(vm),
+	      theInterruptCheckCounter: vm.theInterruptCheckCounter.bind(vm),
+	      contextTempFrameStart: vm.contextTempFrameStart.bind(vm),
+	      associationValue: vm.associationValue.bind(vm),
+	      theReceiver: vm.theReceiver.bind(vm),
+	      theTrueObj: vm.theTrueObj.bind(vm),
+	      theFalseObj: vm.theFalseObj.bind(vm),
+	      theNilObj: vm.theNilObj.bind(vm),
+	      theActiveContext: vm.theActiveContext.bind(vm),
+	      theHomeContext: vm.theHomeContext.bind(vm),
+	      blockContextCaller: vm.blockContextCaller.bind(vm)}}).then((wasm) => {
+		vm.interpretOneWASM = wasm.instance.exports.interpretOne;
+		  
+		try {
+		  if (display.quitFlag) self.onQuit(vm, display, options);
+		  else if (!(display.suspend)) {
+		    vm.interpret(50, function runAgain(ms) {
+                      if (ms == "sleep") ms = 200;
+                      if (spinner) updateSpinner(spinner, ms, vm, display);
+		      if (loop) window.clearTimeout(loop);
+                      loop = window.setTimeout(run, ms);
+		    })};
+		} catch(error) {
+		  console.error(error);
+		  // alert(error);
+		  debugger
+		  loop = window.setTimeout(run, 200);
+		}
+              })}
+	display.runNow = function() {
+	  window.clearTimeout(loop);
           run();
         };
         display.runFor = function(milliseconds) {

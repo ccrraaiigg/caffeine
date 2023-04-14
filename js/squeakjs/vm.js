@@ -2906,8 +2906,86 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      this.initVMState();
 		      this.loadInitialContext();
 		      this.initCompiler();
+
 		      console.log('squeak: ready');
 		    },
+
+		    objectWithUUID: function(uuid) {
+		      var object = this.image.firstOldObject
+
+		      while (object) {
+			if (this.uuidForObject(object) === uuid) return object
+			else object = object.nextObject}
+
+		      return uuid},
+
+		    uuidForObject: function(object) {
+		      if (object.sqClass) {
+			if (object.oop < 0) this.image.fullGC('assigning object uuid')
+			if (object.oop < 0) {
+			  debugger;
+			  return this.uuidForObject(this.nilObj)}
+			return 0x0FFFFFFF - object.oop}
+		      else return object},
+
+		    nextByteGuarded: function() {
+		      var byte = this.nextByte()
+
+		      if (typeof(byte) == 'undefined') debugger
+		      return byte},
+		    
+		    doReturnWithUUID: function(value, context) {this.doReturn(this.objectWithUUID(value), this.objectWithUUID(context))},
+		    pushObjectWithUUID: function(uuid) {this.push(this.objectWithUUID(uuid))},
+		    pop2AndPushBoolResultWithUUID: function(bool) {return this.pop2AndPushBoolResult(bool)},
+		    pop2AndPushNumResultWithUUID: function(num) {return this.pop2AndPushNumResult(this.objectWithUUID(num))},
+		    stackIntOrFloatUsingUUID: function(depth) {return this.uuidForObject(this.stackIntOrFloat(depth))},
+
+		    popUsingUUID: function() {
+		      var uuid = this.uuidForObject(this.top())
+
+		      this.pop()
+		      return uuid},
+		    
+		    topUsingUUID: function() {return this.uuidForObject(this.top())},
+		    receiverBeDirty: function() {this.receiver.dirty = true},
+
+		    pointersAt: function(uuid, index) {
+		      try {return this.uuidForObject(this.objectWithUUID(uuid).pointers[index])}
+		      catch (error) {debugger}},
+
+		    pointersAtPut: function(uuid, index, value) {
+		      try {this.objectWithUUID(uuid).pointers[index] = this.objectWithUUID(value)}
+		      catch (error) {debugger}},
+
+		    homeContextPointersAtPut: function(index, value) {
+		      this.homeContext.pointers[index] = this.objectWithUUID(value)},
+		    
+		    quickSendOtherWithUUID: function(uuid, lobits) {return this.primHandler.quickSendOther(this.objectWithUUID(uuid), lobits)},
+		    sendFromUUID: function(uuid, index, bool) {this.send(this.objectWithUUID(uuid), index, bool)},
+		    theByteCodeCount: function() {return this.byteCodeCount},
+		    setByteCodeCount: function(count) {this.byteCodeCount = count},
+		    thePC: function() {return this.pc},
+		    setPC: function(thePC) {this.pc = thePC},
+		    theSuccess: function() {return this.success},
+		    setSuccess: function(theSuccess) {this.success = theSuccess},
+		    setResultIsFloat: function(theResultIsFloat) {this.resultIsFloat = theResultIsFloat},
+		    theInterruptCheckCounter: function() {return this.interruptCheckCounter},
+		    contextTempFrameStart: function() {return Squeak.Context_tempFrameStart},
+		    associationValue: function() {return Squeak.Assn_value},
+		    theReceiver: function() {return this.uuidForObject(this.receiver)},
+		    theTrueObj: function() {return this.uuidForObject(this.trueObj)},
+		    theFalseObj: function() {return this.uuidForObject(this.falseObj)},
+		    theNilObj: function() {return this.uuidForObject(this.nilObj)},
+		    theActiveContext: function() {return this.uuidForObject(this.activeContext)},
+		    theHomeContext: function() {return this.uuidForObject(this.homeContext)},
+		    blockContextCaller: function() {return Squeak.BlockContext_caller},
+
+		    methodGetLiteral: function(index) {
+		      return this.uuidForObject(this.method.methodGetLiteral(index))},
+		    
+		    methodGetSelector: function(index) {
+		      return this.uuidForObject(this.method.methodGetSelector(index))},
+		    
 		    loadImageState: function() {
 		      this.specialObjects = this.image.specialObjectsArray.pointers;
 		      this.specialSelectors = this.specialObjects[Squeak.splOb_SpecialSelectors].pointers;
@@ -3226,7 +3304,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			if (this.method.compiled) {
 			  this.method.compiled(this);
 			} else {
-			  this.interpretOne();
+			  this.interpretOneWASM();
 			}}
 		      // this is to allow 'freezing' the interpreter and restarting it asynchronously. See freeze()
 		      if (typeof this.breakOutOfInterpreter == "function")
@@ -3632,7 +3710,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 
 		      //Following are more efficient than fetchContextRegisters() in newActiveContext()
 		      this.activeContext.dirty = true;
-		      this.homeContext = newContext;
+			this.homeContext = newContext;
 			this.method = newMethod;
 			  this.method.fused = true;
 		      this.pc = newPC;
