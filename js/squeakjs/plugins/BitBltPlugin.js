@@ -1892,7 +1892,7 @@ function ignoreSourceOrHalftone(formPointer) {
   writer[32] = -1;
 
   WebAssembly.instantiateStreaming(
-    fetch("wasm/bitblt.wasm"),
+    fetch("/wasm/bitblt.wasm"),
     {wasm: {memory: memory}}).then((wasm) => {
       partitionedAND = wasm.instance.exports.partitionedAND;
       partitionedADD = wasm.instance.exports.partitionedADD;

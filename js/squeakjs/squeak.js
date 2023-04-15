@@ -301,7 +301,7 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
       
       evtX = canUseMouseOffset ? evt.offsetX : evt.layerX,
       evtY = canUseMouseOffset ? evt.offsetY : evt.layerY;
-    
+      
       if (display.cursorCanvas) {
 	display.cursorCanvas.style.left = (evtX + canvas.offsetLeft + display.cursorOffsetX) + "px";
 	display.cursorCanvas.style.top = (evtY + canvas.offsetTop + display.cursorOffsetY) + "px";
@@ -580,7 +580,8 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
       if (!(evt.target.elementID)) debugger;
       evt.target.focus();
       display.activeElementID = evt.target.elementID;
-      if (currentCursor === normalCursor) document.body.style.cursor = '';
+      if (window.currentCursor) {
+	if (currentCursor === normalCursor) document.body.style.cursor = ''};
       recordMouseEvent('mousemove', evt, canvas, display, display.eventQueue, options);
       evt.preventDefault();
     };
@@ -610,7 +611,7 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
 	if (event.touches[0].touchType != 'stylus') {
 	  recognizer.style.zIndex = -10;
 	  canvas.contentEditable = false;}}}
-      
+    
     function touchToMouse(evt) {
       var type = null;
       
@@ -861,23 +862,23 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
     // keyboard stuff
     document.onkeypress = function(evt) {
       /* 
-      if (canvas.otherCanvasActive) {
-	evt.preventDefault();
-	evt.stopPropagation();
-	return true;}
+	 if (canvas.otherCanvasActive) {
+	 evt.preventDefault();
+	 evt.stopPropagation();
+	 return true;}
 
-      if (!display.vm) return true;
-      // check for ctrl-x/c/v/r
-      if (/[CXVR]/.test(String.fromCharCode(evt.charCode + 64)))
-        return true;  // let browser handle cut/copy/paste/reload
-      recordModifiers(evt, display);
-      recordKeyboardEvent(evt.charCode, evt.timeStamp, display, eventQueue);
-      evt.preventDefault();
-      evt.stopPropagation();
-*/
+	 if (!display.vm) return true;
+	 // check for ctrl-x/c/v/r
+	 if (/[CXVR]/.test(String.fromCharCode(evt.charCode + 64)))
+         return true;  // let browser handle cut/copy/paste/reload
+	 recordModifiers(evt, display);
+	 recordKeyboardEvent(evt.charCode, evt.timeStamp, display, eventQueue);
+	 evt.preventDefault();
+	 evt.stopPropagation();
+      */
     };
     document.onkeydown = function(evt) {
-      if (top.squeakDisplay && top.squeakDisplay.vm) document.body.style.cursor = 'none';
+//      if (top.squeakDisplay && top.squeakDisplay.vm) document.body.style.cursor = 'none';
       checkFullscreen();
       if (canvas.otherCanvasActive) {
 	return true;}
@@ -917,10 +918,10 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
 	if (evt.metaKey || evt.altKey || evt.ctrlKey) {
           if (/[RCXV]/i.test(key))
             return true;  // let browser handle paste and reload exclusively
-//          if (/[CX]/i.test(key)) {
-//	    recordKeyboardEvent(code, evt.timeStamp, display, eventQueue);
-//            return true;  // let browser handle cut and copy
-//	  }
+	  //          if (/[CX]/i.test(key)) {
+	  //	    recordKeyboardEvent(code, evt.timeStamp, display, eventQueue);
+	  //            return true;  // let browser handle cut and copy
+	  //	  }
           if (/[A-Z]/.test(key) && !evt.shiftKey) code += 32;  // make lower-case
 	}
       }
@@ -1083,7 +1084,6 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
   function setupSpinner(vm, options) {
     var spinner = options.spinner;
     if (!spinner) {
-      debugger;
       return null;}
     spinner.onmousedown = function(evt) {
       if (confirm(SqueakJS.appName + " is busy. Interrupt?"))
@@ -1141,89 +1141,95 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
         display.clear();
         display.showBanner("starting app '" + SqueakJS.appName + "'...");
         var spinner = setupSpinner(vm, options);
-        function run() {
-	  WebAssembly.instantiateStreaming(
-	    fetch("wasm/interpreter.wasm"),
-	    {wasm: {
-	      nextByte: vm.nextByteGuarded.bind(vm),
-	      receiverBeDirty: vm.receiverBeDirty.bind(vm),
-	      pointersAt: vm.pointersAt.bind(vm),
-	      pointersAtPut: vm.pointersAtPut.bind(vm),
-	      homeContextPointersAtPut: vm.homeContextPointersAtPut.bind(vm),
-	      push: vm.pushObjectWithUUID.bind(vm),
-	      extendedPush: vm.extendedPush.bind(vm),
-	      extendedStore: vm.extendedStore.bind(vm),
-	      extendedStorePop: vm.extendedStorePop.bind(vm),
-	      pop: vm.popUsingUUID.bind(vm),
-	      methodGetLiteral: vm.methodGetLiteral.bind(vm),
-	      methodGetSelector: vm.methodGetSelector.bind(vm),
-	      doReturn: vm.doReturnWithUUID.bind(vm),
-	      nono: vm.nono.bind(vm),
-	      top: vm.topUsingUUID.bind(vm),
-	      exportThisContext: vm.exportThisContext.bind(vm),
-	      pushNewArray: vm.pushNewArray.bind(vm),
-	      callPrimBytecode: vm.callPrimBytecode.bind(vm),
-	      pushClosureCopy: vm.pushClosureCopy.bind(vm),
-	      jumpIfFalse: vm.jumpIfFalse.bind(vm),
-	      jumpIfTrue: vm.jumpIfTrue.bind(vm),
-	      checkForInterrupts: vm.checkForInterrupts.bind(vm),
-	      stackIntOrFloat: vm.stackIntOrFloat.bind(vm),
-	      stackInteger: vm.stackInteger.bind(vm),
-	      mod: vm.mod.bind(vm),
-	      pop2AndPushBoolResult: vm.pop2AndPushBoolResultWithUUID.bind(vm),
-	      pop2AndPushIntResult: vm.pop2AndPushIntResult.bind(vm),
-	      send: vm.sendFromUUID.bind(vm),
-	      sendSpecial: vm.sendSpecial.bind(vm),
-	      primitiveMakePoint: vm.primHandler.primitiveMakePoint.bind(vm.primHandler),
-	      quickSendOther: vm.quickSendOtherWithUUID.bind(vm),
-	      pop2AndPushNumResult: vm.pop2AndPushNumResultWithUUID.bind(vm),
-	      doubleExtendedDoAnything: vm.doubleExtendedDoAnything.bind(vm),
-	      setByteCodeCount: vm.setByteCodeCount.bind(vm),
-	      setPC: vm.setPC.bind(vm),
-	      setSuccess: vm.setSuccess.bind(vm),
-	      setResultIsFloat: vm.setResultIsFloat.bind(vm),
-	      thePC: vm.thePC.bind(vm),
-	      theByteCodeCount: vm.theByteCodeCount.bind(vm),
-	      theInterruptCheckCounter: vm.theInterruptCheckCounter.bind(vm),
-	      contextTempFrameStart: vm.contextTempFrameStart.bind(vm),
-	      associationValue: vm.associationValue.bind(vm),
-	      theReceiver: vm.theReceiver.bind(vm),
-	      theTrueObj: vm.theTrueObj.bind(vm),
-	      theFalseObj: vm.theFalseObj.bind(vm),
-	      theNilObj: vm.theNilObj.bind(vm),
-	      theActiveContext: vm.theActiveContext.bind(vm),
-	      theHomeContext: vm.theHomeContext.bind(vm),
-	      blockContextCaller: vm.blockContextCaller.bind(vm)}}).then((wasm) => {
-		vm.interpretOneWASM = wasm.instance.exports.interpretOne;
-		  
-		try {
-		  if (display.quitFlag) self.onQuit(vm, display, options);
-		  else if (!(display.suspend)) {
-		    vm.interpret(50, function runAgain(ms) {
-                      if (ms == "sleep") ms = 200;
-                      if (spinner) updateSpinner(spinner, ms, vm, display);
-		      if (loop) window.clearTimeout(loop);
-                      loop = window.setTimeout(run, ms);
-		    })};
-		} catch(error) {
-		  console.error(error);
-		  // alert(error);
-		  debugger
-		  loop = window.setTimeout(run, 200);
-		}
-              })}
+
+	function run() {
+	  try {
+	    if (display.quitFlag) self.onQuit(vm, display, options);
+	    else if (!(display.suspend)) {
+	      vm.interpret(50, function runAgain(ms) {
+		if (ms == "sleep") ms = 200;
+		if (spinner) updateSpinner(spinner, ms, vm, display);
+		if (loop) window.clearTimeout(loop);
+		loop = window.setTimeout(run, ms);
+	      })};
+	  } catch(error) {
+	    console.error(error);
+	    // alert(error);
+	    debugger
+	    loop = window.setTimeout(run, 200);
+	  }
+	}
+
 	display.runNow = function() {
 	  window.clearTimeout(loop);
-          run();
-        };
-        display.runFor = function(milliseconds) {
-          var stoptime = Date.now() + milliseconds;
-          do {
-            if (display.quitFlag) return;
-            display.runNow();
-          } while (Date.now() < stoptime);
-        };
-        run();
+	  run();
+	};
+	display.runFor = function(milliseconds) {
+	  var stoptime = Date.now() + milliseconds;
+	  do {
+	    if (display.quitFlag) return;
+	    display.runNow();
+	  } while (Date.now() < stoptime);
+	};
+
+	WebAssembly.instantiateStreaming(
+	  fetch("/wasm/interpreter.wasm"),
+	  {wasm: {
+	    nextByte: vm.nextByteGuarded.bind(vm),
+	    receiverBeDirty: vm.receiverBeDirty.bind(vm),
+	    pointersAt: vm.pointersAt.bind(vm),
+	    pointersAtPut: vm.pointersAtPut.bind(vm),
+	    homeContextPointersAtPut: vm.homeContextPointersAtPut.bind(vm),
+	    receiverPointersAtPut: vm.receiverPointersAtPut.bind(vm),
+	    push: vm.pushObjectWithUUID.bind(vm),
+	    extendedPush: vm.extendedPush.bind(vm),
+	    extendedStore: vm.extendedStore.bind(vm),
+	    extendedStorePop: vm.extendedStorePop.bind(vm),
+	    pop: vm.popUsingUUID.bind(vm),
+	    methodGetLiteral: vm.methodGetLiteral.bind(vm),
+	    methodGetSelector: vm.methodGetSelector.bind(vm),
+	    doReturn: vm.doReturnWithUUID.bind(vm),
+	    nono: vm.nono.bind(vm),
+	    top: vm.topUsingUUID.bind(vm),
+	    pop2AndPushDivResult: vm.pop2AndPushDivResult.bind(vm),
+	    pushExportThisContext: vm.pushExportThisContext.bind(vm),
+	    pushNewArray: vm.pushNewArray.bind(vm),
+	    callPrimBytecode: vm.callPrimBytecode.bind(vm),
+	    pushClosureCopy: vm.pushClosureCopy.bind(vm),
+	    jumpIfFalse: vm.jumpIfFalse.bind(vm),
+	    jumpIfTrue: vm.jumpIfTrue.bind(vm),
+	    checkForInterrupts: vm.checkForInterrupts.bind(vm),
+	    stackIntOrFloat: vm.stackIntOrFloat.bind(vm),
+	    stackInteger: vm.stackInteger.bind(vm),
+	    mod: vm.mod.bind(vm),
+	    pop2AndPushBoolResult: vm.pop2AndPushBoolResultWithUUID.bind(vm),
+	    pop2AndPushIntResult: vm.pop2AndPushIntResult.bind(vm),
+	    send: vm.sendFromUUID.bind(vm),
+	    sendSpecial: vm.sendSpecial.bind(vm),
+	    primitiveMakePoint: vm.primHandler.primitiveMakePoint.bind(vm.primHandler),
+	    quickSendOther: vm.quickSendOtherWithUUID.bind(vm),
+	    pop2AndPushNumResult: vm.pop2AndPushNumResultWithUUID.bind(vm),
+	    doubleExtendedDoAnything: vm.doubleExtendedDoAnything.bind(vm),
+	    setByteCodeCount: vm.setByteCodeCount.bind(vm),
+	    setPC: vm.setPC.bind(vm),
+	    setSuccess: vm.setSuccess.bind(vm),
+	    setResultIsFloat: vm.setResultIsFloat.bind(vm),
+	    safeShift: vm.safeShift.bind(vm),
+	    thePC: vm.thePC.bind(vm),
+	    theByteCodeCount: vm.theByteCodeCount.bind(vm),
+	    theInterruptCheckCounter: vm.theInterruptCheckCounter.bind(vm),
+	    setTheInterruptCheckCounter: vm.setTheInterruptCheckCounter.bind(vm),
+	    contextTempFrameStart: vm.contextTempFrameStart.bind(vm),
+	    associationValue: vm.associationValue.bind(vm),
+	    theReceiver: vm.theReceiver.bind(vm),
+	    theTrueObj: vm.theTrueObj.bind(vm),
+	    theFalseObj: vm.theFalseObj.bind(vm),
+	    theNilObj: vm.theNilObj.bind(vm),
+	    theActiveContext: vm.theActiveContext.bind(vm),
+	    theHomeContext: vm.theHomeContext.bind(vm),
+	    blockContextCaller: vm.blockContextCaller.bind(vm)}}).then((wasm) => {
+	      vm.interpretOneWASM = wasm.instance.exports.interpretOne;
+	      run();})
       },
 			   function readProgress(value) {display.showProgress(value);});
     }, 0);
@@ -1231,171 +1237,171 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
 
   function processOptions(options) {
     var search = (location.hash || location.search).slice(1),
-        args = search && search.split("&");
+	args = search && search.split("&");
     if (args) for (var i = 0; i < args.length; i++) {
       var keyAndVal = args[i].split("="),
-          key = keyAndVal[0],
-          val = true;
+	  key = keyAndVal[0],
+	  val = true;
       if (keyAndVal.length > 1) {
-        val = decodeURIComponent(keyAndVal.slice(1).join("="));
-        if (val.match(/^(true|false|null|[0-9"[{].*)$/))
-                try { val = JSON.parse(val); } catch(e) {
-                    if (val[0] === "[") val = val.slice(1,-1).split(","); // handle string arrays
-                    // if not JSON use string itself
-                }
-        }
-        options[key] = val;
+	val = decodeURIComponent(keyAndVal.slice(1).join("="));
+	if (val.match(/^(true|false|null|[0-9"[{].*)$/))
+	  try { val = JSON.parse(val); } catch(e) {
+	    if (val[0] === "[") val = val.slice(1,-1).split(","); // handle string arrays
+	    // if not JSON use string itself
+	  }
+      }
+      options[key] = val;
     }
     var root = Squeak.splitFilePath(options.root || "/").fullname;
     Squeak.dirCreate(root, true);
     if (!/\/$/.test(root)) root += "/";
     options.root = root;
     SqueakJS.options = options;
-}
+  }
 
-function fetchTemplates(options) {
+  function fetchTemplates(options) {
     if (options.templates) {
-        if (options.templates.constructor === Array) {
-            var templates = {};
-            options.templates.forEach(function(path){ templates[path] = path; });
-            options.templates = templates;
-        }
-        for (var path in options.templates) {
-            var dir = path[0] == "/" ? path : options.root + path,
-                url = Squeak.splitUrl(options.templates[path], options.url).full;
-            Squeak.fetchTemplateDir(dir, url);
-        }
+      if (options.templates.constructor === Array) {
+	var templates = {};
+	options.templates.forEach(function(path){ templates[path] = path; });
+	options.templates = templates;
+      }
+      for (var path in options.templates) {
+	var dir = path[0] == "/" ? path : options.root + path,
+	    url = Squeak.splitUrl(options.templates[path], options.url).full;
+	Squeak.fetchTemplateDir(dir, url);
+      }
     }
-}
+  }
 
-function processFile(file, display, options, thenDo) {
+  function processFile(file, display, options, thenDo) {
     Squeak.filePut(options.root + file.name, file.data, function() {
-        console.log("Stored " + options.root + file.name);
-        if (file.zip) {
-            processZip(file, display, options, thenDo);
-        } else {
-            thenDo();
-        }
+      console.log("Stored " + options.root + file.name);
+      if (file.zip) {
+	processZip(file, display, options, thenDo);
+      } else {
+	thenDo();
+      }
     });
-}
+  }
 
-function processZip(file, display, options, thenDo) {
+  function processZip(file, display, options, thenDo) {
     JSZip().loadAsync(file.data).then(function(zip) {
-        var todo = [];
-        zip.forEach(function(filename){
-            if (!options.image.name && filename.match(/\.image$/))
-                options.image.name = filename;
-            if (options.forceDownload || !Squeak.fileExists(options.root + filename)) {
-                todo.push(filename);
-            } else if (options.image.name === filename) {
-                // image exists, need to fetch it from storage
-                var _thenDo = thenDo;
-                thenDo = function() {
-                    Squeak.fileGet(options.root + filename, function(data) {
-                        options.image.data = data;
-                        return _thenDo();
-                    }, function onError() {
-                        Squeak.fileDelete(options.root + file.name);
-                        return processZip(file, display, options, _thenDo);
-                    });
-                }
-            }
-        });
-        if (todo.length === 0) return thenDo();
-        var done = 0;
-        display.showBanner("unzipping " + file.name);
-        display.showProgress(0);
-        todo.forEach(function(filename){
-            console.log("Inflating " + file.name + ": " + filename);
-            function progress(x) { display.showProgress((x.percent / 100 + done) / todo.length); }
-            zip.file(filename).async("arraybuffer", progress).then(function(buffer){
-                console.log("Expanded size of " + filename + ": " + buffer.byteLength);
-                var unzipped = {};
-                if (options.image.name === filename)
-                    unzipped = options.image;
-                unzipped.name = filename;
-                unzipped.data = buffer;
-                processFile(unzipped, display, options, function() {
-                    if (++done === todo.length) thenDo();
-                });
-            });
-        });
+      var todo = [];
+      zip.forEach(function(filename){
+	if (!options.image.name && filename.match(/\.image$/))
+	  options.image.name = filename;
+	if (options.forceDownload || !Squeak.fileExists(options.root + filename)) {
+	  todo.push(filename);
+	} else if (options.image.name === filename) {
+	  // image exists, need to fetch it from storage
+	  var _thenDo = thenDo;
+	  thenDo = function() {
+	    Squeak.fileGet(options.root + filename, function(data) {
+	      options.image.data = data;
+	      return _thenDo();
+	    }, function onError() {
+	      Squeak.fileDelete(options.root + file.name);
+	      return processZip(file, display, options, _thenDo);
+	    });
+	  }
+	}
+      });
+      if (todo.length === 0) return thenDo();
+      var done = 0;
+      display.showBanner("unzipping " + file.name);
+      display.showProgress(0);
+      todo.forEach(function(filename){
+	console.log("Inflating " + file.name + ": " + filename);
+	function progress(x) { display.showProgress((x.percent / 100 + done) / todo.length); }
+	zip.file(filename).async("arraybuffer", progress).then(function(buffer){
+	  console.log("Expanded size of " + filename + ": " + buffer.byteLength);
+	  var unzipped = {};
+	  if (options.image.name === filename)
+	    unzipped = options.image;
+	  unzipped.name = filename;
+	  unzipped.data = buffer;
+	  processFile(unzipped, display, options, function() {
+	    if (++done === todo.length) thenDo();
+	  });
+	});
+      });
     });
-}
+  }
 
-function checkExisting(file, display, options, ifExists, ifNotExists) {
+  function checkExisting(file, display, options, ifExists, ifNotExists) {
     if (!Squeak.fileExists(options.root + file.name))
-        return ifNotExists();
+      return ifNotExists();
     if (file.image || file.zip) {
-        // if it's the image or a zip, load from file storage
-        Squeak.fileGet(options.root + file.name, function(data) {
-            file.data = data;
-            if (file.zip) processZip(file, display, options, ifExists);
-            else ifExists();
-        }, function onError() {
-            // if error, download it
-            Squeak.fileDelete(options.root + file.name);
-            return ifNotExists();
-        });
+      // if it's the image or a zip, load from file storage
+      Squeak.fileGet(options.root + file.name, function(data) {
+	file.data = data;
+	if (file.zip) processZip(file, display, options, ifExists);
+	else ifExists();
+      }, function onError() {
+	// if error, download it
+	Squeak.fileDelete(options.root + file.name);
+	return ifNotExists();
+      });
     } else {
-       // for all other files assume they're okay
-       ifExists();
+      // for all other files assume they're okay
+      ifExists();
     }
-}
+  }
 
-function downloadFile(file, display, options, thenDo) {
+  function downloadFile(file, display, options, thenDo) {
     display.showBanner("downloading " + file.name + "...");
     var rq = new XMLHttpRequest(),
-        proxy = options.proxy || "";
+	proxy = options.proxy || "";
     rq.open('GET', proxy + file.url);
     if (options.ajax) rq.setRequestHeader("X-Requested-With", "XMLHttpRequest");
     rq.responseType = 'arraybuffer';
     rq.onprogress = function(e) {
-        if (e.lengthComputable) display.showProgress(e.loaded / e.total);
+      if (e.lengthComputable) display.showProgress(e.loaded / e.total);
     };
     rq.onload = function(e) {
-        if (this.status == 200) {
-            file.data = this.response;
-            processFile(file, display, options, thenDo);
-        }
-        else this.onerror(this.statusText);
+      if (this.status == 200) {
+	file.data = this.response;
+	processFile(file, display, options, thenDo);
+      }
+      else this.onerror(this.statusText);
     };
     rq.onerror = function(e) {
-        if (options.proxy) return alert("Failed to download:\n" + file.url);
-        console.warn('Retrying with CORS proxy: ' + file.url);
-        var proxy = 'https://crossorigin.me/',
-            retry = new XMLHttpRequest();
-        retry.open('GET', proxy + file.url);
-        if (options.ajax) retry.setRequestHeader("X-Requested-With", "XMLHttpRequest");
-        retry.responseType = rq.responseType;
-        retry.onprogress = rq.onprogress;
-        retry.onload = rq.onload;
-        retry.onerror = function() {alert("Failed to download:\n" + file.url)};
-        retry.send();
+      if (options.proxy) return alert("Failed to download:\n" + file.url);
+      console.warn('Retrying with CORS proxy: ' + file.url);
+      var proxy = 'https://crossorigin.me/',
+	  retry = new XMLHttpRequest();
+      retry.open('GET', proxy + file.url);
+      if (options.ajax) retry.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+      retry.responseType = rq.responseType;
+      retry.onprogress = rq.onprogress;
+      retry.onload = rq.onload;
+      retry.onerror = function() {alert("Failed to download:\n" + file.url)};
+      retry.send();
     };
     rq.send();
-}
+  }
 
-function fetchFiles(files, display, options, thenDo) {
+  function fetchFiles(files, display, options, thenDo) {
     // check if files exist locally and download if nessecary
     function getNextFile() {
-        if (files.length === 0)
-          return thenDo();
-        var file = files.shift(),
-            forceDownload = options.forceDownload || file.forceDownload;
-        if (forceDownload) downloadFile(file, display, options, getNextFile);
-        else checkExisting(file, display, options,
-            function ifExists() {
-                getNextFile();
-            },
-            function ifNotExists() {
-                downloadFile(file, display, options, getNextFile);
-            });
+      if (files.length === 0)
+	return thenDo();
+      var file = files.shift(),
+	  forceDownload = options.forceDownload || file.forceDownload;
+      if (forceDownload) downloadFile(file, display, options, getNextFile);
+      else checkExisting(file, display, options,
+			 function ifExists() {
+			   getNextFile();
+			 },
+			 function ifNotExists() {
+			   downloadFile(file, display, options, getNextFile);
+			 });
     }
     getNextFile();
-}
+  }
 
-SqueakJS.runSqueak = function(imageUrl, canvas, options) {
+  SqueakJS.runSqueak = function(imageUrl, canvas, options) {
     // we need to fetch all files first, then run the image
     processOptions(options);
     if (!imageUrl && options.image) imageUrl = options.image;
@@ -1403,70 +1409,70 @@ SqueakJS.runSqueak = function(imageUrl, canvas, options) {
     options.url = baseUrl;
     fetchTemplates(options);
     var display = createSqueakDisplay(canvas, options),
-        image = {url: null, name: null, image: true, data: null},
-        files = [];
+	image = {url: null, name: null, image: true, data: null},
+	files = [];
     display.argv = options.argv;
     if (imageUrl) {
-        var url = Squeak.splitUrl(imageUrl, baseUrl);
-        image.url = url.full;
-        image.name = url.filename;
+      var url = Squeak.splitUrl(imageUrl, baseUrl);
+      image.url = url.full;
+      image.name = url.filename;
     }
     if (options.files) {
-        options.files.forEach(function(f) {
-            var url = Squeak.splitUrl(f, baseUrl);
-            if (image.name === url.filename) {/* pushed after other files */}
-            else if (!image.url && f.match(/\.image$/)) {
-                image.name = url.filename;
-                image.url = url.full;
-            } else {
-                files.push({url: url.full, name: url.filename});
-            }
-        });
+      options.files.forEach(function(f) {
+	var url = Squeak.splitUrl(f, baseUrl);
+	if (image.name === url.filename) {/* pushed after other files */}
+	else if (!image.url && f.match(/\.image$/)) {
+	  image.name = url.filename;
+	  image.url = url.full;
+	} else {
+	  files.push({url: url.full, name: url.filename});
+	}
+      });
     }
 
     if (!Squeak.fileExists(options.root + image.name)) {
       // If the image file exists, assume there's no need to check the zips.
       if (options.zip) {
-          var zips = typeof options.zip === "string" ? [options.zip] : options.zip;
-          zips.forEach(function(zip) {
-              var url = Squeak.splitUrl(zip, baseUrl);
-              files.push({url: url.full, name: url.filename, zip: true});
-          });
+	var zips = typeof options.zip === "string" ? [options.zip] : options.zip;
+	zips.forEach(function(zip) {
+	  var url = Squeak.splitUrl(zip, baseUrl);
+	  files.push({url: url.full, name: url.filename, zip: true});
+	});
       }}
 
     if (image.url) files.push(image);
 
     if (options.document) {
-        var url = Squeak.splitUrl(options.document, baseUrl);
-        files.push({url: url.full, name: url.filename, forceDownload: options.forceDownload !== false});
-        display.documentName = options.root + url.filename;
+      var url = Squeak.splitUrl(options.document, baseUrl);
+      files.push({url: url.full, name: url.filename, forceDownload: options.forceDownload !== false});
+      display.documentName = options.root + url.filename;
     }
     options.image = image;
     fetchFiles(files, display, options, function thenDo() {
-        Squeak.fsck();
-        var image = options.image;
-        if (!image.name) return console.log("could not find an image");
-        if (!image.data) {
-	    console.log("could not find image " + image.name);
-	    document.location.reload();
-	    return}
+      Squeak.fsck();
+      var image = options.image;
+      if (!image.name) return console.log("could not find an image");
+      if (!image.data) {
+	console.log("could not find image " + image.name);
+	document.location.reload();
+	return}
       SqueakJS.appName = options.appName || image.name.replace(/\.image$/, "");
-        SqueakJS.runImage(image.data, options.root + image.name, display, options);
+      SqueakJS.runImage(image.data, options.root + image.name, display, options);
     });
     return display;
-};
+  };
 
-SqueakJS.quitSqueak = function() {
+  SqueakJS.quitSqueak = function() {
     SqueakJS.vm.quitFlag = true;
-};
+  };
 
-SqueakJS.onQuit = function(vm, display, options) {
+  SqueakJS.onQuit = function(vm, display, options) {
     window.onbeforeunload = null;
     display.vm = null;
     if (options.spinner) options.spinner.style.display = "none";
     if (options.onQuit) options.onQuit(vm, display, options);
     else display.showBanner(SqueakJS.appName + " stopped.");
-};
+  };
 
 }); // end module
 
@@ -1475,12 +1481,12 @@ SqueakJS.onQuit = function(vm, display, options) {
 //////////////////////////////////////////////////////////////////////////////
 
 if (window.applicationCache) {
-    applicationCache.addEventListener('updateready', function() {
-        // use original appName from options
-        var appName = window.SqueakJS && SqueakJS.options && SqueakJS.options.appName || "SqueakJS";
-        if (confirm(appName + ' has been updated. Restart now?')) {
-            window.onbeforeunload = null;
-            window.location.reload();
-        }
-    });
+  applicationCache.addEventListener('updateready', function() {
+    // use original appName from options
+    var appName = window.SqueakJS && SqueakJS.options && SqueakJS.options.appName || "SqueakJS";
+    if (confirm(appName + ' has been updated. Restart now?')) {
+      window.onbeforeunload = null;
+      window.location.reload();
+    }
+  });
 }

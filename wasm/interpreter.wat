@@ -4,6 +4,7 @@
  (import "wasm" "pointersAt" (func $pointersAt (param i32) (param i32) (result i32)))
  (import "wasm" "pointersAtPut" (func $pointersAtPut (param i32) (param i32) (param i32)))
  (import "wasm" "homeContextPointersAtPut" (func $homeContextPointersAtPut (param i32) (param i32)))
+ (import "wasm" "receiverPointersAtPut" (func $receiverPointersAtPut (param i32) (param i32)))
  (import "wasm" "push" (func $push (param i32)))
  (import "wasm" "extendedPush" (func $extendedPush (param i32)))
  (import "wasm" "extendedStore" (func $extendedStore (param i32)))
@@ -15,7 +16,7 @@
  (import "wasm" "nono" (func $nono (result i32)))
  (import "wasm" "send" (func $send (param i32) (param i32) (param i32) (result i32)))
  (import "wasm" "top" (func $top (result i32)))
- (import "wasm" "exportThisContext" (func $exportThisContext (result i32)))
+ (import "wasm" "pushExportThisContext" (func $pushExportThisContext))
  (import "wasm" "pushNewArray" (func $pushNewArray (param i32) (result i32)))
  (import "wasm" "callPrimBytecode" (func $callPrimBytecode (result i32)))
  (import "wasm" "pushClosureCopy" (func $pushClosureCopy (result i32)))
@@ -41,6 +42,7 @@
  (import "wasm" "thePC" (func $thePC (result i32)))
  (import "wasm" "theByteCodeCount" (func $theByteCodeCount (result i32)))
  (import "wasm" "theInterruptCheckCounter" (func $theInterruptCheckCounter (result i32)))
+ (import "wasm" "setTheInterruptCheckCounter" (func $setTheInterruptCheckCounter (param i32)))
  (import "wasm" "contextTempFrameStart" (func $contextTempFrameStart (result i32)))
  (import "wasm" "associationValue" (func $associationValue (result i32)))
  (import "wasm" "theReceiver" (func $theReceiver (result i32)))
@@ -50,6 +52,8 @@
  (import "wasm" "theActiveContext" (func $theActiveContext (result i32)))
  (import "wasm" "theHomeContext" (func $theHomeContext (result i32)))
  (import "wasm" "blockContextCaller" (func $blockContextCaller (result i32)))
+ (import "wasm" "pop2AndPushDivResult" (func $pop2AndPushDivResult (param i32) (param i32) (result i32)))
+ (import "wasm" "safeShift" (func $safeShift (param i32) (param i32) (result i32)))
  
  (func $interpretOne (export "interpretOne")
        (local $firstInstructionByte i32)
@@ -133,7 +137,7 @@
 	 local.get $firstInstructionByte
 	 i32.and
 	 call $pop
-	 call $pointersAtPut
+	 call $receiverPointersAtPut
 	 return))
 
        local.get $firstInstructionByte
@@ -439,8 +443,7 @@
 
        (if
 	(then
-	 call $exportThisContext
-	 call $push
+	 call $pushExportThisContext
 	 return))
 
        local.get $firstInstructionByte
@@ -586,9 +589,13 @@
 	 (if
 	  (then
 	   call $theInterruptCheckCounter
-	   i32.const 1
-	   i32.sub
 	   i32.const 0
+	   local.set $temp
+	   call $theInterruptCheckCounter
+   	   i32.const 1
+	   i32.sub
+	   call $setTheInterruptCheckCounter
+	   local.get $temp
 	   i32.le_u
 	   (if
 	    (then
@@ -666,6 +673,8 @@
 	(then
 	 i32.const 1
 	 call $setSuccess
+	 i32.const 0
+	 call $setResultIsFloat
 
 	 i32.const 1
 	 call $stackIntOrFloat
@@ -699,7 +708,7 @@
 	 call $stackIntOrFloat
 	 i32.const 0
 	 call $stackIntOrFloat
-	 i32.lt_u
+	 i32.lt_s
 	 call $pop2AndPushBoolResult
 	 i32.const 0
 	 i32.eq
@@ -727,7 +736,7 @@
 	 call $stackIntOrFloat
 	 i32.const 0
 	 call $stackIntOrFloat
-	 i32.gt_u
+	 i32.gt_s
 	 call $pop2AndPushBoolResult
 	 i32.const 0
 	 i32.eq
@@ -755,7 +764,7 @@
 	 call $stackIntOrFloat
 	 i32.const 0
 	 call $stackIntOrFloat
-	 i32.le_u
+	 i32.le_s
 	 call $pop2AndPushBoolResult
 	 i32.const 0
 	 i32.eq
@@ -783,7 +792,7 @@
 	 call $stackIntOrFloat
 	 i32.const 0
 	 call $stackIntOrFloat
-	 i32.ge_u
+	 i32.ge_s
 	 call $pop2AndPushBoolResult
 	 i32.const 0
 	 i32.eq
@@ -978,7 +987,7 @@
 	 call $stackInteger
 	 i32.const 0
 	 call $stackInteger
-	 i32.shr_u
+	 call $safeShift
 	 call $pop2AndPushIntResult
 	 i32.const 0
 	 i32.eq
@@ -1006,8 +1015,7 @@
 	 call $stackInteger
 	 i32.const 0
 	 call $stackInteger
-	 i32.div_u
-	 call $pop2AndPushIntResult
+	 call $pop2AndPushDivResult
 	 i32.const 0
 	 i32.eq
 
