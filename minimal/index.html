@@ -1,33 +1,103 @@
-<html>
-  <head>
-    <script src="https://cdn.jsdelivr.net/gh/aframevr/aframe@b78a9f4552e01d2cd933f26b07a223c43007a97c/dist/aframe-master.min.js"></script>
-    <script src="js/aframe/components/snozzy.js"></script>
-  </head>
-  <body>
-    <a-scene id="scene"
+<!-- Caffeine in a "single-page application" context, version 4 -->
+<!-- TODO: Identify rendering quirks-mode dependencies and eliminate them, set DOCTYPE properly. -->
 
-	     raycaster="showLine: false;
-			far: 100;
-			objects: .squeaky"
+<html charset="utf-8">
+  <head id="magic">
+    <title>Caffeine :: livecode the web</title>
 
-	     line="color: orange;
-		   opacity: 0.5"
+    <link rel="manifest"
+	  href="/manifest.webmanifest">
 
-	     cursor="rayOrigin: mouse"
-	     keyboard-shortcuts="enterVR: false">
+    <link rel="stylesheet"
+	  href="/css/caffeine.css">
 
-      <a-box id="squeak-frame-bottom"
-	     position="0 5.25 -7.9"
-	     width="15.4"
-	     height="0.25"
-	     depth="0.25"
-	     color="gray"
-	     snozzy></a-box>
-      
-      <a-entity id="cameraRig"
-		position="0 10 0"
-		rotation>
+    <link rel="apple-touch-icon"
+	  href="/pictures/icons/caffeine/caffeineWebAppIcon192.png">
+    
+    <link rel="apple-touch-startup-image"
+	  href="/pictures/backgrounds/bootscreen/bootscreen.png">
+    
+    <meta name="apple-mobile-web-app-capable"
+	  content="yes">
 
-	<a-entity id="camera"
-		  position="0 10 50"
-		  camera</a-entity></a-entity></a-scene></body></html>
+    <meta name="apple-mobile-web-app-status-bar-style"
+	  content="black-translucent">
+
+    <meta name="apple-mobile-web-app-title"
+	  content="Caffeine">
+
+    <meta name="viewport"
+	  content="width=1200, user-scalable=0"></head>
+
+  <body style="margin: 0px;
+	       min-width: 100%;
+	       font-size: 16px;">
+
+    <script defer type="text/javascript"
+	    src="js/zlib/bower_components/pako/dist/pako_inflate.min.js"></script>
+    
+    <br>
+
+    <div id="caffeine-div"
+	 style="pointer-events: all;
+		border: 2px inset gray;
+		position: absolute;
+		top: 280;
+		left: 120;
+		z-index: 1;
+		opacity: 1;
+		transition: opacity 500ms; visibility 500ms">
+
+      <center>
+
+	<iframe id="caffeine-frame"
+		style="overflow: hidden, opacity 500ms, visibility 500ms;"
+		src="/squeak.html"
+		marginheight="0"
+		marginwidth="0"
+		width="1000"
+		height="400"
+		frameborder="0"
+		scrolling="no"
+		allowfullscreen></iframe></center></div>
+
+    <div id="dashboard"
+	 style="position: fixed;
+		right: 10px;
+		bottom: 10px;
+		z-index: 2000;
+		opacity: 0;
+		transition: opacity 2000ms;">
+
+      <div id="progress-spinner"
+	   style="position: absolute;
+		  right: 0px;
+		  bottom: 0px;
+		  width: 50px;
+		  height: 50px;
+		  opacity: 0;
+		  transition: opacity 500ms;"></div>
+
+      <div id="settings"
+	   style="position: absolute;
+		  right: 0px;
+		  bottom: 0px;">
+
+	<input id="settings.button"
+	       type="image"
+	       src="/pictures/icons/browser/settings.png"
+	       tabindex="-1"
+	       width="50"
+	       height="50"
+	       style="user-select: none;
+		      outline: none;"></div></div>
+
+    <script>
+      window.appID = "4599d316-a13e-46ef-92be-c7337899038c"
+
+      document.body.addEventListener(
+	'mousemove',
+	(event) => {window.lastMouseEvent = event})
+    </script>
+  </body>
+</html>

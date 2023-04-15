@@ -1,0 +1,106 @@
+<!--
+
+         This is a container for a live Caffeine system, run by the
+    SqueakJS virtual machine and suitable for inclusion in larger
+    webpages.
+
+         As many elements as possible (for example, text-recognizer)
+    should be created and inserted dynamically by Caffeine when it
+    resumes, not expressed statically here. In this early era of
+    development, we prototype with handwritten elements (either in
+    HTML files or in the web browser's devtools), and move them to
+    Caffeine after they're stable. Ultimately, we'd like to provide
+    all the devtools functionality from Caffeine, since some host
+    platforms (like iOS and iPadOS) don't provide access to them from
+    their web browsers.
+
+  -->
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Caffeine</title>
+
+    <link rel="icon"
+	  type="image/png"
+	  href="pictures/squeakjs.png">
+
+    <link rel="stylesheet"
+	  href="css/squeakjs.css"></head>
+
+  <body>
+
+    <canvas id="caffeine-canvas"
+	    width="1000"
+	    height="400"
+	    onselectstart="return false;"
+	    ondragstart="return false;"
+
+	    style="visibility: 'invisible';
+		   overflow: hidden;
+		   webkit-user-select: none;
+		   outline-color: rgba(0, 0, 0, 0);
+		   position: absolute;
+		   top: 0px;
+		   left: 0px"></canvas>
+
+    <!--
+
+	 This invisible text-recognizer element should be created and
+    inserted dynamically by Caffeine, not expressed here. We use it to
+    capture recognized Apple QuickPath swiped-keyboard gestures and
+    Apple Scribble stylus handwriting, for redisplay in
+    Smalltalk-rendered UIs.
+
+         Whenever a Smalltalk-rendered text field gets Smalltalk
+    focus, Caffeine gives DOM focus to the recognizer element, and
+    positions it to match the dimensions of the field. Initially, the
+    element is intended for use with QuickPath, and is placed below
+    Caffeine's DOM canvas. After a two-finger tap, Caffeine raises the
+    element above the canvas, making it usable for Scribble. (A
+    two-finger drag is a separate gesture, and invokes a different
+    feature.) Scribble and QuickPath are usable simultaneously.
+
+         While using Scribble, stylus input originating inside the
+    field is displayed and used as ink, not pointer events. Some
+    familiar Scribble behavior that mixes pointing and scribbling is
+    therefore not available; we only have 'inputchanged' events from
+    the element. This means, however, that we can always use the
+    entire field for text entry. This is in contrast to the
+    unpredictable and destructive edits one gets by scribbling new
+    words over existing text in the Apple Notes app.
+
+         After a further one-finger tap, Caffeine lowers the element
+    offscreen, so that one may use the stylus for pointer events in
+    the field again.
+
+      -->
+
+    <input id="text-recognizer"
+	   style="position: fixed;
+		  top: -1000;
+		  opacity: 0;
+		  z-index: -10"
+	   autocomplete="off"
+	   autocorrect="off"
+	   autocapitalize="off"
+	   spellcheck="off"></input>
+    
+    <script src="js/squeakjs/squeak.js"></script>
+    <script src="js/startup.js"></script>
+    <script>
+      window.onload = () => {
+    	window.startup()
+      
+        window.top.startCaffeine(
+          document.getElementById('caffeine-canvas'),
+          window.snapshot,
+          "SqueakV46",
+            {
+              appID: '4599d316-a13e-46ef-92be-c7337899038c',
+              appName: "Caffeine",
+              appServer: "demo.blackpagedigital.com:8091"})}
+      </script>
+  </body>
+</html>

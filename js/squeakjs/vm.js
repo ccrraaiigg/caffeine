@@ -2907,6 +2907,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      this.loadInitialContext();
 		      this.initCompiler();
 
+//		      this.breakOn('StrikeFont>>createCharacterToGlyphMap')
 		      console.log('squeak: ready');
 		    },
 
@@ -2921,11 +2922,11 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 
 		    uuidForObject: function(object) {
 		      if (object.sqClass) {
-			if (object.oop < 0) this.image.fullGC('assigning object uuid')
-			if (object.oop < 0) {
+			if (object.oop <= 0) this.image.fullGC('assigning object uuid')
+			if (object.oop <= 0) {
 			  debugger;
 			  return this.uuidForObject(this.nilObj)}
-			return 0x0FFFFFFF - object.oop}
+			return 0x7FFFFFFF - object.oop}
 		      else return object},
 
 		    nextByteGuarded: function() {
@@ -2933,7 +2934,9 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 
 		      if (typeof(byte) == 'undefined') debugger
 		      return byte},
-		    
+
+		    pop2AndPushDivResult: function(first, second) {return this.pop2AndPushIntResult(this.div(first, second))},
+		    pushExportThisContext: function() {this.push(this.exportThisContext())},
 		    doReturnWithUUID: function(value, context) {this.doReturn(this.objectWithUUID(value), this.objectWithUUID(context))},
 		    pushObjectWithUUID: function(uuid) {this.push(this.objectWithUUID(uuid))},
 		    pop2AndPushBoolResultWithUUID: function(bool) {return this.pop2AndPushBoolResult(bool)},
@@ -2959,7 +2962,10 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 
 		    homeContextPointersAtPut: function(index, value) {
 		      this.homeContext.pointers[index] = this.objectWithUUID(value)},
-		    
+
+		    receiverPointersAtPut: function(index, value) {
+		      this.receiver.pointers[index] = this.objectWithUUID(value)},
+
 		    quickSendOtherWithUUID: function(uuid, lobits) {return this.primHandler.quickSendOther(this.objectWithUUID(uuid), lobits)},
 		    sendFromUUID: function(uuid, index, bool) {this.send(this.objectWithUUID(uuid), index, bool)},
 		    theByteCodeCount: function() {return this.byteCodeCount},
@@ -2970,6 +2976,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    setSuccess: function(theSuccess) {this.success = theSuccess},
 		    setResultIsFloat: function(theResultIsFloat) {this.resultIsFloat = theResultIsFloat},
 		    theInterruptCheckCounter: function() {return this.interruptCheckCounter},
+		    setTheInterruptCheckCounter: function(int) {this.interruptCheckCounter = int},
 		    contextTempFrameStart: function() {return Squeak.Context_tempFrameStart},
 		    associationValue: function() {return Squeak.Assn_value},
 		    theReceiver: function() {return this.uuidForObject(this.receiver)},
@@ -3304,6 +3311,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			if (this.method.compiled) {
 			  this.method.compiled(this);
 			} else {
+//			  this.interpretOne();
 			  this.interpretOneWASM();
 			}}
 		      // this is to allow 'freezing' the interpreter and restarting it asynchronously. See freeze()

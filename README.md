@@ -19,6 +19,7 @@ You can read more about the design of Caffeine, and new features, at my blog, [h
 | [/](https://caffeine.js.org/)                     | this page  |  
 | [/spa](https://caffeine.js.org/spa)                 | Caffeine on a single-page-application site |  
 | [/worldly](https://caffeine.js.org/worldly)                 | Worldly, an [A-Frame](https://aframe.io)-powered in-world virtual reality livecoding space |  
+| [/minimal](https://caffeine.js.org/minimal)             | a minimal object memory |  
 | [/talk](https://caffeine.js.org/talk)             | an [impress](https://impress.js.org)-powered presentation about Caffeine and livecoding |  
 | [/developer](https://caffeine.js.org/developer)   | a developer-oriented overview of Caffeine, with a tutorial for developing with it |  
 | [/beatshifting](https://caffeine.js.org/beatshifting) | Beatshifting :: Play Music in Sync and Out of Phase |  
@@ -37,5 +38,5 @@ Craig Latta
 <br>
 Amsterdam :: San Francisco
 <br>
-[@ccrraaiigg](https://twitter.com/ccrraaiigg)
+[@ccrraaiigg@mastodon.social](https://mastodon.social/ccrraaiigg)
 
