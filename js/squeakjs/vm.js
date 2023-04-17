@@ -2907,7 +2907,6 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      this.loadInitialContext();
 		      this.initCompiler();
 
-//		      this.breakOn('StrikeFont>>createCharacterToGlyphMap')
 		      console.log('squeak: ready');
 		    },
 
@@ -2935,6 +2934,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      if (typeof(byte) == 'undefined') debugger
 		      return byte},
 
+		    log: function (packed) {console.log(packed)},
 		    pop2AndPushDivResult: function(first, second) {return this.pop2AndPushIntResult(this.div(first, second))},
 		    pushExportThisContext: function() {this.push(this.exportThisContext())},
 		    doReturnWithUUID: function(value, context) {this.doReturn(this.objectWithUUID(value), this.objectWithUUID(context))},
@@ -3311,8 +3311,8 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			if (this.method.compiled) {
 			  this.method.compiled(this);
 			} else {
-//			  this.interpretOne();
-			  this.interpretOneWASM();
+			  this.interpretOne();
+//			  this.interpretOneWASM();
 			}}
 		      // this is to allow 'freezing' the interpreter and restarting it asynchronously. See freeze()
 		      if (typeof this.breakOutOfInterpreter == "function")

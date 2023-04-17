@@ -1175,6 +1175,7 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
 	WebAssembly.instantiateStreaming(
 	  fetch("/wasm/interpreter.wasm"),
 	  {wasm: {
+	    log: vm.log.bind(vm),
 	    nextByte: vm.nextByteGuarded.bind(vm),
 	    receiverBeDirty: vm.receiverBeDirty.bind(vm),
 	    pointersAt: vm.pointersAt.bind(vm),
