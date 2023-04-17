@@ -54,16 +54,170 @@
  (import "wasm" "blockContextCaller" (func $blockContextCaller (result i32)))
  (import "wasm" "pop2AndPushDivResult" (func $pop2AndPushDivResult (param i32) (param i32) (result i32)))
  (import "wasm" "safeShift" (func $safeShift (param i32) (param i32) (result i32)))
+
+ (import "wasm" "log" (func $log (param i32)))
+
+ (global $temp (mut i32))
+ (global $bytecodeCount (mut i32) (i32.const 0))
+ (global $nextAvailableAddress (mut i32) (i32.const 0))
+ (global $startingObjectMemoryAddress i32 (i32.const 0x400))
+ (global $position (mut i32) (i32.const 0))
+ 
+ (memory $everything 0)
+ ;; Since, for now, there can be only one memory, memory has two
+ ;; segments: a fixed-size segment of pointers, and a growable segment
+ ;; of object memory. Each pointer is two 32-bit words: the first is
+ ;; an address in the second segment, and the second has the
+ ;; one-indexed element byte size in the high three bits, and a length
+ ;; in the low 29 bits.
+
+ (func $incrementNextAddress
+       global.get $nextAddress
+       i32.const 1
+       i32.add
+       global.set $nextAddress)
+       
+ (func $pointer
+       (param $address i32)
+       (param $size i32)
+       (result i32)
+
+       ;; Calculate the target address.
+       global.get $startingObjectMemoryAddress
+       global.get $position
+       i32.add
+       
+       ;; Write the target address to the next pointer address.
+       i32.store $nextAddress
+       global.get $nextAddress
+       global.set $temp
+       call $incrementNextAddress
+
+       ;; Write the pointee size to the next pointer address
+       local.get $nWords
+       i32.store $nextAddress
+       call $incrementNextAddress
+
+       ;; Leave the first pointer address on the stack.
+       global.get $temp)
+
+ (func $sizeOfPointer
+       (param $pointer i32)
+
+       local.get $pointer
+       i32.const 1
+       i32.add
+       global.set $temp
+       global.get $temp
+       i32.load)
+
+ (func $push
+       (param $startingAaddress i32)
+       (param $value i32)
+       (local $address i32)
+       (local $size)
+       (local $contents)
+
+       local.get $startingAddress
+       local.set $address
+       local.get $startingAddress
+       i32.load
+       local.set $size
+
+       local.get $address
+       i32.const 1
+       i32.add
+       
+       (loop $loop
+	     i32.load
+	     local.set $contents
+	     local.get $size
+	     i32.const 1
+	     i32.sub
+	     local.set $size
+	     local.get $size
+	     i32.const 0
+	     i32.eq
+       
+       
+       
+
+       
+ (func $readWord
+       (local $integer)
+
+       global.get $position
+       global.get $littleEndian
+       call $getUint32
+       local.set $integer
+       global.get $position
+       i32.const 4
+       i32.add
+       global.set $position
+       local.get $integer)
+
+ (func $readBits
+       (param $nWords i32)
+       (param $isPointers i32)
+       (param $oops i32) ;; memory address of an array, first element is array size
+       
+       local.get $isPointers
+       
+       (if
+	(then
+	 ;; Do endianness conversion.
+	 global.get $nextAddress
+	 local.set $oops
+	 local.get $oops
+	 i32.store 0
+	 
+	 (loop $loop
+	       local.get $oops
+	       i32.load
+	       local.get $nWords
+	       i32.lt_u
+
+	       (if
+		(then
+		 local.get $oops
+		 call $readWord
+		 call $push))
+
+	       local.get $oops
+	       i32.load
+	       local.get $nWords
+	       i32.lt_u
+	       br_if $loop
+
+	       local.get $oops
+	       i32.load
+	       return))
+	(else
+	 ;; words (no endianness conversion yet)
+
+
+
+
+	 
+ (func $readFromBuffer
+       (local $littleEndian (i32.const 0))
+       
+       i32.const 0x52454144 ;; 'READ'
+       call $log
+
+       
+
+
+
  
  (func $interpretOne (export "interpretOne")
        (local $firstInstructionByte i32)
        (local $secondInstructionByte i32)
-       (local $temp i32)
 
-       call $theByteCodeCount
+       global.get $bytecodeCount
        i32.const 1
        i32.add
-       call $setByteCodeCount
+       global.set $bytecodeCount
 
        call $nextByte
        local.set $firstInstructionByte

@@ -1,5 +1,5 @@
 (module
-  (memory (import "wasm" "memory") 1)
+ (memory (import "wasm" "memory") 1)
 
   (func $partitionedMUL (export "partitionedMUL")
     (param $word1 i32)
