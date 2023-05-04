@@ -131,14 +131,19 @@ Function.prototype.subclass = function(classPath /* + more args */ ) {
 // load vm, plugins, and other libraries
 //////////////////////////////////////////////////////////////////////////////
 
+// WebAssembly.instantiateStreaming(
+//   fetch("/wasm/foo.wasm"), {}).then((wasm) => {debugger;});
+
 (function(){
   var scripts = document.getElementsByTagName("script"),
       squeakjs = scripts[scripts.length - 1],
       vmDir = document.location.toString().split("#")[0];
 
   vmDir = vmDir.substring(0, vmDir.lastIndexOf('/')) + '/js/squeakjs/';
-  
+
   if (squeakjs.src.match(/squeak\.min\.js$/)) return;
+
+
   [   "vm.js",
       "jit.js",
       "plugins/ADPCMCodecPlugin.js",
@@ -164,14 +169,14 @@ Function.prototype.subclass = function(classPath /* + more args */ ) {
       "plugins/ZipPlugin.js",
       "lib/lz-string.js",
       "lib/jszip.js",
-      "lib/FileSaver.js",
+      "lib/FileSaver.js"
   ].forEach(function(filename) {
     var script = document.createElement('script');
     script.setAttribute("type","text/javascript");
     script.setAttribute("src", vmDir + filename);
     document.getElementsByTagName("head")[0].appendChild(script);
   });
-})();
+					       })();
 
 module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
 
@@ -878,7 +883,7 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
       */
     };
     document.onkeydown = function(evt) {
-//      if (top.squeakDisplay && top.squeakDisplay.vm) document.body.style.cursor = 'none';
+      if (top.squeakDisplay && top.squeakDisplay.vm) document.body.style.cursor = 'none';
       checkFullscreen();
       if (canvas.otherCanvasActive) {
 	return true;}
@@ -1230,6 +1235,7 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
 	    theHomeContext: vm.theHomeContext.bind(vm),
 	    blockContextCaller: vm.blockContextCaller.bind(vm)}}).then((wasm) => {
 	      vm.interpretOneWASM = wasm.instance.exports.interpretOne;
+	      vm.currentInterpretOne = vm.interpretOne;
 	      run();})
       },
 			   function readProgress(value) {display.showProgress(value);});
