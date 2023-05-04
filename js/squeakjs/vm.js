@@ -2149,7 +2149,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			    this.constructor.prototype.decodeFloat = this.decodeFloatDeoptimized;
 			    this.float = this.decodeFloat(bits, littleEndian, nativeFloats);
 			    if (this.float == 1.3797216632888e-310)
-                              throw Error("Cannot deoptimize decodeFloat");
+                              console.log("Cannot deoptimize decodeFloat");
 			  }
 			}
 		      } else {
@@ -3298,6 +3298,10 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      debugger;
 		      throw Error("not a bytecode: " + b);
 		    },
+		    useWASM: function() {
+		      this.currentInterpretOne = this.interpretOneWASM;},
+		    doNotUseWASM: function() {
+		      this.currentInterpretOne = this.interpretOne;},
 		    interpret: function(forMilliseconds, thenDo) {
 		      // run for a couple milliseconds (but only until idle or break)
 		      // answer milliseconds to sleep (until next timer wakeup)
@@ -3311,8 +3315,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			if (this.method.compiled) {
 			  this.method.compiled(this);
 			} else {
-			  this.interpretOne();
-//			  this.interpretOneWASM();
+			  this.currentInterpretOne();
 			}}
 		      // this is to allow 'freezing' the interpreter and restarting it asynchronously. See freeze()
 		      if (typeof this.breakOutOfInterpreter == "function")
@@ -8018,6 +8021,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      } else {
 			reject(Error("SqueakJS timeout"));
 			console.log("SqueakJS timeout");
+//			debugger;
 		      }
 		    },
 		    js_objectOrGlobal: function(sqObject) {

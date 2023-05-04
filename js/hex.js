@@ -164,7 +164,7 @@ if ('serviceWorker' in navigator) {
 	    return Promise.all(keyList.map(function(key) {
 	      return caches.delete(key)}))})})
       
-      window.onbeforeunload = (function () {
+      window.onbeforeunload = (function (event) {
 	reg.dispatchEvent(new Event('push'))})})
     .catch(function(error) {
       // registration failed
