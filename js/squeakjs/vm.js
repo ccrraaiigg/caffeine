@@ -351,21 +351,21 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			total++;
 			if (files[path]) orphaned.push(path); // not marked visited
 		      }
-/*		      if (orphaned.length > 0) {
-			for (var i = 0; i < orphaned.length; i++) {
-			  console.log("Deleting orphaned file " + orphaned[i]);
-			  delete localStorage["squeak-file:" + orphaned[i]];
-			  delete localStorage["squeak-file.lz:" + orphaned[i]];
-			  stats.deleted++;
-			}
-			if (typeof indexedDB !== "undefined") {
-			  this.dbTransaction("readwrite", "fsck delete", function(fileStore) {
-                            for (var i = 0; i < orphaned.length; i++) {
-                              fileStore.delete(orphaned[i]);
-                            };
-			  });
-			}
-		      }
+		      /*		      if (orphaned.length > 0) {
+					      for (var i = 0; i < orphaned.length; i++) {
+					      console.log("Deleting orphaned file " + orphaned[i]);
+					      delete localStorage["squeak-file:" + orphaned[i]];
+					      delete localStorage["squeak-file.lz:" + orphaned[i]];
+					      stats.deleted++;
+					      }
+					      if (typeof indexedDB !== "undefined") {
+					      this.dbTransaction("readwrite", "fsck delete", function(fileStore) {
+					      for (var i = 0; i < orphaned.length; i++) {
+					      fileStore.delete(orphaned[i]);
+					      };
+					      });
+					      }
+					      }
 		      */
 		      if (whenDone) whenDone(stats);
 		    }
@@ -896,12 +896,178 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      this.newSpaceCount = 0;
 		      this.hasNewInstances = {};
 		    },
+		    oldObjectAt: function(oldAddress, host, index) {
+		      var oldObject = this.firstOldObject
+			    
+		      while (oldObject.oop != oldAddress) {
+			oldObject = oldObject.nextObject
+			if (!oldObject) {
+			  console.log("WASM object pointer " + oldAddress + " not resolved for index " + index + " in host " + host)
+			  debugger
+			  return SqueakJS.vm.nilObj}}
+		      return oldObject},
+		    youngObjectAt: function(youngAddress) {
+		      var currentYoungObject = SqueakJS.vm.image.firstYoungObject
+
+		      while (currentYoungObject) {
+			if ((currentYoungObject.nextObject) && (currentYoungObject.oop < currentYoungObject.nextObject.oop)) {
+			  debugger
+			  var currentYoungObject = this.firstYoungObject}
+			      
+			if (currentYoungObject.oop == youngAddress) return currentYoungObject
+			else currentYoungObject = currentYoungObject.nextObject}
+
+		      return SqueakJS.vm.nilObj},
+		    indexOfYoungObjectWithWASMAddress: function(wasmAddress) {
+		      var currentYoungObjectTableElementAddress = this.youngObjectsTable
+
+		      while (this.memoryView.getInt32(currentYoungObjectTableElementAddress) != wasmAddress) {
+			if (currentYoungObjectTableElementAddress >= this.youngObjectsSegment) return null
+			currentYoungObjectTableElementAddress += 4}
+
+		      return (currentYoungObjectTableElementAddress - this.youngObjectsTable) / -4},
+		    existingObjectAt: function(existingAddress, host, index) {
+		      if (existingAddress < 0) return this.youngObjectAt(existingAddress)
+		      else if (existingAddress >= this.youngObjectsSegment) return this.youngObjectAt(this.indexOfYoungObjectWithWASMAddress(existingAddress))
+		      else return this.oldObjectAt(existingAddress, host, index)},
+		    readFromWASM: function(address) {
+		      var position = address,
+			  numberOfWords = 0,
+			  classIndex = 0,
+			  header,
+
+			  readWord = function() {
+			    var integer
+
+			    try {integer = SqueakJS.vm.image.memoryView.getUint32(position)}
+			    catch (error) {debugger}
+			    position += 4;
+			    return integer;},
+
+			  readBits = function(numberOfWords, isPointers) {
+			    if (isPointers) {
+			      var oops = [];
+
+			      while (oops.length < numberOfWords) oops.push(readWord());
+			      return oops;}
+			    else {
+			      var bits
+
+			      try {bits = new Uint32Array(SqueakJS.vm.image.memoryView.buffer, position, numberOfWords)}
+			      catch (e) {debugger}
+
+			      position += numberOfWords * 4;
+			      return bits;}},
+		      
+			  decodeExistingPointers = function(bits, host) {
+			    // Convert SmallIntegers and look up existing objects.
+			    var pointers = new Array(numberOfWords)
+
+			    for (var i = 0; i < numberOfWords; i++) {
+			      var oop = bits[i]
+
+			      if ((oop & 1) === 1) {
+				// SmallInteger
+				pointers[i] = oop >> 1}
+			      else pointers[i] = SqueakJS.vm.image.existingObjectAt(oop, host, i)}
+
+			    return pointers}
+			    
+		      header = readWord();
+
+		      switch(header & Squeak.HeaderTypeMask) {
+		      case Squeak.HeaderTypeSizeAndClass:
+			numberOfWords = header >>> 2;
+			classIndex = readWord();
+			header = readWord();
+			break;
+		      case Squeak.HeaderTypeClass:
+			classIndex = header = Squeak.HeaderTypeClass;
+			header = readWord();
+			numberOfWords = (header >>> 2) & 63;
+			break;
+		      case Squeak.HeaderTypeShort:
+			numberOfWords = (header >>> 2) & 63;
+			classIndex = (header >>>12) & 31;
+			break;
+		      case Squeak.HeaderTypeFree:
+			debugger
+			throw Error("unexpected free block");}
+
+		      numberOfWords--; // minus the base header word
+
+		      var format = (header >>> 8) & 15,
+			  bits,
+			  object;
+
+		      // Find the corresponding existing object.
+		      object = this.existingObjectAt(address)
+		      if (object === SqueakJS.vm.nilObj) {
+			debugger
+			console.log("Tried to read nil from WASM.")
+			return}
+
+		      bits = readBits(numberOfWords, format < 5)
+		      
+		      if (object._format < 5) {
+			// pointer fields
+			if (numberOfWords > 0) {
+			  var oops = bits // endian conversion already done
+			  object.pointers = decodeExistingPointers(oops, object)}}
+
+		      else if (object._format >= 12) {
+			// CompiledMethod, which has both pointers and bits.
+			var methodHeader = object.decodeWords(1, bits, SqueakJS.vm.litleEndian)[0],
+			    numberOfLiterals = (methodHeader >> 10) & 255,
+			    oops = this.decodeWords(numberOfLiterals + 1, bits, SqueakJS.vm.litleEndian)
+
+			object.pointers = decodeExistingPointers(numberOfLiterals + 1, oops)
+
+			object.bytes = (
+			  this.decodeBytes(
+			    numberOfWords - (numberOfLiterals + 1),
+			    bits,
+			    numberOfLiterals + 1,
+			    object._format & 3))}
+		      else if (this._format >= 8) {
+			// ByteArray or ByteString
+			if (numberOfWords > 0)
+			  object.bytes = object.decodeBytes(numberOfWords, bits, 0, this._format & 3)}
+		      else if (object.sqClass == SqueakJS.vm.specialObjects[Squeak.splOb_ClassFloat]) {
+			// The words are a Float.
+			object.isFloat = true
+			object.float = object.decodeFloat(numberOfWords, SqueakJS.vm.litleEndian, SqueakJS.vm.getCharacter.bind(SqueakJS.vm))
+
+			if (this.float == 1.3797216632888e-310) {
+			  if (/noFloatDecodeWorkaround/.test(self.location.hash)) {
+			    // floatDecode workaround disabled
+			  }
+			  else {
+			    this.constructor.prototype.decodeFloat = this.decodeFloatDeoptimized;
+			    this.float = this.decodeFloat(bits, SqueakJS.vm.litleEndian, nativeFloats);
+			    if (this.float == 1.3797216632888e-310)
+			      console.log("Cannot deoptimize decodeFloat");}}}
+		      else {
+			if (numberOfWords > 0)
+			  object.words = object.decodeWords(numberOfWords, bits, SqueakJS.vm.litleEndian)}
+
+		      object.mark = false
+		      object.dirty = true},
 		    readFromBuffer: function(arraybuffer, thenDo, progressDo) {
 		      console.log('squeak: reading ' + this.name + ' (' + arraybuffer.byteLength + ' bytes)');
 		      this.startupTime = Date.now();
+
+		      this.memory = new WebAssembly.Memory({
+			initial: 1600,
+			maximum: 1800,
+			shared: true});
+
+		      this.memoryView = new DataView(this.memory.buffer);
+
 		      var data = new DataView(arraybuffer),
 			  littleEndian = false,
 			  pos = 0;
+		      
 		      var readWord = function() {
 			var int = data.getUint32(pos, littleEndian);
 			pos += 4;
@@ -931,6 +1097,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			if (!littleEndian) fileHeaderSize += 512;
 			if (fileHeaderSize > 512) throw Error("bad image version");
 		      };
+		      this.littleEndian = littleEndian;
 		      this.version = version;
 		      var nativeFloats = [6505, 6521, 68003, 68021].indexOf(version) >= 0;
 		      this.hasClosures = [6504, 6505, 6521, 68002, 68003, 68021].indexOf(version) >= 0;
@@ -982,13 +1149,17 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			      hash = (header>>>17) & 4095,
 			      bits = readBits(nWords, format < 5);
 			  var object = new Squeak.Object();
+
 			  object.initFromImage(oop, classInt, format, hash);
 			  if (classInt < 32) object.hash |= 0x10000000;    // see fixCompactOops()
+
 			  if (prevObj) prevObj.nextObject = object;
+
 			  this.oldSpaceCount++;
 			  prevObj = object;
 			  //oopMap is from old oops to actual objects
 			  oopMap[oldBaseAddr + oop] = object;
+
 			  //rawBits holds raw content bits for objects
 			  rawBits[oop] = bits;
 			}
@@ -1096,6 +1267,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			  done = 0,
 			  topmostScope = self,
 			  self = this;
+
 		      function mapSomeObjects() {
 			if (obj) {
 			  var stop = done + (self.oldSpaceCount / 20 | 0);    // do it in 20 chunks
@@ -1115,9 +1287,11 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			    self.fixCompiledMethods();
 			    self.fixCompactOops();
 			  }
+
 			  return false;   // don't do more
 			}
 		      };
+
 		      function mapSomeObjectsAsync() {
 			if (mapSomeObjects()) {
 			  this.setTimeout(mapSomeObjectsAsync, 0);
@@ -1125,12 +1299,26 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			  if (thenDo) thenDo();
 			}
 		      };
+
 		      if (!progressDo) {
 			while (mapSomeObjects()) {};   // do it synchronously
 			if (thenDo) thenDo();
 		      } else {
 			this.topmostScope.setTimeout(mapSomeObjectsAsync, 0);
-		      }
+		      };
+		    },
+		    alignOops: function() {
+		      // adjust oops so that no objects overlap
+		      var currentObject = this.firstOldObject
+		      
+		      while (currentObject.nextObject) {
+			var thisDelta = currentObject.totalBytes() - (currentObject.nextObject.oop - currentObject.oop)
+
+			if (thisDelta > 0) {
+			  console.log(thisDelta)
+			  currentObject.nextObject.oop += thisDelta}
+
+			currentObject = currentObject.nextObject}
 		    },
 		    decorateKnownObjects: function() {
 		      var splObjs = this.specialObjectsArray.pointers;
@@ -1198,6 +1386,12 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    },
 		  },
 		  'garbage collection - full', {
+		    wasmStarted: function() {
+		      return SqueakJS.vm && (SqueakJS.vm.currentInterpretOne === SqueakJS.vm.doInterpretOneWASM) && (this.wasmStarted2 == true)},
+		    wasmStarted4: function() {
+		      return this.wasmStarted() && (this.wasmStarted3 == true)},
+		    wasmStarted6: function() {
+		      return this.wasmStarted4() && (this.wasmStarted5 == true)},
 		    fullGC: function(reason) {
 		      // Collect garbage and return first tenured object (to support object enumeration)
 		      // Old space is a linked list of objects - each object has an "nextObject" reference.
@@ -1206,6 +1400,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      // The "nextObject" references are created by collecting all new objects,
 		      // sorting them by id, and then linking them into old space.
 		      this.vm.addMessage("fullGC: " + reason);
+		      this.wasmStarted2 = true
 		      var start = Date.now();
 		      var newObjects = this.markReachableObjects();
 		      this.removeUnmarkedOldObjects();
@@ -1217,12 +1412,28 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      this.hasNewInstances = {};
 		      this.gcCount++;
 		      this.gcMilliseconds += Date.now() - start;
+
+		      this.memoryView.setInt32(0, this.specialObjectsArray.oop);
+		      this.firstYoungObject = null
+
+		      var currentObject = this.firstOldObject;
+		      
+		      while (currentObject) {
+			if (currentObject != SqueakJS.vm.activeContext) currentObject.writeToWASM();
+			currentObject = currentObject.nextObject;}
+
+		      // Somehow the special selectors array got its
+		      // last two words overwritten by another copy of
+		      // the same array.
+		      this.specialObjectsArray.pointers[23].writeToWASM()
+
+		      this.wasmStarted3 = true
 		      console.log("Full GC (" + reason + "): " + (Date.now() - start) + " ms");
 		      return newObjects.length > 0 ? newObjects[0] : null;
 		    },
 		    fusedGC: function(reason) {
-			// This variant views all unfused compiled methods as garbage.
-			// Collect garbage and return first tenured object (to support object enumeration)
+		      // This variant views all unfused compiled methods as garbage.
+		      // Collect garbage and return first tenured object (to support object enumeration)
 		      // Old space is a linked list of objects - each object has an "nextObject" reference.
 		      // New space objects do not have that pointer, they are garbage-collected by JavaScript.
 		      // But they have an allocation id so the survivors can be ordered on tenure.
@@ -1258,7 +1469,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      var newObjects = [];
 		      this.weakObjects = [];
 		      while (todo.length > 0) {
-			  var object = todo.pop();
+			var object = todo.pop();
 			if (object.mark) continue;    // objects are added to todo more than once
 			if (object.oop < 0)           // it's a new object
 			  newObjects.push(object);
@@ -1278,8 +1489,8 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
                               body[i] = this.vm.nilObj;
 			  }
 			  for (var i = 0; i < n; i++)
-			      if (typeof body[i] === "object" && !body[i].mark) {     // except immediates
-				  todo.push(body[i]);}
+			    if (typeof body[i] === "object" && !body[i].mark) {     // except immediates
+			      todo.push(body[i]);}
 			  // Note: "immediate" character objects in Spur always stay marked
 			}
 		      }
@@ -1287,8 +1498,8 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      return this.isSpur ? newObjects : newObjects.sort(function(a,b){return b.oop - a.oop});
 		    },
 		    markFusedObjects: function() {
-			// FusedGC: Visit all fused objects and mark them. For compiled methods, fused objects
-			// are indicated by a 'fused' slot. For all other objects, fused objects are merely reachable.
+		      // FusedGC: Visit all fused objects and mark them. For compiled methods, fused objects
+		      // are indicated by a 'fused' slot. For all other objects, fused objects are merely reachable.
 		      // Return surviving new objects
 		      // Contexts are handled specially: they have garbage beyond the stack pointer
 		      // which must not be traced, and is cleared out here
@@ -1297,10 +1508,10 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      var newObjects = [];
 		      this.weakObjects = [];
 		      while (todo.length > 0) {
-			  var object = todo.pop();
+			var object = todo.pop();
 			if (object.isMethod() && !object.fused && !object.compiled ) {
-			      object.fused = false;}
-			  if (object.mark) continue;    // objects are added to todo more than once
+			  object.fused = false;}
+			if (object.mark) continue;    // objects are added to todo more than once
 			if (object.oop < 0)           // it's a new object
 			  newObjects.push(object);
 			object.mark = true;           // mark it
@@ -1390,6 +1601,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      for (var i = 0; i < newObjects.length; i++) {
 			var newObj = newObjects[i];
 			newObj.mark = false;
+			this.unshadowYoungObject(newObj);
 			this.oldSpaceBytes = newObj.setAddr(this.oldSpaceBytes);     // add at end of memory
 			oldObj.nextObject = newObj;
 			oldObj = newObj;
@@ -1445,6 +1657,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      this.vm.addMessage("partialGC: " + reason);
 		      var start = Date.now();
 		      var young = this.findYoungObjects();
+		      this.firstYoungObject = young[0];
 		      this.appendToYoungSpace(young);
 		      this.finalizeWeakReferences();
 		      this.cleanupYoungSpace(young);
@@ -1453,8 +1666,50 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      this.newSpaceCount = this.youngSpaceCount;
 		      this.pgcCount++;
 		      this.pgcMilliseconds += Date.now() - start;
+
+		      var currentYoungObject = this.firstYoungObject;
+		      
+		      while (currentYoungObject) {
+			if (!SqueakJS.vm.isContext(currentYoungObject)) currentYoungObject.writeToWASM();
+			currentYoungObject = currentYoungObject.nextObject;}
+
 		      console.log("Partial GC (" + reason+ "): " + (Date.now() - start) + " ms");
-		      return young[0];
+		      return this.firstYoungObject;
+		    },
+		    unshadowYoungObject: function(object) {
+		      // Unshadow the given object, which is about to be tenured.
+		      SqueakJS.vm.image.memoryView.setInt32(SqueakJS.vm.image.youngObjectsTable + object.oop, 0)
+		    },
+		    shadowYoungObject: function(object) {
+		      // Shadow the given young object in the WASM young object table and segment.
+
+		      if (!this.firstYoungObject) {
+			this.storingContextRegisters = true
+			SqueakJS.vm.image.partialGC("initialize WASM")
+			this.storingContextRegisters = false}
+		      
+		      var currentYoungObject = this.firstYoungObject,
+			  wasmAddress = SqueakJS.vm.image.youngObjectsSegment
+
+		      while (currentYoungObject != object) {
+			if (!currentYoungObject) {
+			  // We've run out of nextObjects.
+			  
+			  this.storingContextRegisters = true
+			  SqueakJS.vm.image.partialGC("initialize WASM")
+			  this.storingContextRegisters = false
+
+			  wasmAddress = SqueakJS.vm.image.youngObjectsSegment
+			  currentYoungObject = this.firstYoungObject}
+			else {
+			  wasmAddress += 256
+			  currentYoungObject = currentYoungObject.nextObject}}
+		      
+		      // Write the wasmAddress to the appropriate WASM young objects table entry.
+		      if ((wasmAddress % 4) != 0) wasmAddress += (4 - (wasmAddress % 4))
+		      
+		      SqueakJS.vm.image.memoryView.setInt32(SqueakJS.vm.image.youngObjectsTable - (object.oop * 4), wasmAddress)
+		      return wasmAddress
 		    },
 		    youngRoots: function() {
 		      // PartialGC: Find new objects directly pointed to by old objects.
@@ -1504,8 +1759,8 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			  }
 			  for (var i = 0; i < n; i++) {
 			    var child = body[i];
-			      if (typeof child === "object" && child.oop < 0) {
-				  todo.push(body[i]);}
+			    if (typeof child === "object" && child.oop < 0) {
+			      todo.push(body[i]);}
 			  }
 			}
 		      }
@@ -1552,6 +1807,12 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      this.lastHash = (13849 + (27181 * this.lastHash)) & 0xFFFFFFFF;
 		      return this.lastHash & 0xFFF;
 		    },
+		    linkNewYoungObject: function(object) {
+		      if (this.firstYoungObject) {
+			var currentYoungObject = this.firstYoungObject
+
+			while (currentYoungObject.nextObject) currentYoungObject = currentYoungObject.nextObject
+			currentYoungObject.nextObject = object}},
 		    registerObjectSpur: function(obj) {
 		      // We don't actually register the object yet, because that would prevent
 		      // it from being garbage-collected by the Javascript collector
@@ -1562,6 +1823,13 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      var newObject = new (aClass.classInstProto()); // Squeak.Object
 		      var hash = this.registerObject(newObject);
 		      newObject.initInstanceOf(aClass, indexableSize, hash, filler);
+
+		      if (this.wasmStarted6() && (this.firstYoungObject)) {
+			// Update the WASM young objects table and segment.
+
+			this.linkNewYoungObject(newObject)
+			newObject.writeToWASM()}
+
 		      this.hasNewInstances[aClass.oop] = true;   // need GC to find all instances
 		      return newObject;
 		    },
@@ -1569,6 +1837,13 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      var newObject = new (object.sqClass.classInstProto()); // Squeak.Object
 		      var hash = this.registerObject(newObject);
 		      newObject.initAsClone(object, hash);
+
+		      if (this.wasmStarted6() && (this.firstYoungObject)) {
+			// Update the WASM young objects table and segment.
+
+			this.linkNewYoungObject(newObject)
+			newObject.writeToWASM()}
+
 		      this.hasNewInstances[newObject.sqClass.oop] = true;   // need GC to find all instances
 		      return newObject;
 		    },
@@ -1713,9 +1988,9 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      // unsigned word for use in snapshot
 		      if (typeof obj ===  "number")
 			return obj << 1 | 1; // add tag bit
-			if (obj.oop < 0) {
-			    debugger;
-			    throw Error("temporary oop");}
+//		      if (obj.oop < 0) {
+//			debugger;
+//			throw Error("temporary oop");}
 		      return obj.oop;
 		    },
 		    bytesLeft: function() {
@@ -2449,6 +2724,81 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      if (pos !== beforePos + this.totalBytes()) throw Error("written size does not match");
 		      return pos;
 		    },
+		    wasmAddress: function() {
+		      if (this.oop < 0) {
+			// young object
+			return SqueakJS.vm.image.shadowYoungObject(this)}
+		      else return this.oop},
+		    writeToWASM: function() {
+		      if (!SqueakJS.vm.image.wasmStarted()) return
+
+		      var image = SqueakJS.vm.image,
+			  data = image.memoryView,
+			  startingAddress = this.wasmAddress(),
+			  address = startingAddress
+
+		      if (!SqueakJS.vm.image.minimal) return
+		      if (!(this.sqClass)) debugger
+		      
+		      // Write 1 to 3 header words encoding type, class, and size, then instance data
+		      if (this.bytes) this._format |= -this.bytes.length & 3;
+		      var size = this.snapshotSize(),
+			  formatAndHash = ((this._format & 15) << 8) | ((this.hash & 4095) << 17);
+		      // write header words first
+		      try {
+			switch (size.header) {
+			case 2:
+			  data.setUint32(address, size.body << 2 | Squeak.HeaderTypeSizeAndClass); address += 4;
+			  data.setUint32(address, this.sqClass.oop | Squeak.HeaderTypeSizeAndClass); address += 4;
+			  data.setUint32(address, formatAndHash | Squeak.HeaderTypeSizeAndClass); address += 4;
+			  break;
+			case 1:
+			  data.setUint32(address, this.sqClass.oop | Squeak.HeaderTypeClass); address += 4;
+			  data.setUint32(address, formatAndHash | size.body << 2 | Squeak.HeaderTypeClass); address += 4;
+			  break;
+			case 0:
+			  var classIndex = image.compactClasses.indexOf(this.sqClass) + 1;
+			  data.setUint32(address, formatAndHash | classIndex << 12 | size.body << 2 | Squeak.HeaderTypeShort); address += 4;}}
+		      catch (error) {debugger}
+
+		      // now write body, if any
+		      if (this.isFloat) {
+			data.setFloat64(address, this.float); address += 8;
+		      } else if (this.words) {
+			for (var i = 0; i < this.words.length; i++) {
+			  data.setUint32(address, this.words[i]); address += 4;
+			}
+		      } else if (this.pointers) {
+			for (var i = 0; i < this.pointers.length; i++) {
+			  // Use WASM addresses for young objects.
+			  var object = this.pointers[i],
+			      oop
+
+			  if (object === null) {
+			    debugger
+			    object = SqueakJS.vm.nilObj
+			    this.pointers[i] = SqueakJS.vm.nilObj}
+			    
+			  if (typeof(object) == "number") oop = (object << 1) + 1
+			  else {
+			    oop = object.oop
+			    if (oop < 0) oop = SqueakJS.vm.image.shadowYoungObject(object)}
+
+			  data.setInt32(address, oop)
+			  address += 4
+			}
+		      }
+
+		      // no "else" because CompiledMethods have both pointers and bytes
+		      if (this.bytes) {
+			for (var i = 0; i < this.bytes.length; i++)
+			  data.setUint8(address++, this.bytes[i]);
+			// skip to next word
+			address += -this.bytes.length & 3;
+		      }
+		      // done
+		      return startingAddress;
+		    },
 		  },
 		  'as class', {
 		    classInstFormat: function() {
@@ -2547,10 +2897,12 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    methodTempCount: function() {
 		      return (this.pointers[0]>>18) & 63;
 		    },
-		    methodGetLiteral: function(zeroBasedIndex) {
+		    methodGetSelector: function(zeroBasedIndex) {
+		      if (!(this.pointers[1+zeroBasedIndex])) debugger;
 		      return this.pointers[1+zeroBasedIndex]; // step over header
 		    },
-		    methodGetSelector: function(zeroBasedIndex) {
+		    methodGetLiteral: function(zeroBasedIndex) {
+		      if (!(this.pointers[1+zeroBasedIndex])) debugger;
 		      return this.pointers[1+zeroBasedIndex]; // step over header
 		    },
 		    // for debugging
@@ -2911,88 +3263,80 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    },
 
 		    objectWithUUID: function(uuid) {
-		      var object = this.image.firstOldObject
+		      if (uuid == 0) {
+			// null
+			return uuid}
+		      else {
+			if (uuid & 1) {
+			  // SmallInteger
+			  return uuid >> 1}
+			else {
+			  if (uuid >= this.image.youngObjectsSegment) {
+			    // young object
+			    return this.image.youngObjectAt(0 - (((uuid - this.image.youngObjectsSegment) / 256) + 1))}
+			  else {
+			    // old object
+			    var object = this.image.firstOldObject
 
-		      while (object) {
-			if (this.uuidForObject(object) === uuid) return object
-			else object = object.nextObject}
+			    while (object) {
+			      if (object.oop == uuid) return object
+			      else object = object.nextObject}}}}
+			  
+		      debugger},
 
-		      return uuid},
+		    doReturnWithUUID: function(value, context) {
+		      var oldPC,
+			  oldSP,
+			  wasmAddress = this.activeContext.wasmAddress()
 
-		    uuidForObject: function(object) {
-		      if (object.sqClass) {
-			if (object.oop <= 0) this.image.fullGC('assigning object uuid')
-			if (object.oop <= 0) {
-			  debugger;
-			  return this.uuidForObject(this.nilObj)}
-			return 0x7FFFFFFF - object.oop}
-		      else return object},
+		      oldPC = this.pc
+		      oldSP = this.sp
 
-		    nextByteGuarded: function() {
-		      var byte = this.nextByte()
+		      this.pc = this.decodeSqueakPC(this.image.memoryView.getInt32(wasmAddress + 8) >> 1, this.method)
+		      this.sp = this.decodeSqueakSP(this.image.memoryView.getInt32(wasmAddress + 12) >> 1)
+		      
+		      if ((this.pc - oldPC > 3) || (Math.abs(this.sp - oldSP) > 3)) debugger
+		      if (this.pc > this.method.bytes.length) debugger
 
-		      if (typeof(byte) == 'undefined') debugger
-		      return byte},
+		      this.doReturn(this.objectWithUUID(value), this.objectWithUUID(context))},
 
-		    log: function (packed) {console.log(packed)},
-		    pop2AndPushDivResult: function(first, second) {return this.pop2AndPushIntResult(this.div(first, second))},
-		    pushExportThisContext: function() {this.push(this.exportThisContext())},
-		    doReturnWithUUID: function(value, context) {this.doReturn(this.objectWithUUID(value), this.objectWithUUID(context))},
-		    pushObjectWithUUID: function(uuid) {this.push(this.objectWithUUID(uuid))},
-		    pop2AndPushBoolResultWithUUID: function(bool) {return this.pop2AndPushBoolResult(bool)},
-		    pop2AndPushNumResultWithUUID: function(num) {return this.pop2AndPushNumResult(this.objectWithUUID(num))},
-		    stackIntOrFloatUsingUUID: function(depth) {return this.uuidForObject(this.stackIntOrFloat(depth))},
+		    sendFromUUID: function(uuid, index, bool) {
+		      var oldPC,
+			  oldSP, 
+			  wasmAddress = this.activeContext.wasmAddress()
+		      
+		      oldPC = this.pc
+		      oldSP = this.sp
 
-		    popUsingUUID: function() {
-		      var uuid = this.uuidForObject(this.top())
+		      this.pc = this.decodeSqueakPC(this.image.memoryView.getInt32(wasmAddress + 8) >> 1, this.method)
+		      this.sp = this.decodeSqueakSP(this.image.memoryView.getInt32(wasmAddress + 12) >> 1)
+		      
+		      if ((this.pc - oldPC > 3) || (Math.abs(this.sp - oldSP) > 3)) debugger
+		      if (this.pc > this.method.bytes.length) debugger
 
-		      this.pop()
-		      return uuid},
-		    
-		    topUsingUUID: function() {return this.uuidForObject(this.top())},
-		    receiverBeDirty: function() {this.receiver.dirty = true},
-
-		    pointersAt: function(uuid, index) {
-		      try {return this.uuidForObject(this.objectWithUUID(uuid).pointers[index])}
-		      catch (error) {debugger}},
-
-		    pointersAtPut: function(uuid, index, value) {
-		      try {this.objectWithUUID(uuid).pointers[index] = this.objectWithUUID(value)}
-		      catch (error) {debugger}},
-
-		    homeContextPointersAtPut: function(index, value) {
-		      this.homeContext.pointers[index] = this.objectWithUUID(value)},
-
-		    receiverPointersAtPut: function(index, value) {
-		      this.receiver.pointers[index] = this.objectWithUUID(value)},
+		      this.send(this.objectWithUUID(uuid), index, bool)},
 
 		    quickSendOtherWithUUID: function(uuid, lobits) {return this.primHandler.quickSendOther(this.objectWithUUID(uuid), lobits)},
-		    sendFromUUID: function(uuid, index, bool) {this.send(this.objectWithUUID(uuid), index, bool)},
+
+		    setSuccess: function(theSuccess) {
+		      if (theSuccess) this.success = true
+		      else this.success = false},
+
+		    pop2AndPushDivResult: function(first, second) {return this.pop2AndPushIntResult(this.div(first, second))},
+		    pop2AndPushNumResultWithUUID: function(num) {return this.pop2AndPushNumResult(num)},
+		    pop2AndPushBoolResultWithUUID: function(bool) {return this.pop2AndPushBoolResult(bool)},
+		    stackIntOrFloatUsingUUID: function(depth) {return this.stackIntOrFloat(depth)},
+
+		    setResultIsFloat: function(theResultIsFloat) {
+		      if (theResultIsFloat) this.resultIsFloat = true
+		      else this.resultIsFloat = false},
+
+		    setTheInterruptCheckCounter: function(int) {this.interruptCheckCounter = int},
+		    theInterruptCheckCounter: function() {return this.interruptCheckCounter},
+		    pushExportThisContext: function() {this.push(this.exportThisContext())},
 		    theByteCodeCount: function() {return this.byteCodeCount},
 		    setByteCodeCount: function(count) {this.byteCodeCount = count},
-		    thePC: function() {return this.pc},
-		    setPC: function(thePC) {this.pc = thePC},
-		    theSuccess: function() {return this.success},
-		    setSuccess: function(theSuccess) {this.success = theSuccess},
-		    setResultIsFloat: function(theResultIsFloat) {this.resultIsFloat = theResultIsFloat},
-		    theInterruptCheckCounter: function() {return this.interruptCheckCounter},
-		    setTheInterruptCheckCounter: function(int) {this.interruptCheckCounter = int},
-		    contextTempFrameStart: function() {return Squeak.Context_tempFrameStart},
-		    associationValue: function() {return Squeak.Assn_value},
-		    theReceiver: function() {return this.uuidForObject(this.receiver)},
-		    theTrueObj: function() {return this.uuidForObject(this.trueObj)},
-		    theFalseObj: function() {return this.uuidForObject(this.falseObj)},
-		    theNilObj: function() {return this.uuidForObject(this.nilObj)},
-		    theActiveContext: function() {return this.uuidForObject(this.activeContext)},
-		    theHomeContext: function() {return this.uuidForObject(this.homeContext)},
-		    blockContextCaller: function() {return Squeak.BlockContext_caller},
 
-		    methodGetLiteral: function(index) {
-		      return this.uuidForObject(this.method.methodGetLiteral(index))},
-		    
-		    methodGetSelector: function(index) {
-		      return this.uuidForObject(this.method.methodGetSelector(index))},
-		    
 		    loadImageState: function() {
 		      this.specialObjects = this.image.specialObjectsArray.pointers;
 		      this.specialSelectors = this.specialObjects[Squeak.splOb_SpecialSelectors].pointers;
@@ -3010,6 +3354,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    },
 		    initVMState: function() {
 		      this.byteCodeCount = 0;
+		      this.wasmCount = 0
 		      this.sendCount = 0;
 		      this.interruptCheckCounter = 0;
 		      this.interruptCheckCounterFeedBackReset = 1000;
@@ -3121,17 +3466,17 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		  },
 		  'interpreting', {
 		    interpretOne: function(singleStep) {
-		      if (this.method.compiled) {
-			if (singleStep) {
-			  if (!this.compiler.enableSingleStepping(this.method)) {
-			    this.method.compiled = null;
-			    return this.interpretOne(singleStep);
-			  }
-			  this.breakNow();
-			}
-			this.method.compiled(this);
-			return;
-		      }
+//		      if (this.method.compiled) {
+//			if (singleStep) {
+//			  if (!this.compiler.enableSingleStepping(this.method)) {
+//			    this.method.compiled = null;
+//			    return this.interpretOne(singleStep);
+//			  }
+//			  this.breakNow();
+//			}
+//			this.method.compiled(this);
+//			return;
+//		      }
 		      var Squeak = this.Squeak; // avoid dynamic lookup of "Squeak" in Lively
 		      var b, b2;
 		      this.byteCodeCount++;
@@ -3298,10 +3643,77 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      debugger;
 		      throw Error("not a bytecode: " + b);
 		    },
+		    doInterpretOneWASM: function() {
+		      var dirtyTableIndex = 0,
+			  nextDirtyOop,
+			  dirtyOops = new Set()
+		      
+			  this.oldContext = this.activeContext,
+			  this.oldContextWASMAddress = this.activeContext.wasmAddress()
+
+//		      if (this.method.compiled) {
+//			if (singleStep) {
+//			  if (!this.compiler.enableSingleStepping(this.method)) {
+//			    this.method.compiled = null;
+//			    return this.interpretOne(singleStep);
+//			  }
+//			  this.breakNow();
+//			}
+//			this.method.compiled(this);
+//			return;
+//		      }
+		      this.byteCodeCount++;
+		      this.wasmCount++
+
+		      this.activeContext.pointers[1] = this.encodeSqueakPC(this.pc, this.method);
+		      this.activeContext.pointers[2] = this.encodeSqueakSP(this.sp);
+		      this.activeContext.writeToWASM();
+		      this.activeContext.pointers[1] = this.pc
+		      this.activeContext.pointers[2] = this.sp
+		      
+		      this.specialObjects[Squeak.splOb_SchedulerAssociation].pointers[Squeak.Assn_value].pointers[Squeak.ProcSched_activeProcess].pointers[1] = this.activeContext;
+		      this.specialObjects[Squeak.splOb_SchedulerAssociation].pointers[Squeak.Assn_value].pointers[Squeak.ProcSched_activeProcess].writeToWASM();
+		      this.specialObjects[Squeak.splOb_SchedulerAssociation].pointers[Squeak.Assn_value].writeToWASM();
+
+		      if ((this.receiver) && (this.receiver.sqClass)) this.receiver.writeToWASM()
+		      
+		      try {
+			console.log(this.wasmCount + ' :: ' + this.pc + ' :: ' + this.sp + ' :: ' + this.method.bytes[this.pc].toString(16) + ' :: ' + this.activeContext.wasmAddress() + ' :: ' + this.printContext(this.activeContext))
+//			if (this.image.memoryView.getInt32(6727788) == 0) debugger
+			if (this.wasmCount == 10558) debugger
+//			if (this.method.bytes[this.pc] < 32) debugger
+			this.interpretOneWASM();}
+		      catch (error) {debugger}
+
+		      // Update JS objects from modified WASM memory.
+		      nextDirtyOop = this.image.memoryView.getInt32(this.image.dirtyTableAddress + (dirtyTableIndex++ * 4))
+
+		      while (nextDirtyOop != 0x0FFFFFFF) {
+			dirtyOops.add(nextDirtyOop)
+			nextDirtyOop = this.image.memoryView.getInt32(this.image.dirtyTableAddress + (dirtyTableIndex++ * 4))}		      
+		      dirtyOops.forEach(function(oop) {
+			if (!((oop == SqueakJS.vm.oldContextWASMAddress) && (SqueakJS.vm.oldContext !== SqueakJS.vm.activeContext)))
+			  SqueakJS.vm.image.readFromWASM(oop)})
+
+		      // If we're still in the same context, set the pc and sp.
+		      if (this.oldContext === this.activeContext) {
+			this.pc = this.decodeSqueakPC(this.image.memoryView.getInt32(this.activeContext.wasmAddress() + 8) >> 1, this.method)
+			this.sp = this.decodeSqueakSP(this.image.memoryView.getInt32(this.activeContext.wasmAddress() + 12) >> 1)
+			if (this.pc > this.method.bytes.length) debugger
+			if (this.pc < 0) debugger}
+		    },
 		    useWASM: function() {
-		      this.currentInterpretOne = this.interpretOneWASM;},
+		      if (this.currentInterpretOne == this.doInterpretOneWASM) this.currentInterpretOne = this.interpretOne
+		      else {
+			this.currentInterpretOne = this.doInterpretOneWASM;
+			this.image.fullGC("starting WASM")
+			this.image.wasmStarted5 = true
+		      }},
 		    doNotUseWASM: function() {
 		      this.currentInterpretOne = this.interpretOne;},
+		    hash: function() {
+		      return ((this.image.memoryView.getInt32(8)) << 24) + (this.sp << 16) + (this.method.hash | 0x0000FFFF)
+		    },
 		    interpret: function(forMilliseconds, thenDo) {
 		      // run for a couple milliseconds (but only until idle or break)
 		      // answer milliseconds to sleep (until next timer wakeup)
@@ -3312,11 +3724,12 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      this.breakOutOfInterpreter = false;
 		      this.breakOutTick = this.primHandler.millisecondClockValue() + (forMilliseconds || 500);
 		      while (this.breakOutOfInterpreter === false) {
-			if (this.method.compiled) {
-			  this.method.compiled(this);
-			} else {
+//			if (this.method.compiled) {
+//			  this.method.compiled(this);
+//			} else {
 			  this.currentInterpretOne();
-			}}
+			//			}
+		      }
 		      // this is to allow 'freezing' the interpreter and restarting it asynchronously. See freeze()
 		      if (typeof this.breakOutOfInterpreter == "function")
 			return this.breakOutOfInterpreter(thenDo);
@@ -3419,7 +3832,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			this.primHandler.signalExternalSemaphores();  // signal pending semaphores, if any
 		      // if this is a long-running do-it, compile it
 		      if (!this.method.compiled && this.compiler && (!(this.method === this.specialObjects[Squeak.splOb_ReloadingMethod])))
-//		      if (!this.method.compiled && this.compiler)
+			//		      if (!this.method.compiled && this.compiler)
 			this.compiler.compile(this.method);
 		      // have to return to web browser once in a while
 		      if (now >= this.breakOutTick)
@@ -3586,21 +3999,21 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    },
 		    shouldForward: function(selector, theClass) {
 		      return false;},
-//		      return ((theClass === this.specialObjects[Squeak.splOb_ClassProxy]) &&
-//			      (selector != this.specialObjects[Squeak.splOb_SelectorInitProxy]) &&
-//			      (selector != this.specialObjects[Squeak.splOb_SelectorRecyclingHash]) &&
-//			      (selector != this.specialObjects[Squeak.splOb_SelectorForward]) &&
-//			      (selector != this.specialObjects[Squeak.splOb_SelectorIsNil]) &&
-//			      (selector != this.specialObjects[Squeak.splOb_SelectorNextInstance]) &&
-//			      (selector != this.specialObjects[Squeak.splOb_SelectorTether]) &&
-//			      (selector != this.specialObjects[Squeak.splOb_SelectorCounterpart]) &&
-//			      (selector != this.specialObjects[Squeak.splOb_SelectorStoreOnTether]))},
+		    //		      return ((theClass === this.specialObjects[Squeak.splOb_ClassProxy]) &&
+		    //			      (selector != this.specialObjects[Squeak.splOb_SelectorInitProxy]) &&
+		    //			      (selector != this.specialObjects[Squeak.splOb_SelectorRecyclingHash]) &&
+		    //			      (selector != this.specialObjects[Squeak.splOb_SelectorForward]) &&
+		    //			      (selector != this.specialObjects[Squeak.splOb_SelectorIsNil]) &&
+		    //			      (selector != this.specialObjects[Squeak.splOb_SelectorNextInstance]) &&
+		    //			      (selector != this.specialObjects[Squeak.splOb_SelectorTether]) &&
+		    //			      (selector != this.specialObjects[Squeak.splOb_SelectorCounterpart]) &&
+		    //			      (selector != this.specialObjects[Squeak.splOb_SelectorStoreOnTether]))},
 		    findSelectorInClass: function(selector, argCount, startingClass) {
 		      if (this.shouldForward(selector, startingClass)) {
 			var message = this.createActualMessage(selector, argCount, startingClass);
 			this.popNandPush(argCount, message);
 			return this.findSelectorInClass(this.specialObjects[Squeak.splOb_SelectorForward]);}
-			
+		      
 		      var cacheEntry = this.findMethodCacheEntry(selector, startingClass);
 		      if (cacheEntry.method) return cacheEntry; // Found it in the method cache
 		      var currentClass = startingClass;
@@ -3620,7 +4033,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			if (!newMethod) debugger;
 			
 			if (!newMethod.isNil) {
-//			  if (newMethod === this.specialObjects[Squeak.splOb_ReloadingMethod]) debugger;
+			  //			  if (newMethod === this.specialObjects[Squeak.splOb_ReloadingMethod]) debugger;
 			  this.currentSelector = selector;
 			  this.currentLookupClass = startingClass;
 			  //if method is not actually a CompiledMethod, invoke primitiveInvokeObjectAsMethod (248) instead
@@ -3634,10 +4047,10 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      }
 		      //Cound not find a normal message -- send #doesNotUnderstand:
 		      var dnuSel = this.specialObjects[Squeak.splOb_SelectorDoesNotUnderstand];
-			if (selector === dnuSel) { // Cannot find #doesNotUnderstand: -- unrecoverable error.
-			    debugger;
-			    throw Error("Recursive not understood error encountered");}
-//		      if (self.dissolving && (!(startingClass === this.specialObjects[Squeak.splOb_ClassProxy]))) debugger;
+		      if (selector === dnuSel) { // Cannot find #doesNotUnderstand: -- unrecoverable error.
+			debugger;
+			throw Error("Recursive not understood error encountered");}
+		      //		      if (self.dissolving && (!(startingClass === this.specialObjects[Squeak.splOb_ClassProxy]))) debugger;
 		      var dnuMsg = this.createActualMessage(selector, argCount, startingClass); //The argument to doesNotUnderstand:
 		      this.popNandPush(argCount, dnuMsg);
 		      return this.findSelectorInClass(dnuSel, 1, startingClass);
@@ -3663,7 +4076,9 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			}
 		      }
 		    },
-		      executeNewMethod: function(newRcvr, newMethod, argumentCount, primitiveIndex, optClass, optSel) {
+		    executeNewMethod: function(newRcvr, newMethod, argumentCount, primitiveIndex, optClass, optSel) {
+		      var i;
+			 
 		      this.sendCount++;
 		      if (newMethod === this.breakOnMethod) this.breakNow("executing method " + this.printMethod(newMethod, optClass, optSel));
 		      if (this.logSends) console.log(this.sendCount + ' ' + this.printMethod(newMethod, optClass, optSel));
@@ -3671,73 +4086,76 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			this.breakOnContextChanged = false;
 			this.breakNow();
 		      }
-			if (primitiveIndex > 0) {
-			  if (this.tryPrimitive(primitiveIndex, argumentCount, newMethod)) {
-			    //Primitive succeeded -- end of story
-			    newMethod.fused = true;
-			    return;}}
+		      if (primitiveIndex > 0) {
+			if (this.tryPrimitive(primitiveIndex, argumentCount, newMethod)) {
+			  //Primitive succeeded -- end of story
+			  newMethod.fused = true;
+			  return;}}
 		      var newContext = this.allocateOrRecycleContext(newMethod.methodNeedsLargeFrame());
 		      var tempCount = newMethod.methodTempCount();
 		      var newPC = 0; // direct zero-based index into byte codes
 		      var newSP = Squeak.Context_tempFrameStart + tempCount - 1; // direct zero-based index into context pointers
 
-			newContext.pointers[Squeak.Context_method] = newMethod;
+		      newContext.pointers[Squeak.Context_method] = newMethod;
 		      //Following store is in case we alloc without init; all other fields get stored
 		      newContext.pointers[Squeak.BlockContext_initialIP] = this.nilObj;
 		      newContext.pointers[Squeak.Context_sender] = this.activeContext;
+		      if (this.activeContext.pointers[Squeak.Context_sender] === newContext) debugger;
 		      //Copy receiver and args to new context
 		      //Note this statement relies on the receiver slot being contiguous with args...
-			this.arrayCopy(this.activeContext.pointers, this.sp-argumentCount, newContext.pointers, Squeak.Context_tempFrameStart-1, argumentCount+1);
+		      this.arrayCopy(this.activeContext.pointers, this.sp-argumentCount, newContext.pointers, Squeak.Context_tempFrameStart-1, argumentCount+1);
 
-			// fill the remaining temps with nil
-			this.arrayFill(newContext.pointers, Squeak.Context_tempFrameStart+argumentCount, Squeak.Context_tempFrameStart+tempCount, this.nilObj);
+		      // fill the remaining temps with nil
+		      this.arrayFill(newContext.pointers, Squeak.Context_tempFrameStart+argumentCount, Squeak.Context_tempFrameStart+tempCount, this.nilObj);
 
-			if (newMethod === this.specialObjects[Squeak.splOb_ReloadingMethod]) {
-			  // Copy the arguments of the active context
-			  // into a special temporary variable of the
-			  // new context.
+		      if (newMethod === this.specialObjects[Squeak.splOb_ReloadingMethod]) {
+			// Copy the arguments of the active context
+			// into a special temporary variable of the
+			// new context.
 
-			  var specialTemporaryVariableIndex = 6;
-			  
-			  newContext.pointers[specialTemporaryVariableIndex] = this.instantiateClass(this.specialObjects[Squeak.splOb_ClassArray], this.activeContext);
+			var specialTemporaryVariableIndex = 6;
+			
+			newContext.pointers[specialTemporaryVariableIndex] = this.instantiateClass(this.specialObjects[Squeak.splOb_ClassArray], this.activeContext);
 
-			  var cachedArguments = newContext.pointers[specialTemporaryVariableIndex];
+			var cachedArguments = newContext.pointers[specialTemporaryVariableIndex];
 
-			  cachedArguments.pointers = [];
-			  
-			  this.arrayCopy(
-			    this.activeContext.pointers,
-			    this.sp - argumentCount + 1,
-			    cachedArguments.pointers,
-			    0,
-			    argumentCount);
-			}
+			cachedArguments.pointers = [];
+			
+			this.arrayCopy(
+			  this.activeContext.pointers,
+			  this.sp - argumentCount + 1,
+			  cachedArguments.pointers,
+			  0,
+			  argumentCount);
+		      }
 
-			this.popN(argumentCount+1);
+		      this.popN(argumentCount+1);
 		      this.reclaimableContextCount++;
 		      this.storeContextRegisters();
-			/////// Woosh //////
-			this.activeContext = newContext; //We're off and running...
+		      /////// Woosh //////
+		      this.oldContext = this.activeContext
+		      this.activeContext = newContext; //We're off and running...
 
 		      //Following are more efficient than fetchContextRegisters() in newActiveContext()
 		      this.activeContext.dirty = true;
-			this.homeContext = newContext;
-			this.method = newMethod;
-			  this.method.fused = true;
+		      this.homeContext = newContext;
+		      this.method = newMethod;
+		      this.method.fused = true;
 		      this.pc = newPC;
 		      this.sp = newSP;
+
 		      this.receiver = newContext.pointers[Squeak.Context_receiver];
-			if (this.receiver !== newRcvr) {
-			  debugger;
-			  throw Error("receivers don't match");}
-			if (!newMethod.compiled && this.compiler && (!(this.method === this.specialObjects[Squeak.splOb_ReloadingMethod])))
-//			if (!newMethod.compiled && this.compiler)
+		      if (this.receiver !== newRcvr) {
+			debugger;
+			throw Error("receivers don't match");}
+		      if (!newMethod.compiled && this.compiler && (!(this.method === this.specialObjects[Squeak.splOb_ReloadingMethod])))
+			//			if (!newMethod.compiled && this.compiler)
 			this.compiler.compile(newMethod, optClass, optSel);
 		      // check for process switch on full method activation
 		      if (this.interruptCheckCounter-- <= 0) this.checkForInterrupts();
 		    },
 		    doReturn: function(returnValue, targetContext) {
-			// get sender from block home or closure's outerContext
+		      // get sender from block home or closure's outerContext
 		      if (!targetContext) {
 			var ctx = this.homeContext;
 			if (this.hasClosures) {
@@ -3904,6 +4322,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      //Instead we randomize the reprobe so two or three very active conflicting entries
 		      //will not keep dislodging each other
 		      var entry;
+		      if (!selector) debugger;
 		      this.methodCacheRandomish = (this.methodCacheRandomish + 1) & 3;
 		      var firstProbe = (selector.hash ^ lkupClass.hash) & this.methodCacheMask;
 		      var probe = firstProbe;
@@ -3957,17 +4376,19 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    newActiveContext: function(newContext) {
 		      // Note: this is inlined in executeNewMethod() and doReturn()
 		      this.storeContextRegisters();
+		      this.oldContext = this.activeContext
 		      this.activeContext = newContext; //We're off and running...
 		      this.activeContext.dirty = true;
 		      this.fetchContextRegisters(newContext);
 		    },
 		    exportThisContext: function() {
-		      this.storeContextRegisters();
+		      if (!this.image.wasmStarted()) this.storeContextRegisters();
 		      this.reclaimableContextCount = 0;
 		      return this.activeContext;
 		    },
 		    fetchContextRegisters: function(ctxt) {
-		      var meth = ctxt.pointers[Squeak.Context_method];
+		      var meth = ctxt.pointers[Squeak.Context_method]
+		      
 		      if (this.isSmallInt(meth)) { //if the Method field is an integer, activeCntx is a block context
 			this.homeContext = ctxt.pointers[Squeak.BlockContext_home];
 			meth = this.homeContext.pointers[Squeak.Context_method];
@@ -3976,23 +4397,48 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      }
 		      this.receiver = this.homeContext.pointers[Squeak.Context_receiver];
 		      this.method = meth;
-		      this.pc = this.decodeSqueakPC(ctxt.pointers[Squeak.Context_instructionPointer], meth);
+
+//		      if (this.image.wasmStarted4()) {
+//			this.image.storingContextRegisters = true
+//			var wasmAddress = ctxt.wasmAddress()
+//			
+//			ctxt.pointers[Squeak.Context_instructionPointer] = this.image.memoryView.getInt32(wasmAddress + 8) >> 1
+//			ctxt.pointers[Squeak.Context_stackPointer] = this.image.memoryView.getInt32(wasmAddress + 12) >> 1
+//			this.image.storingContextRegisters = false}
+		      
+		      this.pc = this.decodeSqueakPC(ctxt.pointers[Squeak.Context_instructionPointer], meth)
 		      this.sp = this.decodeSqueakSP(ctxt.pointers[Squeak.Context_stackPointer]);
 		    },
 		    storeContextRegisters: function() {
 		      //Save pc, sp into activeContext object, prior to change of context
 		      //   see fetchContextRegisters for symmetry
-		      //   expects activeContext, pc, sp, and method state vars to still be valid
-		      this.activeContext.pointers[Squeak.Context_instructionPointer] = this.encodeSqueakPC(this.pc, this.method);
-		      this.activeContext.pointers[Squeak.Context_stackPointer] = this.encodeSqueakSP(this.sp);
+		      //   expects activeContext, pc, sp, and method
+		      //   state vars to still be valid
+
+		      if (this.image.storingContextRegisters) return
+			
+		      if (this.image.wasmStarted4()) {
+			this.image.storingContextRegisters = true
+			var wasmAddress = this.activeContext.wasmAddress()
+
+			this.activeContext.pointers[Squeak.Context_instructionPointer] = this.image.memoryView.getInt32(wasmAddress + 8) >> 1
+			this.activeContext.pointers[Squeak.Context_stackPointer] = this.image.memoryView.getInt32(wasmAddress + 12) >> 1
+			this.pc = this.decodeSqueakPC(this.activeContext.pointers[Squeak.Context_instructionPointer], this.method)
+			this.sp = this.decodeSqueakSP(this.activeContext.pointers[Squeak.Context_instructionPointer])
+			this.image.storingContextRegisters = false}
+		      else {
+			this.activeContext.pointers[Squeak.Context_instructionPointer] = this.encodeSqueakPC(this.pc, this.method);
+			this.activeContext.pointers[Squeak.Context_stackPointer] = this.encodeSqueakSP(this.sp)}
+
+		      if (this.pc < 0) debugger
 		    },
 		    encodeSqueakPC: function(intPC, method) {
 		      // Squeak pc is offset by header and literals
 		      // and 1 for z-rel addressing
 		      return intPC + method.pointers.length * 4 + 1;
 		    },
-		      decodeSqueakPC: function(squeakPC, method) {
-			  if (method === this.nilObj) {debugger}
+		    decodeSqueakPC: function(squeakPC, method) {
+		      if (method === this.nilObj) {debugger}
 		      return squeakPC - method.pointers.length * 4 - 1;
 		    },
 		    encodeSqueakSP: function(intSP) {
@@ -4006,11 +4452,13 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      if (!this.isMethodContext(ctxt)) return;
 		      if (ctxt.pointersSize() === (Squeak.Context_tempFrameStart+Squeak.Context_smallFrameSize)) {
 			// Recycle small contexts
+			if (!this.freeContexts.oop) debugger
 			ctxt.pointers[0] = this.freeContexts;
 			this.freeContexts = ctxt;
 		      } else { // Recycle large contexts
 			if (ctxt.pointersSize() !== (Squeak.Context_tempFrameStart+Squeak.Context_largeFrameSize))
 			  return;
+			if (!this.freeLargeContexts.oop) debugger
 			ctxt.pointers[0] = this.freeLargeContexts;
 			this.freeLargeContexts = ctxt;
 		      }
@@ -4022,7 +4470,10 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			if (!this.freeLargeContexts.isNil) {
 			  freebie = this.freeLargeContexts;
 			  this.freeLargeContexts = freebie.pointers[0];
+			  if (!this.freeContexts.oop) debugger
+			  if (this.freeLargeContexts.oop == 7146468) debugger
 			  this.nRecycledContexts++;
+			  if (this.activeContext.pointers[0] === freebie) debugger
 			  return freebie;
 			}
 			this.nAllocatedContexts++;
@@ -4031,7 +4482,10 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			if (!this.freeContexts.isNil) {
 			  freebie = this.freeContexts;
 			  this.freeContexts = freebie.pointers[0];
+			  if (this.freeContexts.oop == 7146468) debugger
+			  if (!this.freeContexts.oop) debugger
 			  this.nRecycledContexts++;
+			  if (this.activeContext.pointers[0] === freebie) debugger
 			  return freebie;
 			}
 			this.nAllocatedContexts++;
@@ -4042,22 +4496,37 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		  'stack access', {
 		    pop: function() {
 		      //Note leaves garbage above SP.  Cleaned out by fullGC.
+		      if (SqueakJS.vm.image.wasmStarted()) this.image.memoryView.setInt32(this.activeContext.wasmAddress() + 12, (this.encodeSqueakSP(this.sp - 1) << 1) | 1)
 		      return this.activeContext.pointers[this.sp--];
 		    },
 		    popN: function(nToPop) {
 		      this.sp -= nToPop;
+		      if (SqueakJS.vm.image.wasmStarted()) this.image.memoryView.setInt32(this.activeContext.wasmAddress() + 12, (this.encodeSqueakSP(this.sp) << 1) | 1)
 		    },
 		    push: function(object) {
 		      this.activeContext.pointers[++this.sp] = object;
+		      if (SqueakJS.vm.image.wasmStarted()) {
+			this.activeContext.pointers[2] = this.encodeSqueakSP(this.sp)
+			this.activeContext.pointers[1] = this.image.memoryView.getInt32(this.activeContext.wasmAddress() + 8) >> 1
+			this.activeContext.writeToWASM()
+			this.activeContext.pointers[2] = this.sp
+			this.activeContext.pointers[1] = this.pc}
 		    },
 		    popNandPush: function(nToPop, object) {
 		      this.activeContext.pointers[this.sp -= nToPop - 1] = object;
+		      if (SqueakJS.vm.image.wasmStarted()) {
+			this.activeContext.pointers[2] = this.encodeSqueakSP(this.sp)
+			this.activeContext.pointers[1] = this.image.memoryView.getInt32(this.activeContext.wasmAddress() + 8) >> 1
+			this.activeContext.writeToWASM()
+			this.activeContext.pointers[2] = this.sp
+			this.activeContext.pointers[1] = this.pc}
 		    },
 		    top: function() {
 		      return this.activeContext.pointers[this.sp];
 		    },
 		    stackTopPut: function(object) {
 		      this.activeContext.pointers[this.sp] = object;
+		      if (SqueakJS.vm.image.wasmStarted()) this.activeContext.writeToWASM()
 		    },
 		    stackValue: function(depthIntoStack) {
 		      return this.activeContext.pointers[this.sp - depthIntoStack];
@@ -4132,6 +4601,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    getClass: function(obj) {
 		      if (this.isSmallInt(obj))
 			return this.specialObjects[Squeak.splOb_ClassInteger];
+		      if (!obj) debugger
 		      return obj.sqClass;
 		    },
 		    canBeSmallInt: function(anInt) {
@@ -4203,11 +4673,11 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		  },
 		  'debugging', {
 		    status: function(string) {
-//		      if (magicWindow) {
-//			if (magicWindow.thestatus) {
-//			  magicWindow.thestatus.children[0].innerText = string;
-//			}
-//		      }
+		      //		      if (magicWindow) {
+		      //			if (magicWindow.thestatus) {
+		      //			  magicWindow.thestatus.children[0].innerText = string;
+		      //			}
+		      //		      }
 		    },
 
 		    addMessage: function(message) {
@@ -4217,6 +4687,12 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      if (this.addMessage(message) == 1)
 			console.warn(message);
 		    },
+		    printContext: function(context) {
+		      var isBlock
+
+		      if (context.contextIsBlock()) isBlock = "[] in "
+		      else isBlock = ""
+		      return isBlock + this.printMethod(context.pointers[3], context)},
 		    printMethod: function(aMethod, optContext, optSel) {
 		      // return a 'class>>selector' description for the method
 		      if (optSel) return optContext.className() + '>>' + optSel.bytesAsString();
@@ -4291,32 +4767,32 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			  hardLimit = Math.max(limit, 1000000);
 		      try {
 			while (!ctx.isNil && hardLimit-- > 0) {
-			contexts.push(ctx);
-			ctx = ctx.pointers[Squeak.Context_sender];
-		      }
-		      var extra = 200;
-		      if (contexts.length > limit + extra) {
-			if (!ctx.isNil) contexts.push('...'); // over hard limit
-			contexts = contexts.slice(0, limit).concat(['...']).concat(contexts.slice(-extra));
-		      }
-		      var stack = [],
-			  i = contexts.length;
-		      while (i-- > 0) {
-			var ctx = contexts[i];
-			if (!ctx.pointers) {
-			  stack.push('...\n');
-			} else {
-			  var block = '',
-			      method = ctx.pointers[Squeak.Context_method];
-			  if (typeof method === 'number') { // it's a block context, fetch home
-			    method = ctx.pointers[Squeak.BlockContext_home].pointers[Squeak.Context_method];
-			    block = '[] in ';
-			  } else if (!ctx.pointers[Squeak.Context_closure].isNil) {
-			    block = '[] in '; // it's a closure activation
-			  }
-			  stack.push(i + ': ' + block + this.printMethod(method, ctx) + '\n');
+			  contexts.push(ctx);
+			  ctx = ctx.pointers[Squeak.Context_sender];
 			}
-		      }
+			var extra = 200;
+			if (contexts.length > limit + extra) {
+			  if (!ctx.isNil) contexts.push('...'); // over hard limit
+			  contexts = contexts.slice(0, limit).concat(['...']).concat(contexts.slice(-extra));
+			}
+			var stack = [],
+			    i = contexts.length;
+			while (i-- > 0) {
+			  var ctx = contexts[i];
+			  if (!ctx.pointers) {
+			    stack.push('...\n');
+			  } else {
+			    var block = '',
+				method = ctx.pointers[Squeak.Context_method];
+			    if (typeof method === 'number') { // it's a block context, fetch home
+			      method = ctx.pointers[Squeak.BlockContext_home].pointers[Squeak.Context_method];
+			      block = '[] in ';
+			    } else if (!ctx.pointers[Squeak.Context_closure].isNil) {
+			      block = '[] in '; // it's a closure activation
+			    }
+			    stack.push(i + ': ' + block + this.printMethod(method, ctx) + '\n');
+			  }
+			}
 
 
 			return stack.join('');}
@@ -4328,11 +4804,11 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			  className = classAndMethodString.split('>>')[0],
 			  methodName = classAndMethodString.split('>>')[1];
 		      this.allMethodsDo(function(classObj, methodObj, selectorObj) {
-			  if (selectorObj.bytesSize) {
-			      if (methodName.length == selectorObj.bytesSize()
-				  && methodName == selectorObj.bytesAsString()
-				  && className == classObj.className())
-				  return found = methodObj;}
+			if (selectorObj.bytesSize) {
+			  if (methodName.length == selectorObj.bytesSize()
+			      && methodName == selectorObj.bytesAsString()
+			      && className == classObj.className())
+			    return found = methodObj;}
 		      });
 		      return found;
 		    },
@@ -4794,8 +5270,8 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			  case 162: if (this.oldPrims) return this.primitiveDirectoryLookup(argCount);
 			  break;  // fail
 			  case 163: if (this.oldPrims) return this.primitiveDirectoryDelete(argCount);
-			    break;  // fail
-			    case 164: return this.primitiveFusedGC(argCount);
+			  break;  // fail
+			  case 164: return this.primitiveFusedGC(argCount);
 			  case 165:
 			  case 166: return this.primitiveIntegerAtAndPut(argCount);
 			  case 167: return false; // Processor.yield
@@ -5471,8 +5947,8 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      var unixpath = !this.emulateMac ? filepath :
 			  filepath.replace(/^[^:]*:/, ":")                            // remove volume
 			  .replace(/\//g, "€").replace(/:/g, "/").replace(/€/g, ":"); // substitute : for /
-			unixpath = unixpath.replace(/^\/*SqueakJS\/?/, "/");            // strip SqueakJS
-			return unixpath;
+		      unixpath = unixpath.replace(/^\/*SqueakJS\/?/, "/");            // strip SqueakJS
+		      return unixpath;
 		    },
 		  },
 		  'indexing', {
@@ -5535,11 +6011,19 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      var objToPut = this.vm.stackValue(0);
 		      if (includeInstVars)  {// pointers...   instVarAtPut and objectAtPut
 			array.dirty = true;
-			return array.pointers[index-1] = objToPut; //eg, objectAt:
+			array.pointers[index-1] = objToPut; //eg, objectAt:
+
+			array.writeToWASM();
+
+			return objToPut;
 		      }
 		      if (array.isPointers())  {// pointers...   normal atPut
 			array.dirty = true;
-			return array.pointers[index-1+info.ivarOffset] = objToPut;
+			array.pointers[index-1+info.ivarOffset] = objToPut;
+
+			array.writeToWASM();
+
+			return objToPut;
 		      }
 		      var intToPut;
 		      if (array.isWords()) {  // words...
@@ -5553,6 +6037,9 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			  intToPut = this.stackPos32BitInt(0);
 			}
 			if (this.success) array.words[index-1] = intToPut;
+
+			array.writeToWASM();
+
 			return objToPut;
 		      }
 		      // bytes...
@@ -5567,12 +6054,19 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			intToPut = objToPut;
 		      }
 		      if (intToPut<0 || intToPut>255) {this.success = false; return objToPut;}
-		      if (array.isBytes())  // bytes...
-			return array.bytes[index-1] = intToPut;
+		      if (array.isBytes()) { // bytes...
+			array.bytes[index-1] = intToPut;
+
+			array.writeToWASM();
+
+			return intToPut;}
 		      // methods must simulate Squeak's method indexing
 		      var offset = array.pointersSize() * 4;
 		      if (index-1-offset < 0) {this.success = false; return array;} //writing lits as bytes
 		      array.bytes[index-1-offset] = intToPut;
+
+		      array.writeToWASM();
+
 		      return objToPut;
 		    },
 		    objectSize: function(cameFromBytecode) {
@@ -5615,7 +6109,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			  (this.vm.verifyAtSelector === atOrPutSelector)         //is at or atPut
 			  && (this.vm.verifyAtClass === array.sqClass)           //not a super send
 			  && !this.vm.isContext(array);                          //not a context (size can change)
-			info = cacheable ? atOrPutCache[array.hash & this.atCacheMask] : this.nonCachedInfo;
+		      info = cacheable ? atOrPutCache[array.hash & this.atCacheMask] : this.nonCachedInfo;
 		      info.array = array;
 		      info.convertChars = convertChars;
 		      if (includeInstVars) {
@@ -5980,6 +6474,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			homeCtxt = homeCtxt.pointers[Squeak.BlockContext_home];
 		      var blockSize = homeCtxt.pointersSize() - homeCtxt.instSize(); // could use a const for instSize
 		      var newBlock = this.vm.instantiateClass(this.vm.specialObjects[Squeak.splOb_ClassBlockContext], blockSize);
+		      if (this.vm.image.wasmStarted()) this.vm.pc = this.vm.decodeSqueakPC(this.vm.image.memoryView.getInt32(this.vm.activeContext.wasmAddress() + 8) >> 1, this.vm.method)
 		      var initialPC = this.vm.encodeSqueakPC(this.vm.pc + 2, this.vm.method); //*** check this...
 		      newBlock.pointers[Squeak.BlockContext_initialIP] = initialPC;
 		      newBlock.pointers[Squeak.Context_instructionPointer] = initialPC; // claim not needed; value will set it
@@ -5987,6 +6482,15 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      newBlock.pointers[Squeak.BlockContext_argumentCount] = sqArgCount;
 		      newBlock.pointers[Squeak.BlockContext_home] = homeCtxt;
 		      newBlock.pointers[Squeak.Context_sender] = this.vm.nilObj; // claim not needed; just initialized
+
+		      if (this.vm.image.wasmStarted()) {
+//			newBlock.pointers[Squeak.Context_instructionPointer] = this.vm.encodeSqueakPC(this.vm.pc, this.vm.method)
+//			newBlock.pointers[Squeak.Context_stackPointer] = this.vm.encodeSqueakSP(newBlock.pointers[Squeak.Context_stackPointer])
+			newBlock.writeToWASM()
+//			newBlock.pointers[Squeak.Context_instructionPointer] = initialPC
+			//			newBlock.pointers[Squeak.Context_stackPointer] = 0
+		      }
+
 		      return newBlock;
 		    },
 		    primitiveBlockValue: function(argCount) {
@@ -5999,8 +6503,9 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      if (!block.pointers[Squeak.BlockContext_caller].isNil) return false;
 		      this.vm.arrayCopy(this.vm.activeContext.pointers, this.vm.sp-argCount+1, block.pointers, Squeak.Context_tempFrameStart, argCount);
 		      var initialIP = block.pointers[Squeak.BlockContext_initialIP];
-		      block.pointers[Squeak.Context_instructionPointer] = initialIP;
-		      block.pointers[Squeak.Context_stackPointer] = argCount;
+
+		      block.pointers[Squeak.Context_instructionPointer] = initialIP
+		      block.pointers[Squeak.Context_stackPointer] = argCount
 		      block.pointers[Squeak.BlockContext_caller] = this.vm.activeContext;
 		      this.vm.popN(argCount+1);
 		      this.vm.newActiveContext(block);
@@ -6053,8 +6558,8 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      var outerContext = blockClosure.pointers[Squeak.Closure_outerContext],
 			  method = outerContext.pointers[Squeak.Context_method];
 
-			if (method === this.vm.nilObj) {debugger}
-			var newContext = this.vm.allocateOrRecycleContext(method.methodNeedsLargeFrame()),
+		      if (method === this.vm.nilObj) {debugger}
+		      var newContext = this.vm.allocateOrRecycleContext(method.methodNeedsLargeFrame()),
 			  numCopied = blockClosure.pointers.length - Squeak.Closure_firstCopiedValue;
 		      newContext.pointers[Squeak.Context_sender] = this.vm.activeContext;
 		      newContext.pointers[Squeak.Context_instructionPointer] = blockClosure.pointers[Squeak.Closure_startpc];
@@ -6523,25 +7028,25 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			    right: cursorForm.width,
 			    bottom: cursorForm.height};
 
-			if (cursorCanvas) {
-			    context = cursorCanvas.getContext("2d")
+		      if (cursorCanvas) {
+			context = cursorCanvas.getContext("2d")
 			
-			    if (cursorForm.depth === 1) {
-				if (maskForm) {
-				    cursorForm = this.cursorMergeMask(cursorForm, maskForm);
-				    this.showForm(context, cursorForm, bounds, [0x00000000, 0xFF0000FF, 0xFFFFFFFF, 0xFF000000]);}
-				else {this.showForm(context, cursorForm, bounds, [0x00000000, 0xFF000000]);}}
-			    else {this.showForm(context, cursorForm, bounds, true);}
+			if (cursorForm.depth === 1) {
+			  if (maskForm) {
+			    cursorForm = this.cursorMergeMask(cursorForm, maskForm);
+			    this.showForm(context, cursorForm, bounds, [0x00000000, 0xFF0000FF, 0xFFFFFFFF, 0xFF000000]);}
+			  else {this.showForm(context, cursorForm, bounds, [0x00000000, 0xFF000000]);}}
+			else {this.showForm(context, cursorForm, bounds, true);}
 
-			    var canvas = this.display.context.canvas,
-				scale = canvas.offsetWidth / canvas.width;
+			var canvas = this.display.context.canvas,
+			    scale = canvas.offsetWidth / canvas.width;
 
-			    cursorCanvas.style.width = (cursorCanvas.width * scale|0) + "px";
-			    cursorCanvas.style.height = (cursorCanvas.height * scale|0) + "px";
+			cursorCanvas.style.width = (cursorCanvas.width * scale|0) + "px";
+			cursorCanvas.style.height = (cursorCanvas.height * scale|0) + "px";
 
-			    if (cursorCanvas === this.display.cursorCanvas) {
-				this.display.cursorOffsetX = cursorForm.offsetX * scale|0;
-				this.display.cursorOffsetY = cursorForm.offsetY * scale|0;}}
+			if (cursorCanvas === this.display.cursorCanvas) {
+			  this.display.cursorOffsetX = cursorForm.offsetX * scale|0;
+			  this.display.cursorOffsetY = cursorForm.offsetY * scale|0;}}
 
 		      this.vm.popN(argCount);
 		      return true;
@@ -6712,10 +7217,10 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
                               + ((rgb & 0x03E0) << 6)   // shift green down 1*5, up 1*8 + 3
                               + ((rgb & 0x001F) << 19)  // shift blue  down 0*5, up 2*8 + 3
                               + 0xFF000000;             // set alpha to opaque
-                              if ((srcShift -= 16) < 0) {
-				srcShift = 16;
-				src = form.bits[++srcIndex];
-                              }
+                            if ((srcShift -= 16) < 0) {
+			      srcShift = 16;
+			      src = form.bits[++srcIndex];
+                            }
 			  }
 			  srcY++;
 			};
@@ -7960,19 +8465,19 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      this.vm.reclaimableContextCount = 0;
 		      if (block.sqClass === SqueakJS.vm.specialObjects[Squeak.splOb_ClassBlockContext]) {numArgs = block.pointers[Squeak.BlockContext_argumentCount];}
 		      else {numArgs = block.pointers[Squeak.Closure_numArgs];}
-//		      if (typeof numArgs !== 'number')
-//			numArgs = block.pointers[Squeak.Closure_numArgs];
+		      //		      if (typeof numArgs !== 'number')
+		      //			numArgs = block.pointers[Squeak.Closure_numArgs];
 		      var squeak = this;
 		      return function evalSqueakBlock(/* arguments */) {
 			var args = [];
 			for (var i = 0; i < numArgs; i++)
 			  args.push(arguments[i]);
 
-//			if (args[0]) {
-//			  if (args[0].constructor.name == 'KeyboardEvent') {
-//			    args[0].preventDefault();
-//			    args[0].stopPropagation();
-//			  }}
+			//			if (args[0]) {
+			//			  if (args[0].constructor.name == 'KeyboardEvent') {
+			//			    args[0].preventDefault();
+			//			    args[0].stopPropagation();
+			//			  }}
 
 			return new Promise(function(resolve, reject) {
 			  function evalAsync() {
@@ -8011,7 +8516,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      if (!result) {
 			timeout = timeout + 1;}
 		      
-//		      SqueakJS.vm.printAllProcesses();
+		      //		      SqueakJS.vm.printAllProcesses();
 		      this.js_activeCallback = null;
 
 		      if (result) {
@@ -8021,7 +8526,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      } else {
 			reject(Error("SqueakJS timeout"));
 			console.log("SqueakJS timeout");
-//			debugger;
+			//			debugger;
 		      }
 		    },
 		    js_objectOrGlobal: function(sqObject) {
@@ -8053,7 +8558,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 
 		      for (i = 3; i <= (functionSpec.pointers[2].pointers.length - 1 + 3); i++) {
 			args.push(this.vm.stackValue(i));}
-			
+		      
 		      switch(functionName) {
 		      case 'memcpy':
 			debugger;

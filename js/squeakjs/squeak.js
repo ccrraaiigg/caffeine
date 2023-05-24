@@ -176,7 +176,7 @@ Function.prototype.subclass = function(classPath /* + more args */ ) {
     script.setAttribute("src", vmDir + filename);
     document.getElementsByTagName("head")[0].appendChild(script);
   });
-					       })();
+})();
 
 module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
 
@@ -1133,113 +1133,95 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
     display.clear();
     display.showBanner("loading app '" + SqueakJS.appName + "'...");
     display.showProgress(0);
-    var self = this;
+    var self = this
+
     window.setTimeout(function readImageAsync() {
       var image = new Squeak.Image(name);
       image.window = window;
-      image.readFromBuffer(buffer, function startRunning() {
-        display.quitFlag = false;
-        var vm = new Squeak.Interpreter(image, display);
-        SqueakJS.vm = vm;
-        localStorage["squeakImageName"] = name;
-        setupSwapButtons(options);
-        display.clear();
-        display.showBanner("starting app '" + SqueakJS.appName + "'...");
-        var spinner = setupSpinner(vm, options);
+      image.readFromBuffer(
+	buffer,
+	function startRunning() {
+          display.quitFlag = false;
+          var vm = new Squeak.Interpreter(image, display);
+          SqueakJS.vm = vm;
+	  vm.currentInterpretOne = vm.interpretOne;
+          localStorage["squeakImageName"] = name;
+          setupSwapButtons(options);
+          display.clear();
+	  vm.image.alignOops();
+          display.showBanner("starting app '" + SqueakJS.appName + "'...");
+          var spinner = setupSpinner(vm, options);
 
-	function run() {
-	  try {
-	    if (display.quitFlag) self.onQuit(vm, display, options);
-	    else if (!(display.suspend)) {
-	      vm.interpret(50, function runAgain(ms) {
-		if (ms == "sleep") ms = 200;
-		if (spinner) updateSpinner(spinner, ms, vm, display);
-		if (loop) window.clearTimeout(loop);
-		loop = window.setTimeout(run, ms);
-	      })};
-	  } catch(error) {
-	    console.error(error);
-	    // alert(error);
-	    debugger
-	    loop = window.setTimeout(run, 200);
+	  function run() {
+	    try {
+	      if (display.quitFlag) self.onQuit(vm, display, options);
+	      else if (!(display.suspend)) {
+		vm.interpret(50, function runAgain(ms) {
+		  if (ms == "sleep") ms = 200;
+		  if (spinner) updateSpinner(spinner, ms, vm, display);
+		  if (loop) window.clearTimeout(loop);
+		  loop = window.setTimeout(run, ms);
+		})};
+	    } catch(error) {
+	      console.error(error);
+	      // alert(error);
+	      debugger
+	      loop = window.setTimeout(run, 200);
+	    }
 	  }
-	}
 
-	display.runNow = function() {
-	  window.clearTimeout(loop);
-	  run();
-	};
-	display.runFor = function(milliseconds) {
-	  var stoptime = Date.now() + milliseconds;
-	  do {
-	    if (display.quitFlag) return;
-	    display.runNow();
-	  } while (Date.now() < stoptime);
-	};
+	  display.runNow = function() {
+	    window.clearTimeout(loop);
+	    run();
+	  };
 
-	WebAssembly.instantiateStreaming(
-	  fetch("/wasm/interpreter.wasm"),
-	  {wasm: {
-	    log: vm.log.bind(vm),
-	    nextByte: vm.nextByteGuarded.bind(vm),
-	    receiverBeDirty: vm.receiverBeDirty.bind(vm),
-	    pointersAt: vm.pointersAt.bind(vm),
-	    pointersAtPut: vm.pointersAtPut.bind(vm),
-	    homeContextPointersAtPut: vm.homeContextPointersAtPut.bind(vm),
-	    receiverPointersAtPut: vm.receiverPointersAtPut.bind(vm),
-	    push: vm.pushObjectWithUUID.bind(vm),
-	    extendedPush: vm.extendedPush.bind(vm),
-	    extendedStore: vm.extendedStore.bind(vm),
-	    extendedStorePop: vm.extendedStorePop.bind(vm),
-	    pop: vm.popUsingUUID.bind(vm),
-	    methodGetLiteral: vm.methodGetLiteral.bind(vm),
-	    methodGetSelector: vm.methodGetSelector.bind(vm),
-	    doReturn: vm.doReturnWithUUID.bind(vm),
-	    nono: vm.nono.bind(vm),
-	    top: vm.topUsingUUID.bind(vm),
-	    pop2AndPushDivResult: vm.pop2AndPushDivResult.bind(vm),
-	    pushExportThisContext: vm.pushExportThisContext.bind(vm),
-	    pushNewArray: vm.pushNewArray.bind(vm),
-	    callPrimBytecode: vm.callPrimBytecode.bind(vm),
-	    pushClosureCopy: vm.pushClosureCopy.bind(vm),
-	    jumpIfFalse: vm.jumpIfFalse.bind(vm),
-	    jumpIfTrue: vm.jumpIfTrue.bind(vm),
-	    checkForInterrupts: vm.checkForInterrupts.bind(vm),
-	    stackIntOrFloat: vm.stackIntOrFloat.bind(vm),
-	    stackInteger: vm.stackInteger.bind(vm),
-	    mod: vm.mod.bind(vm),
-	    pop2AndPushBoolResult: vm.pop2AndPushBoolResultWithUUID.bind(vm),
-	    pop2AndPushIntResult: vm.pop2AndPushIntResult.bind(vm),
-	    send: vm.sendFromUUID.bind(vm),
-	    sendSpecial: vm.sendSpecial.bind(vm),
-	    primitiveMakePoint: vm.primHandler.primitiveMakePoint.bind(vm.primHandler),
-	    quickSendOther: vm.quickSendOtherWithUUID.bind(vm),
-	    pop2AndPushNumResult: vm.pop2AndPushNumResultWithUUID.bind(vm),
-	    doubleExtendedDoAnything: vm.doubleExtendedDoAnything.bind(vm),
-	    setByteCodeCount: vm.setByteCodeCount.bind(vm),
-	    setPC: vm.setPC.bind(vm),
-	    setSuccess: vm.setSuccess.bind(vm),
-	    setResultIsFloat: vm.setResultIsFloat.bind(vm),
-	    safeShift: vm.safeShift.bind(vm),
-	    thePC: vm.thePC.bind(vm),
-	    theByteCodeCount: vm.theByteCodeCount.bind(vm),
-	    theInterruptCheckCounter: vm.theInterruptCheckCounter.bind(vm),
-	    setTheInterruptCheckCounter: vm.setTheInterruptCheckCounter.bind(vm),
-	    contextTempFrameStart: vm.contextTempFrameStart.bind(vm),
-	    associationValue: vm.associationValue.bind(vm),
-	    theReceiver: vm.theReceiver.bind(vm),
-	    theTrueObj: vm.theTrueObj.bind(vm),
-	    theFalseObj: vm.theFalseObj.bind(vm),
-	    theNilObj: vm.theNilObj.bind(vm),
-	    theActiveContext: vm.theActiveContext.bind(vm),
-	    theHomeContext: vm.theHomeContext.bind(vm),
-	    blockContextCaller: vm.blockContextCaller.bind(vm)}}).then((wasm) => {
-	      vm.interpretOneWASM = wasm.instance.exports.interpretOne;
-	      vm.currentInterpretOne = vm.interpretOne;
-	      run();})
-      },
-			   function readProgress(value) {display.showProgress(value);});
-    }, 0);
+	  display.runFor = function(milliseconds) {
+	    var stoptime = Date.now() + milliseconds;
+	    do {
+	      if (display.quitFlag) return;
+	      display.runNow();
+	    } while (Date.now() < stoptime);
+	  };
+
+	  WebAssembly.instantiateStreaming(
+	    fetch("/wasm/interpreter.wasm"),
+	    {wasm: {
+	      memory: vm.image.memory,
+
+	      doReturn: vm.doReturnWithUUID.bind(vm),
+	      send: vm.sendFromUUID.bind(vm),
+	      quickSendOther: vm.quickSendOtherWithUUID.bind(vm),
+	      stackInteger: vm.stackInteger.bind(vm), // not a wrapper
+	      setSuccess: vm.setSuccess.bind(vm),
+	      primitiveMakePoint: vm.primHandler.primitiveMakePoint.bind(vm.primHandler), //not a wrapper
+	      mod: vm.mod.bind(vm), // not a wrapper
+	      pop2AndPushIntResult: vm.pop2AndPushIntResult.bind(vm), // not a wrapper
+	      pop2AndPushDivResult: vm.pop2AndPushDivResult.bind(vm), // not a wrapper
+	      pop2AndPushNumResult: vm.pop2AndPushNumResultWithUUID.bind(vm),
+	      pop2AndPushBoolResult: vm.pop2AndPushBoolResultWithUUID.bind(vm),
+	      stackIntOrFloat: vm.stackIntOrFloat.bind(vm),
+	      setResultIsFloat: vm.setResultIsFloat.bind(vm),
+	      checkForInterrupts: vm.checkForInterrupts.bind(vm), // not a wrapper
+	      setTheInterruptCheckCounter: vm.setTheInterruptCheckCounter.bind(vm),
+	      theInterruptCheckCounter: vm.theInterruptCheckCounter.bind(vm),
+	      callPrimBytecode: vm.callPrimBytecode.bind(vm), // not a wrapper
+	      pushClosureCopy: vm.pushClosureCopy.bind(vm), // not a wrapper
+	      pushNewArray: vm.pushNewArray.bind(vm), // not a wrapper
+	      pushExportThisContext: vm.pushExportThisContext.bind(vm), // not a wrapper
+	      setByteCodeCount: vm.setByteCodeCount.bind(vm),
+	      theByteCodeCount: vm.theByteCodeCount.bind(vm)}}).then((wasm) => {
+		vm.image.minimal = (name == '/minimal2.image')
+		vm.image.youngObjectsTable = 100000000;
+		vm.image.youngObjectsSegment = vm.image.youngObjectsTable + 50000
+		vm.image.dirtyTableAddress = vm.image.youngObjectsSegment + 1000000;
+		vm.image.wasmStarted2 = false;
+		vm.imageName = name;
+		vm.interpretOneWASM = wasm.instance.exports.interpretOne;
+
+		run()})
+	},
+	function readProgress(value) {display.showProgress(value)})},
+		      0)
   };
 
   function processOptions(options) {
@@ -1390,7 +1372,7 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
   }
 
   function fetchFiles(files, display, options, thenDo) {
-    // check if files exist locally and download if nessecary
+    // check if files exist locally and download if necessary
     function getNextFile() {
       if (files.length === 0)
 	return thenDo();

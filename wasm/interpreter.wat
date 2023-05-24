@@ -1,572 +1,1014 @@
 (module
- (import "wasm" "nextByte" (func $nextByte (result i32)))
- (import "wasm" "receiverBeDirty" (func $receiverBeDirty))
- (import "wasm" "pointersAt" (func $pointersAt (param i32) (param i32) (result i32)))
- (import "wasm" "pointersAtPut" (func $pointersAtPut (param i32) (param i32) (param i32)))
- (import "wasm" "homeContextPointersAtPut" (func $homeContextPointersAtPut (param i32) (param i32)))
- (import "wasm" "receiverPointersAtPut" (func $receiverPointersAtPut (param i32) (param i32)))
- (import "wasm" "push" (func $push (param i32)))
- (import "wasm" "extendedPush" (func $extendedPush (param i32)))
- (import "wasm" "extendedStore" (func $extendedStore (param i32)))
- (import "wasm" "extendedStorePop" (func $extendedStorePop (param i32)))
- (import "wasm" "pop" (func $pop (result i32)))
- (import "wasm" "methodGetLiteral" (func $methodGetLiteral (param i32) (result i32)))
- (import "wasm" "methodGetSelector" (func $methodGetSelector (param i32) (result i32)))
+ (import "wasm" "memory"  (memory 1600 1800 shared))
+
  (import "wasm" "doReturn" (func $doReturn (param i32) (param i32) (result i32)))
- (import "wasm" "nono" (func $nono (result i32)))
- (import "wasm" "send" (func $send (param i32) (param i32) (param i32) (result i32)))
- (import "wasm" "top" (func $top (result i32)))
- (import "wasm" "pushExportThisContext" (func $pushExportThisContext))
- (import "wasm" "pushNewArray" (func $pushNewArray (param i32) (result i32)))
+ (import "wasm" "send" (func $send (param i32) (param i32) (param i32)))
+ (import "wasm" "quickSendOther" (func $quickSendOther (param i32) (param i32) (result i32)))
+ (import "wasm" "stackInteger" (func $stackInteger (param i32) (result i32)))
+ (import "wasm" "setSuccess" (func $setSuccess (param i32)))
+ (import "wasm" "primitiveMakePoint" (func $primitiveMakePoint (param i32) (param i32) (result i32)))
+ (import "wasm" "mod" (func $mod (param i32) (param i32) (result i32)))
+ (import "wasm" "pop2AndPushIntResult" (func $pop2AndPushIntResult (param i32) (result i32)))
+ (import "wasm" "pop2AndPushDivResult" (func $pop2AndPushDivResult (param i32) (param i32) (result i32)))
+ (import "wasm" "pop2AndPushNumResult" (func $pop2AndPushNumResult (param i32) (result i32)))
+ (import "wasm" "pop2AndPushBoolResult" (func $pop2AndPushBoolResult (param i32) (result i32)))
+ (import "wasm" "stackIntOrFloat" (func $stackIntOrFloat (param i32) (result i32)))
+ (import "wasm" "setResultIsFloat" (func $setResultIsFloat (param i32)))
+ (import "wasm" "checkForInterrupts" (func $checkForInterrupts))
+ (import "wasm" "setTheInterruptCheckCounter" (func $setTheInterruptCheckCounter (param i32)))
+ (import "wasm" "theInterruptCheckCounter" (func $theInterruptCheckCounter (result i32)))
  (import "wasm" "callPrimBytecode" (func $callPrimBytecode (result i32)))
  (import "wasm" "pushClosureCopy" (func $pushClosureCopy (result i32)))
- (import "wasm" "jumpIfFalse" (func $jumpIfFalse (param i32) (result i32)))
- (import "wasm" "jumpIfTrue" (func $jumpIfTrue (param i32) (result i32)))
- (import "wasm" "checkForInterrupts" (func $checkForInterrupts (result i32)))
- (import "wasm" "stackIntOrFloat" (func $stackIntOrFloat (param i32) (result i32)))
- (import "wasm" "stackInteger" (func $stackInteger (param i32) (result i32)))
- (import "wasm" "mod" (func $mod (param i32) (param i32) (result i32)))
- (import "wasm" "pop2AndPushBoolResult" (func $pop2AndPushBoolResult (param i32) (result i32)))
- (import "wasm" "pop2AndPushIntResult" (func $pop2AndPushIntResult (param i32) (result i32)))
- (import "wasm" "sendSpecial" (func $sendSpecial (param i32) (result i32)))
- (import "wasm" "primitiveMakePoint" (func $primitiveMakePoint (param i32) (param i32) (result i32)))
- (import "wasm" "quickSendOther" (func $quickSendOther (param i32) (param i32) (result i32)))
- (import "wasm" "pop2AndPushNumResult" (func $pop2AndPushNumResult (param i32) (result i32)))
- (import "wasm" "doubleExtendedDoAnything" (func $doubleExtendedDoAnything (param i32) (result i32)))
-
+ (import "wasm" "pushNewArray" (func $pushNewArray (param i32) (result i32)))
+ (import "wasm" "pushExportThisContext" (func $pushExportThisContext))
  (import "wasm" "setByteCodeCount" (func $setByteCodeCount (param i32)))
- (import "wasm" "setPC" (func $setPC (param i32)))
- (import "wasm" "setSuccess" (func $setSuccess (param i32)))
- (import "wasm" "setResultIsFloat" (func $setResultIsFloat (param i32)))
-
- (import "wasm" "thePC" (func $thePC (result i32)))
  (import "wasm" "theByteCodeCount" (func $theByteCodeCount (result i32)))
- (import "wasm" "theInterruptCheckCounter" (func $theInterruptCheckCounter (result i32)))
- (import "wasm" "setTheInterruptCheckCounter" (func $setTheInterruptCheckCounter (param i32)))
- (import "wasm" "contextTempFrameStart" (func $contextTempFrameStart (result i32)))
- (import "wasm" "associationValue" (func $associationValue (result i32)))
- (import "wasm" "theReceiver" (func $theReceiver (result i32)))
- (import "wasm" "theTrueObj" (func $theTrueObj (result i32)))
- (import "wasm" "theFalseObj" (func $theFalseObj (result i32)))
- (import "wasm" "theNilObj" (func $theNilObj (result i32)))
- (import "wasm" "theActiveContext" (func $theActiveContext (result i32)))
- (import "wasm" "theHomeContext" (func $theHomeContext (result i32)))
- (import "wasm" "blockContextCaller" (func $blockContextCaller (result i32)))
- (import "wasm" "pop2AndPushDivResult" (func $pop2AndPushDivResult (param i32) (param i32) (result i32)))
- (import "wasm" "safeShift" (func $safeShift (param i32) (param i32) (result i32)))
-
- (import "wasm" "log" (func $log (param i32)))
-
- (global $temp (mut i32))
- (global $bytecodeCount (mut i32) (i32.const 0))
- (global $nextAvailableAddress (mut i32) (i32.const 0))
- (global $startingObjectMemoryAddress i32 (i32.const 0x400))
- (global $position (mut i32) (i32.const 0))
- (global $lastHash (mut i32))
- (global $savedHeaderWords (mut i32))
- (global $firstSegSize (mut i32))
  
- (memory $everything 0)
- ;; Since, for now, there can be only one memory, memory has two
- ;; segments: a fixed-size segment of pointers, and a growable segment
- ;; of object memory. Each pointer is two 32-bit words: the first is
- ;; an address in the second segment, and the second has the
- ;; one-indexed element byte size in the high three bits, and a length
- ;; in the low 29 bits.
+ (global $dirtyTableAddress (mut i32) (i32.const 0))
+ (global $activeContext (mut i32) (i32.const 0))
+ (global $receiver (mut i32) (i32.const 0))
+ (global $method (mut i32) (i32.const 0))
+ (global $pc (mut i32) (i32.const 0))
+ (global $sp (mut i32) (i32.const 0))
 
- (func $incrementNextAddress
-       global.get $nextAddress
-       i32.const 1
-       i32.add
-       global.set $nextAddress)
+ (global $association (mut i32) (i32.const 0))
+ (global $processor (mut i32) (i32.const 0))
+ (global $process (mut i32) (i32.const 0))
+ (global $numberOfMethodLiterals (mut i32) (i32.const 0))
+ (global $methodBytes (mut i32) (i32.const 0))
+
+ (func $encodeSmallInteger
+       (param $integer i32)
+       (result i32)
        
- (func $pointer
+       local.get $integer
+       i32.const 1
+       i32.shl
+       i32.const 1
+       i32.or)
+
+ (func $switch32BitEndianness
+       (param $input i32)
+       (result i32)
+       (local $result i32)
+
+       local.get $input
+       i32.const 0xFF
+       i32.and
+       i32.const 24
+       i32.shl
+       local.set $result
+       local.get $input
+       i32.const 0xFF00
+       i32.and
+       i32.const 8
+       i32.shl
+       local.get $result
+       i32.add
+       local.set $result
+       local.get $input
+       i32.const 0xFF0000
+       i32.and
+       i32.const 8
+       i32.shr_u
+       local.get $result
+       i32.add
+       local.set $result
+       local.get $input
+       i32.const 0xFF000000
+       i32.and
+       i32.const 24
+       i32.shr_u
+       local.get $result
+       i32.add)
+
+ (func $store32BitsWithSwitchedEndianness
        (param $address i32)
-       (param $size i32)
+       (param $value i32)
+
+       local.get $value
+       i32.const 0x80000000
+       i32.eq
+       (if
+	(then
+	 unreachable))
+       
+       local.get $address
+       local.get $value
+       call $switch32BitEndianness
+       i32.store)
+       
+ (func $load32BitsWithSwitchedEndianness
+       (param $address i32)
        (result i32)
 
-       ;; Calculate the target address.
-       global.get $startingObjectMemoryAddress
-       global.get $position
-       i32.add
+       local.get $address
+       i32.const 0
+       i32.lt_s
+       (if (result i32)
+	(then
+	 unreachable)
+	(else
+	 local.get $address
+	 i32.const 104857600
+	 i32.gt_u
+	 (if (result i32)
+	  (then
+	   unreachable)
+	  (else
+	   local.get $address
+	   i32.load
+	   call $switch32BitEndianness)))))
+
+ (func $addressOfPointerOfAt
+       (param $address i32)
+       (param $index i32)
+       (result i32)
+       (local $headerType i32)
+
+       local.get $address
+       i32.const 0
+       i32.lt_s
+       (if (result i32)
+	(then
+	 unreachable)
+	(else 
+	 local.get $address
+	 local.get $address
+	 call $numberOfObjectHeaderWords
+	 i32.const 4
+	 i32.mul
+	 i32.add
+	 local.get $index
+	 i32.const 4
+	 i32.mul
+	 i32.add)))
+
+ (func $integerOfAt
+       (param $address i32)
+       (param $index i32)
+       (result i32)
+       (local $value i32)
+
+       local.get $address
+       local.get $index
+       call $pointerOfAt
+       local.set $value
+       local.get $value
+       i32.const 1
+       i32.and
+       (if (result i32)
+	(then
+	 local.get $value
+	 i32.const 1
+	 i32.shr_s)
+	(else
+	 local.get $value)))
        
-       ;; Write the target address to the next pointer address.
-       i32.store $nextAddress
-       global.get $nextAddress
-       global.set $temp
-       call $incrementNextAddress
+ (func $pointerOfAt
+       (param $address i32)
+       (param $index i32)
+       (result i32)
+       
+       local.get $address
+       local.get $index
+       call $addressOfPointerOfAt
+       call $load32BitsWithSwitchedEndianness)
 
-       ;; Write the pointee size to the next pointer address
-       local.get $nWords
-       i32.store $nextAddress
-       call $incrementNextAddress
+ (func $recordDirtyObject
+       (param $object i32)
+       (local $currentAddress i32)
 
-       ;; Leave the first pointer address on the stack.
-       global.get $temp)
+       global.get $dirtyTableAddress
+       local.get $object
+       call $store32BitsWithSwitchedEndianness
+       global.get $dirtyTableAddress
+       i32.const 4
+       i32.add
+       global.set $dirtyTableAddress
+       global.get $dirtyTableAddress
+       i32.const 0x0FFFFFFF
+       call $store32BitsWithSwitchedEndianness)
 
- (func $sizeOfPointer
+ (func $pointerOfAtPutPointer
+       (param $address i32)
+       (param $index i32)
+       (param $oop i32)
+
+       local.get $oop
+       i32.const 4161536
+       i32.eq
+       (if
+	(then
+	 unreachable))
+       
+       local.get $address
+       local.get $index
+       call $addressOfPointerOfAt
+       local.get $oop
+       call $store32BitsWithSwitchedEndianness
+
+       ;; Note the object in the dirty objects table.
+       local.get $address
+       call $recordDirtyObject)
+       
+ (func $pointerOfAtPutInteger
+       (param $address i32)
+       (param $index i32)
+       (param $integer i32)
+
+       local.get $address
+       local.get $index
+       call $addressOfPointerOfAt
+       local.get $integer
+       call $encodeSmallInteger
+       call $store32BitsWithSwitchedEndianness
+
+       ;; Note the object in the dirty objects table.
+       local.get $address
+       call $recordDirtyObject)
+       
+ (func $activeContext
+       (result i32)
+       (local $result i32)
+       
+       call $specialObjectsArray
+       i32.const 3
+       call $pointerOfAt ;; fetch the address of the Processor association
+       global.set $association
+       global.get $association
+       i32.const 1
+       call $pointerOfAt ;; fetch the address of the Processor
+       global.set $processor
+       global.get $processor
+       i32.const 1
+       call $pointerOfAt ;; fetch the address of the active Process
+       global.set $process
+       global.get $process
+       i32.const 1
+       call $pointerOfAt
+       local.set $result
+       local.get $result
+       i32.const 0
+       i32.lt_s
+       (if (result i32)
+	(then
+	 ;; The active context is a young object; fetch it via the young objects table.
+	 i32.const 100000000
+	 local.get $result
+	 i32.const 4
+	 i32.mul
+	 i32.sub
+	 call $load32BitsWithSwitchedEndianness)
+	(else
+	 local.get $result
+	 i32.const 0
+	 i32.eq
+	 (if (result i32)
+	  (then
+	   unreachable)
+	  (else
+	   local.get $result
+	   global.set $activeContext
+	   local.get $result))))) ;; fetch the address of the active Context
+
+ (func $method
+       (result i32)
+       (local $temp i32)
+       
+       call $homeContext
+       i32.const 3
+       call $pointerOfAt
+       global.set $method
+       global.get $method)
+
+ (func $numberOfObjectHeaderWords
+       (param $object i32)
+       (result i32)
+       (local $headerType i32)
+
+       local.get $object
+       call $load32BitsWithSwitchedEndianness
+       i32.const 3 ;; Squeak.HeaderTypeMask
+       i32.and
+       local.set $headerType
+       local.get $headerType
+       i32.const 0 ;; Squeak.HeaderTypeSizeAndClass
+       i32.eq
+       (if (result i32)
+	(then
+	 i32.const 3)
+	(else
+	 local.get $headerType
+	 i32.const 1 ;; Squeak.HeaderTypeClass
+	 i32.eq
+	 (if (result i32)
+	  (then
+	   i32.const 2)
+	  (else
+	   local.get $headerType
+	   i32.const 3 ;; Squeak.HeaderTypeShort
+	   i32.eq
+	   (if (result i32)
+	    (then
+	     i32.const 1)
+	    (else
+	     unreachable)))))))
+       
+ (func $methodBytes
+       (result i32)
+
+       call $numberOfMethodLiterals
+       i32.const 4
+       i32.mul
+       call $method
+       i32.add
+       global.get $method
+       call $numberOfObjectHeaderWords
+       i32.const 1
+       i32.add
+       i32.const 4
+       i32.mul
+       i32.add ;; skip the object header words and the method header word
+       global.set $methodBytes
+       global.get $methodBytes)
+
+ (func $addressOfProgramCounter
+       (result i32)
+
+       call $activeContext
+       i32.const 8
+       i32.add)
+       
+ (func $pc
+       (result i32)
+
+       call $addressOfProgramCounter
+       call $load32BitsWithSwitchedEndianness ;; fetch the encoded (SmallInteger *and* byte-offset) program counter
+       i32.const 1
+       i32.shr_u
+       call $numberOfMethodLiterals
+       i32.const 1
+       i32.add
+       i32.const 4
+       i32.mul
+       i32.sub
+       i32.const 1
+       i32.sub
+       global.set $pc
+       global.get $pc)
+
+ (func $pcThenIncrement
+       (result i32)
+       (local $currentPC i32)
+       
+       call $pc
+       local.set $currentPC
+       local.get $currentPC
+       i32.const 1
+       i32.add
+       call $setPC
+       local.get $currentPC)
+
+ (func $numberOfMethodLiterals
+       (result i32)
+
+       call $method
+       i32.const 0
+       call $integerOfAt ;; fetch the SmallInteger header of the active method
+       i32.const 9
+       i32.shr_u ;; shift out the primitive bits
+       i32.const 255
+       i32.and ;; the number of literals
+       global.set $numberOfMethodLiterals
+       global.get $numberOfMethodLiterals)
+       
+ (func $setPC
+       (param $newPC i32)
+
+       local.get $newPC
+       global.set $pc
+
+       call $addressOfProgramCounter
+
+       local.get $newPC
+       call $numberOfMethodLiterals
+       i32.const 1
+       i32.add
+       i32.const 4
+       i32.mul
+       i32.const 1
+       i32.add
+       i32.add
+       call $encodeSmallInteger
+       call $store32BitsWithSwitchedEndianness
+       call $activeContext
+       call $recordDirtyObject)
+
+ (func $nextByte
+       (result i32)
+       (local $theMethodBytes i32)
+       (local $thePC i32)
+       (local $address i32)
+       
+       call $methodBytes
+       local.set $theMethodBytes
+       local.get $theMethodBytes
+       call $pcThenIncrement
+       local.set $thePC
+       local.get $thePC
+       i32.add
+       local.set $address
+       local.get $address
+       i32.const 104857600
+       i32.ge_s
+       (if
+	(then
+	 unreachable))
+       local.get $address
+       i32.load ;; load little-endian, so we can easily read the least-significant next byte
+       i32.const 0xFF
+       i32.and)
+
+ (func $sp
+       (result i32)
+
+       call $activeContext
+       i32.const 2
+       call $integerOfAt
+
+       ;; decode the byte-offset stack pointer
+       i32.const 5 ;; Squeak.Context_tempFrameStart - 1
+       i32.add
+       global.set $sp
+       global.get $sp)
+
+ (func $setSP
+       (param $value i32)
+
+       call $activeContext
+       i32.const 2
+       local.get $value
+       global.set $sp
+       global.get $sp
+       i32.const 5 ;; Squeak.Context_tempFrameStart - 1
+       i32.sub
+       call $pointerOfAtPutInteger)
+
+ (func $pushPointer
+       (param $value i32)
+       (local $newSP i32)
+       
+       call $activeContext
+       call $sp
+       i32.const 1
+       i32.add
+       local.set $newSP
+       local.get $newSP
+       local.get $value
+       call $pointerOfAtPutPointer
+       local.get $newSP
+       call $setSP)
+
+ (func $nil
+       (result i32)
+
+       i32.const 4)
+
+ (func $isBlockContext
+       (param $context i32)
+       (result i32)
+
+       local.get $context
+       call $load32BitsWithSwitchedEndianness
+       i32.const 12
+       i32.shr_u
+       i32.const 31
+       i32.and
+       i32.const 13
+       i32.eq)
+       
+ (func $homeContextOf
+       (param $context i32)
+       (result i32)
+       (local $closureOrNil i32)
+       
+       local.get $context
+       call $isBlockContext
+
+       (if (result i32)
+	(then
+	 local.get $context
+	 i32.const 5
+	 call $pointerOfAt
+	 call $homeContextOf)
+	(else
+	 ;; Not a block context; we're home.
+	 local.get $context)))
+
+ (func $homeContext
+       (result i32)
+
+       call $activeContext
+       call $homeContextOf)
+
+ (func $receiver
+       (result i32)
+
+       call $homeContext
+       i32.const 5
+       call $pointerOfAt
+       global.set $receiver
+       global.get $receiver)
+
+ (func $methodGetLiteral
+       (param $index i32)
+       (result i32)
+
+       call $method
+       local.get $index
+       i32.const 1
+       i32.add ;; skip the method header literal
+       call $pointerOfAt)
+
+ (func $methodGetSelector
+       (param $index i32)
+       (result i32)
+
+       local.get $index
+       call $methodGetLiteral)
+
+ (func $beDirty
+       (param $object i32)
+       (local $dirty i32)
+
+       ;; Set a dirty bit in the object's first header word.
+       local.get $object
+       call $load32BitsWithSwitchedEndianness
+       i32.const 0x80000000
+       i32.or
+       local.set $dirty
+       local.get $object
+       local.get $dirty
+       call $store32BitsWithSwitchedEndianness)
+
+ (func $pop
+       (result i32)
+       (local $sp i32)
+       (local $result i32)
+       
+       call $sp
+       local.set $sp
+       call $activeContext
+       local.get $sp
+       call $pointerOfAt
+       local.set $result
+       local.get $sp
+       i32.const 1
+       i32.sub
+       call $setSP
+       local.get $result)
+
+ (func $decodeSmallInteger
        (param $pointer i32)
        (result i32)
 
        local.get $pointer
        i32.const 1
-       i32.add
-       global.set $temp
-       global.get $temp
-       i32.load)
-
- (func $map
-       (return i32)
-       
-       ;; Maps are stored as a linked list of memory cell
-       ;; triples. Each triple has the address of the next triple in
-       ;; the third cell. The first triple has the size of the map in
-       ;; the first cell. The first cell of each subsequent triple has
-       ;; a key, and the second cell has a value.
-       
-       global.get $nextAvailableAddress
-       global.set $temp
-       global.get $nextAvailableAddress
-       i32.const 0
-       i32.store
-       global.get $nextAvailableAddress
-       i32.const 3
-       i32.add
-       global.set $nextAvailableAddress
-       global.get $temp)
-
- (func $at
-       (param $startingAddress i32)
-       (param $key i32)
-       (local $address i32)
-
-       ;; Find the triple with $key as its key. If we first encounter
-       ;; a triple with 0xFFFFFFFF as its next-address, then there is
-       ;; no such triple; do nothing.
-
-       local.get $startingAddress
-       local.set $address
-
-       (loop $loop
-	     local.get $address
-	     i32.const 2
-	     i32.add
-	     i32.load
-	     local.set $address
-	     local.get $address
-	     i32.const 0xFFFFFFFF
-	     i32.eq
-	     br_if $none
-	     local.get $address
-	     i32.load
-	     local.get $key
-	     br_if $loop)
-
-       local.get $address
-       i32.const 1
-       i32.add
-       i32.load
-
-       (block $none
-	 return))
-       
- (func $atPut
-       (param $startingAddress i32)
-       (param $key i32)
-       (param $value i32)
-       (local $address i32)
-
-       ;; Find the triple with $key as its key. If we first encounter
-       ;; a triple with 0xFFFFFFFF as its next-address, that's the
-       ;; next available triple. Write the key/value pair there, and
-       ;; set up a new empty triple.
-
-       local.get $startingAddress
-       local.set $address
-
-       (loop $loop
-	     local.get $address ;; address of the next triple's first cell
-	     i32.const 2
-	     i32.add
-	     i32.load
-	     local.set $address
-	     local.get $address
-	     i32.const 0xFFFFFFFF
-	     i32.eq
-	     br_if $new
-	     local.get $address
-	     i32.load
-	     local.get $key
-	     i32.ne
-	     br_if $loop)
-
-       (block $new
-	 ;; Write $value.
-
-	 local.get $address
+       i32.and
+       (if (result i32)
+	(then
+	 local.get $pointer
 	 i32.const 1
-	 i32.add
-	 local.get $value
-	 i32.store
+	 i32.shr_s)
+	(else
+	 local.get $pointer)))
+       
+ (func $top
+       (result i32)
 
-	 ;; Write the address of the next triple, and initialize the next triple.
+       call $activeContext
+       call $sp
+       call $pointerOfAt)
+       
+ (func $true
+       (result i32)
 
-	 local.get $address
-	 i32.const 2
-	 i32.add
-	 global.get $nextAvailableAddress
-	 i32.store
-	 global.get $nextAvailableAddress
-	 i32.const 2
-	 i32.add
-	 global.set $nextAvailableAddress
-	 global.get $nextAvailableAddress
-	 i32.const 2
-	 i32.add
-	 i32.const 0xFFFFFFFF
-	 i32.store))
-
- (func $push
-       (param $startingAddress i32)
-       (param $value i32)
-       (local $address i32)
-
-       ;; Push $value in the next available triple rooted in
-       ;; $startingAddress.
-
-       local.get $startingAddress
-       local.set $address
-
-       (loop $loop
-	     local.get $address ;; address of the next triple's first cell
-	     i32.const 2
-	     i32.add
-	     i32.load
-	     local.set $address
-	     local.get $address
-	     i32.const 0xFFFFFFFF
-	     i32.ne
-	     br_if $loop)
-
-       global.get $nextAvailableAddress
-       i32.const 1
-       i32.add
-       local.get $value
-       i32.store
-       global.get $nextAvailableAddress
-       i32.const 2
-       i32.add
-       i32.const 0xFFFFFFFF
-       i32.store
-       global.get $nextAvailableAddress
-       i32.const 3
-       i32.add
-       global.set $nextAvailableAddress)
+       i32.const 20)
  
- (func $readWord
-       (local $integer)
+ (func $false
+       (result i32)
 
-       global.get $position
-       global.get $littleEndian
-       call $getUint32
-       local.set $integer
-       global.get $position
-       i32.const 4
-       i32.add
-       global.set $position
-       local.get $integer)
+       i32.const 12)
 
- (func $readBits
-       (param $nWords i32)
-       (param $isPointers i32)
-       (local $oops i32) ;; memory address of an array, first element is array size
-       (local $bits i32)
-       
-       local.get $isPointers
-       
+ (func $extendedPush
+       (param $byte i32)
+       (local $lobits i32)
+       (local $switch i32)
+
+       local.get $byte
+       i32.const 63
+       i32.and
+       local.set $lobits
+       local.get $byte
+       i32.const 6
+       i32.shr_u
+       local.set $switch
+       local.get $switch
+       i32.const 0
+       i32.eq
        (if
 	(then
-	 ;; Do endianness conversion.
-	 global.get $nextAddress
-	 local.set $oops
-	 local.get $oops
-	 i32.store 0
-	 
-	 (loop $loop
-	       local.get $oops
-	       i32.load
-	       local.get $nWords
-	       i32.lt_u
-
-	       (if
-		(then
-		 local.get $oops
-		 call $readWord
-		 call $push))
-
-	       local.get $oops
-	       i32.load
-	       local.get $nWords
-	       i32.lt_u
-	       br_if $loop)
-
-	 local.get $oops
-	 i32.load
-	 return))
+	 call $receiver
+	 local.get $lobits
+	 call $pointerOfAt
+	 call $pushPointer)
 	(else
-	 ;; words (no endianness conversion yet)
-	 global.get $position
-	 local.get $nWords
-	 call $pointer
-	 local.set $bits
-	 global.get $position
-	 local.get $nWords
-	 i32.const 4
-	 i32.mul
-	 i32.add
-	 global.set $position
-	 return $bits))
-	 
- (func $readFromBuffer
-       (local $littleEndian i32 (i32.const 0))
-       (local $imageHeaderSize i32)
-       (local $objectMemorySize i32)
-       (local $oldBaseAddr i32)
-       (local $specialObjectsOopInt i32)
-       (local $index i32)
-       (local $prevObj i32)
-       (local $oopMap i32)
-       (local $rawBits i32)
-       (local $headerSize i32)
-       (local $fileHeaderSize i32 (i32.const 0))
-       
-       i32.const 0x52454144 ;; 'READ'
-       call $log
-
-       ;; Skip checking the image version.
-       call $readWord
-
-       call $readWord
-       local.set $imageHeaderSize
-       call $readWord
-       local.set $objectMemorySize
-       call $readWord
-       local.set $oldBaseAddr
-       call $readWord
-       local.set $specialObjectsOopInt
-       call $readWord
-       global.set $lastHash
-       call $map
-       global.set $savedHeaderWords
-
-       i32.const -1
-       local.set $index
-       
-       (loop $loop
-	     global.get $savedHeaderWords
-	     call $readWord
-	     call $push
-	     local.get $index
-	     i32.const 1
-	     i32.add
-	     local.set $index
-	     local.get $index
-	     i32.const 6
-	     i32.lt_u
-	     br_if $loop)
-
-       call $readWord
-       global.set $firstSegSize
-       call $map
-       local.set $oopMap
-       call $map
-       local.set $rawBits
-       local.get $fileHeaderSize
-       local.get $imageHeaderSize
-       i32.add
-       local.set $headerSize
-       local.get $headerSize
-       global.set $position
-
-       (loop $loop
-	     i32.const 0
-	     local.set $nWords
-	     i32.const 0
-	     local.set $classInt
-	     call $readWord
-	     local.set $header
-	     local.get $header
-	     local.get $headerTypeMask
-	     i32.and
-	     global.set $temp
-	     global.get $temp
-	     local.get $headerTypeSizeAndClass
+	 local.get $switch
+	 i32.const 1
+	 i32.eq
+	 (if
+	  (then
+	   call $homeContext
+	   i32.const 6 ;; Squeak.Context_tempFrameStart
+	   local.get $lobits
+	   i32.add
+	   call $pointerOfAt
+	   call $pushPointer)
+	  (else
+	   local.get $switch
+	   i32.const 2
+	   i32.eq
+	   (if
+	    (then
+	     local.get $lobits
+	     call $methodGetLiteral
+	     call $pushPointer)
+	    (else
+	     local.get $switch
+	     i32.const 3
 	     i32.eq
-
 	     (if
 	      (then
-	       local.get $header
-	       i32.const 2
-	       i32.shr_u
-	       local.set $nWords
-	       call $readWord
-	       local.set $classInt
-	       call $readWord
-	       local.set $header)
+	       local.get $lobits
+	       call $methodGetLiteral
+	       i32.const 1 ;; Squeak.Assn_value
+	       call $pointerOfAt
+	       call $pushPointer)
 	      (else
-	       global.get $temp
-	       local.get $headerTypeClass
+	       unreachable)))))))))
+
+ (func $extendedStore
+       (param $byte i32)
+       (local $lobits i32)
+       (local $switch i32)
+       (local $association i32)
+       (local $receiver i32)
+
+       local.get $byte
+       i32.const 63
+       i32.and
+       local.set $lobits
+       local.get $byte
+       i32.const 6
+       i32.shr_u
+       local.set $switch
+       local.get $switch
+       i32.const 0
+       i32.eq
+       (if
+	(then
+	 call $receiver
+	 call $beDirty
+	 call $receiver
+	 local.get $lobits
+	 call $top
+	 call $pointerOfAtPutPointer)
+	(else
+	 local.get $switch
+	 i32.const 1
+	 i32.eq
+	 (if
+	  (then
+	   call $homeContext
+	   i32.const 6 ;; Squeak.Context_tempFrameStart
+	   local.get $lobits
+	   i32.add
+	   call $top
+	   call $pointerOfAtPutPointer)
+	  (else
+	   local.get $switch
+	   i32.const 2
+	   i32.eq
+	   (if
+	    (then
+	     unreachable)
+	    (else
+	     local.get $switch
+	     i32.const 3
+	     i32.eq
+	     (if
+	      (then
+	       local.get $lobits
+	       call $methodGetLiteral
+	       local.set $association
+	       local.get $association
+	       call $beDirty
+	       local.get $association
+	       i32.const 1 ;; Squeak.Assn_value
+	       call $top
+	       call $pointerOfAtPutPointer)
+	      (else
+	       unreachable)))))))))
+
+ (func $extendedStorePop
+       (param $byte i32)
+       (local $lobits i32)
+       (local $switch i32)
+       (local $association i32)
+
+       local.get $byte
+       i32.const 63
+       i32.and
+       local.set $lobits
+       local.get $byte
+       i32.const 6
+       i32.shr_u
+       local.set $switch
+       local.get $switch
+       i32.const 0
+       i32.eq
+       (if
+	(then
+	 call $receiver
+	 call $beDirty
+	 global.get $receiver
+	 local.get $lobits
+	 call $pop
+	 call $pointerOfAtPutPointer)
+	(else
+	 local.get $switch
+	 i32.const 1
+	 i32.eq
+	 (if
+	  (then
+	   call $homeContext
+	   i32.const 6 ;; Squeak.Context_tempFrameStart
+	   local.get $lobits
+	   i32.add
+	   call $pop
+	   call $pointerOfAtPutPointer)
+	  (else
+	   local.get $switch
+	   i32.const 2
+	   i32.eq
+	   (if
+	    (then
+	     unreachable)
+	    (else
+	     local.get $switch
+	     i32.const 3
+	     i32.eq
+	     (if
+	      (then
+	       local.get $lobits
+	       call $methodGetLiteral
+	       local.set $association
+	       local.get $association
+	       call $beDirty
+	       local.get $association
+	       i32.const 1 ;; Squeak.Assn_value
+	       call $top
+	       call $pointerOfAtPutPointer)
+	      (else
+	       unreachable)))))))))
+
+ (func $doubleExtendedDoAnything
+       (param $secondByte i32)
+       (local $thirdByte i32)
+       (local $switch i32)
+       (local $association i32)
+       
+       call $nextByte
+       local.set $thirdByte
+       local.get $secondByte
+       i32.const 5
+       i32.shr_u
+       local.set $switch
+       local.get $switch
+       i32.const 0
+       i32.eq
+       (if
+	(then
+	 local.get $thirdByte
+	 call $methodGetSelector
+	 local.get $secondByte
+	 i32.const 31
+	 i32.and
+	 i32.const 0
+	 call $send)
+	(else
+	 local.get $switch
+	 i32.const 1
+	 i32.eq
+	 (if
+	  (then
+	   local.get $thirdByte
+	   call $methodGetSelector
+	   local.get $secondByte
+	   i32.const 31
+	   i32.add
+	   i32.const 1
+	   call $send)
+	  (else
+	   local.get $switch
+	   i32.const 2
+	   i32.eq
+	   (if
+	    (then
+	     call $receiver
+	     local.get $thirdByte
+	     call $pointerOfAt
+	     call $pushPointer)
+	    (else
+	     local.get $switch
+	     i32.const 3
+	     i32.eq
+	     (if
+	      (then
+	       local.get $thirdByte
+	       call $methodGetLiteral
+	       call $pushPointer)
+	      (else
+	       local.get $switch
+	       i32.const 4
 	       i32.eq
 	       (if
 		(then
-		 local.get $header
-		 local.get $headerTypeClass
-		 i32.sub
-		 local.get $classInt
-		 call $readWord
-		 local.set $header)
+		 local.get $thirdByte
+		 call $methodGetLiteral
+		 i32.const 1 ;; Squeak.Assn_value
+		 call $pointerOfAt
+		 call $pushPointer)
 		(else
-		 global.get $temp
-		 local.get $headerTypeShort
+		 local.get $switch
+		 i32.const 5
 		 i32.eq
 		 (if
 		  (then
-		   local.get $header
-		   i32.const 2
-		   i32.shr_u
-		   i32.const 63
-		   i32.and
-		   local.set $nWords
-		   local.get $header
-		   i32.const 12
-		   i32.shr_u
-		   i32.const 31
-		   i32.and
-		   local.set $classInt))))))
+		   call $receiver
+		   call $beDirty
+		   global.get $receiver
+		   local.get $thirdByte
+		   call $top
+		   call $pointerOfAtPutPointer)
+		  (else
+		   local.get $switch
+		   i32.const 6
+		   i32.eq
+		   (if
+		    (then
+		     call $receiver
+		     call $beDirty
+		     global.get $receiver
+		     local.get $thirdByte
+		     call $pop
+		     call $pointerOfAtPutPointer)
+		    (else
+		     local.get $switch
+		     i32.const 7
+		     i32.eq
+		     (if
+		      (then
+		       local.get $thirdByte
+		       call $methodGetLiteral
+		       local.set $association
+		       local.get $association
+		       call $beDirty
+		       local.get $association
+		       i32.const 1 ;; Squeak.Assn_value
+		       call $top
+		       call $pointerOfAtPutPointer)
+		      (else
+		       unreachable)))))))))))))))))
 
-	     local.get $nWords
-	     i32.const 1
-	     i32.sub
-	     local.set $nWords
-	     global.get $position
-	     i32.const 4
-	     i32.sub
-	     local.get $headerSize
-	     i32.sub
-	     local.set $oop
-	     local.get $header
-	     i32.const 8
-	     i32.shr_u
-	     i32.const 15
-	     i32.and
-	     local.set $format
-	     local.get $header
-	     i32.const 17
-	     i32.shr_u
-	     i32.const 4095
-	     i32.and
-	     local.set $hash
-	     local.get $nWords
-	     local.get $format
-	     i32.const 5
-	     i32.le_u
-	     call $readBits
-	     local.set $bits
-	     local.get $oop
-	     local.get $classInt
-	     local.get $format
-	     local.get $hash
-	     call $initFromImage
-	     local.set $object
-	     local.get $classInt
-	     i32.const 32
-	     i32.lt_u
-	     (if
-	      (then
-	       local.get $object
-	       local.get $object
-	       call $getHash
-	       i32.const 0x10000000
-	       call $setHash))
-	     local.get $prevObj
-	     i32.const 0
-	     i32.ne
-	     (if
-	      (then
-	       local.get $prevObj
-	       local.get $object
-	       call $setNextObject))
-	     local.get $oldSpaceCount
-	     i32.const 1
-	     i32.add
-	     local.set $oldSpaceCount
-	     local.get $object
-	     local.set $prevObj
-	     local.get $oopMap
-	     local.get $oldBaseAddr
-	     local.get $oop
-	     i32.add
-	     local.get $object
-	     call $atPut
-	     local.get $rawBits
-	     local.get $oop
-	     local.get $bits
-	     call $atPut
-	     global.get $position
-	     local.get $headerSize
-	     local.get $objectMemorySize
-	     i32.add
-	     i32.lt_u
-	     br_if $loop)
-       local.get $oopMap
-       local.get $oldBaseAddr
-       i32.const 4
-       i32.add
-       call $at
-       local.set $firstOldObject
-       local.get $object
-       local.set $lastOldObject
-       local.get $objectMemorySize
-       local.set $oldSpaceBytes
+ (func $specialObjectsArray
+       (result i32)
 
-       local.get $oopMap
-       local.get $specialObjectsOopInt
-       call $at
-       local.set $splObs
-       local.get $rawBits
-       local.get $oopMap
-       local.get $rawBits
-       local.get $splObs
-       call $getOop
-       call $at
-       local.get $splOb_CompactClasses
-       call $at
-       call $at
-       call $at
-       call $getOop
-       local.set $cc
        i32.const 0
-       local.set $renamedObj
-       global.get $firstOldObject
-       local.set $object
-       i32.const 0
-       local.set $prevObj
+       call $load32BitsWithSwitchedEndianness)
+       
+ (func $jumpIfFalse
+       (param $delta i32)
+       (local $top i32)
 
-       (loop $loop
-	     local.get $renamedObj
-	     local.set $prevObj
-	     
+       call $pop
+       local.set $top
+       local.get $top
+       call $false
+       i32.eq
+       (if
+	(then
+	 call $pc
+	 local.get $delta
+	 i32.add
+	 call $setPC
+	 return)
+	(else
+	 local.get $top
+	 call $true
+	 i32.eq
+	 (if
+	  (then
+	   return)
+	  (else
+	   local.get $top
+	   call $pushPointer
+	   call $specialObjectsArray
+	   i32.const 25 ;; Squeak.splOb_SelectorMustBeBoolean
+	   call $pointerOfAt
+	   i32.const 0
+	   i32.const 0
+	   call $send)))))
 
+  (func $jumpIfTrue
+       (param $delta i32)
+       (local $top i32)
 
- 
+       call $pop
+       local.set $top
+       local.get $top
+       call $true
+       i32.eq
+       (if
+	(then
+	 call $pc
+	 local.get $delta
+	 i32.add
+	 call $setPC
+	 return)
+	(else
+	 local.get $top
+	 call $false
+	 i32.eq
+	 (if
+	  (then
+	   return)
+	  (else
+	   local.get $top
+	   call $pushPointer
+	   call $specialObjectsArray
+	   i32.const 25 ;; Squeak.splOb_SelectorMustBeBoolean
+	   call $pointerOfAt
+	   i32.const 0
+	   i32.const 0
+	   call $send)))))
+
+  (func $sendSpecial
+	(param $lobits i32)
+	(local $specialSelectors i32)
+	(local $selectorAddress i32)
+	
+	call $specialObjectsArray
+	i32.const 23 ;; Squeak.splOb_SpecialSelectors
+	call $pointerOfAt
+	local.set $specialSelectors
+	local.get $specialSelectors
+	local.get $lobits
+	i32.const 2
+	i32.mul
+	call $pointerOfAt
+	local.set $selectorAddress
+	local.get $selectorAddress
+	i32.const 1
+	i32.and
+	(if
+	 (then
+	  unreachable))
+	local.get $selectorAddress
+	local.get $specialSelectors
+	local.get $lobits
+	i32.const 2
+	i32.mul
+	i32.const 1
+	i32.add
+	call $integerOfAt
+	i32.const 0
+	call $send)
+
  (func $interpretOne (export "interpretOne")
        (local $firstInstructionByte i32)
        (local $secondInstructionByte i32)
-
-       global.get $bytecodeCount
-       i32.const 1
-       i32.add
-       global.set $bytecodeCount
+       (local $interruptCheckCounter i32)
+       
+       call $receiver
+       global.set $receiver
+       
+       i32.const 101050000
+       global.set $dirtyTableAddress
+       global.get $dirtyTableAddress
+       i32.const 0x0FFFFFFF
+       call $store32BitsWithSwitchedEndianness
 
        call $nextByte
        local.set $firstInstructionByte
@@ -576,12 +1018,12 @@
 
        (if
 	(then
-	 call $theReceiver
+	 global.get $receiver ;; push receiver address
 	 local.get $firstInstructionByte
 	 i32.const 15
 	 i32.and
-	 call $pointersAt
-	 call $push
+	 call $pointerOfAt
+	 call $pushPointer
 	 return))
 
        local.get $firstInstructionByte
@@ -590,14 +1032,14 @@
 
        (if
 	(then
-	 call $theHomeContext
-	 call $contextTempFrameStart
+	 call $homeContext
+	 i32.const 6
 	 local.get $firstInstructionByte
 	 i32.const 15
 	 i32.and
 	 i32.add
-	 call $pointersAt
-	 call $push
+	 call $pointerOfAt
+	 call $pushPointer
 	 return))
 
        local.get $firstInstructionByte
@@ -607,10 +1049,10 @@
        (if
 	(then
 	 local.get $firstInstructionByte
-	 i32.const 31
+	 i32.const 0x1F
 	 i32.and
 	 call $methodGetLiteral
-	 call $push
+	 call $pushPointer
 	 return))
 
        local.get $firstInstructionByte
@@ -623,9 +1065,9 @@
 	 i32.const 31
 	 i32.and
 	 call $methodGetLiteral
-	 call $associationValue
-	 call $pointersAt
-	 call $push
+	 i32.const 1 ;; Squeak.Assn_value
+	 call $pointerOfAt
+	 call $pushPointer
 	 return))
 
        local.get $firstInstructionByte
@@ -634,13 +1076,14 @@
 
        (if
 	(then
-	 call $receiverBeDirty
-	 call $theReceiver
+	 global.get $receiver
+	 call $beDirty
+	 global.get $receiver
 	 i32.const 7
 	 local.get $firstInstructionByte
 	 i32.and
 	 call $pop
-	 call $receiverPointersAtPut
+	 call $pointerOfAtPutPointer
 	 return))
 
        local.get $firstInstructionByte
@@ -649,13 +1092,14 @@
 
        (if
 	(then
-	 call $contextTempFrameStart
+	 call $homeContext
+	 i32.const 6 ;; Squeak.Context_tempFrameStart
 	 local.get $firstInstructionByte
 	 i32.const 7
 	 i32.and
 	 i32.add
 	 call $pop
-	 call $homeContextPointersAtPut
+	 call $pointerOfAtPutPointer
 	 return))
 
        local.get $firstInstructionByte
@@ -664,8 +1108,8 @@
 
        (if
 	(then
-	 call $theReceiver
-	 call $push
+	 global.get $receiver
+	 call $pushPointer
 	 return))
 
        local.get $firstInstructionByte
@@ -674,8 +1118,8 @@
 
        (if
 	(then
-	 call $theTrueObj
-	 call $push
+	 call $true
+	 call $pushPointer
 	 return))
 
        local.get $firstInstructionByte
@@ -684,8 +1128,8 @@
 
        (if
 	(then
-	 call $theFalseObj
-	 call $push
+	 call $false
+	 call $pushPointer
 	 return))
 
        local.get $firstInstructionByte
@@ -694,8 +1138,8 @@
 
        (if
 	(then
-	 call $theNilObj
-	 call $push
+	 call $nil
+	 call $pushPointer
 	 return))
 
        local.get $firstInstructionByte
@@ -705,7 +1149,8 @@
        (if
 	(then
 	 i32.const -1
-	 call $push
+	 call $encodeSmallInteger
+	 call $pushPointer
 	 return))
 
        local.get $firstInstructionByte
@@ -715,7 +1160,8 @@
        (if
 	(then
 	 i32.const 0
-	 call $push
+	 call $encodeSmallInteger
+	 call $pushPointer
 	 return))
 
        local.get $firstInstructionByte
@@ -725,7 +1171,8 @@
        (if
 	(then
 	 i32.const 1
-	 call $push
+	 call $encodeSmallInteger
+	 call $pushPointer
 	 return))
 
        local.get $firstInstructionByte
@@ -735,7 +1182,8 @@
        (if
 	(then
 	 i32.const 2
-	 call $push
+	 call $encodeSmallInteger
+	 call $pushPointer
 	 return))
 
        local.get $firstInstructionByte
@@ -744,7 +1192,7 @@
 
        (if
 	(then
-	 call $theReceiver
+	 global.get $receiver
 	 i32.const 0
 	 call $doReturn
 	 return))
@@ -755,7 +1203,7 @@
 
        (if
 	(then
-	 call $theTrueObj
+	 call $true
 	 i32.const 0
 	 call $doReturn
 	 return))
@@ -766,7 +1214,7 @@
 
        (if
 	(then
-	 call $theFalseObj
+	 call $false
 	 i32.const 0
 	 call $doReturn
 	 return))
@@ -777,7 +1225,7 @@
 
        (if
 	(then
-	 call $theNilObj
+	 call $nil
 	 i32.const 0
 	 call $doReturn
 	 return))
@@ -800,9 +1248,9 @@
        (if
 	(then
 	 call $pop
-	 call $theActiveContext
-	 call $blockContextCaller
-	 call $pointersAt
+	 call $activeContext
+	 i32.const 0 ;; Squeak.BlockContext_caller
+	 call $pointerOfAt
 	 call $doReturn
 	 return))
 
@@ -812,7 +1260,7 @@
 
        (if
 	(then
-	 call $nono
+	 unreachable
 	 return))
 
        local.get $firstInstructionByte
@@ -821,7 +1269,7 @@
 
        (if
 	(then
-	 call $nono
+	 unreachable
 	 return))
 
        local.get $firstInstructionByte
@@ -937,7 +1385,7 @@
        (if
 	(then
 	 call $top
-	 call $push
+	 call $pushPointer
 	 return))
 
        local.get $firstInstructionByte
@@ -976,14 +1424,14 @@
 	(then
 	 call $nextByte
 	 local.set $secondInstructionByte
-	 call $theHomeContext
-	 call $contextTempFrameStart
+	 call $homeContext
+	 i32.const 6
 	 call $nextByte
 	 i32.add
-	 call $pointersAt
+	 call $pointerOfAt
 	 local.get $secondInstructionByte
-	 call $pointersAt
-	 call $push
+	 call $pointerOfAt
+	 call $pushPointer
 	 return))
 
        local.get $firstInstructionByte
@@ -994,14 +1442,14 @@
 	(then
 	 call $nextByte
 	 local.set $secondInstructionByte
-	 call $theHomeContext
-	 call $contextTempFrameStart
+	 call $homeContext
+	 i32.const 6
 	 call $nextByte
 	 i32.add
-	 call $pointersAt
+	 call $pointerOfAt
 	 local.get $secondInstructionByte
 	 call $top
-	 call $pointersAtPut
+	 call $pointerOfAt
 	 return))
 
        local.get $firstInstructionByte
@@ -1012,14 +1460,14 @@
 	(then
 	 call $nextByte
 	 local.set $secondInstructionByte
-	 call $theHomeContext
-	 call $contextTempFrameStart
+	 call $homeContext
+	 i32.const 6
 	 call $nextByte
 	 i32.add
-	 call $pointersAt
+	 call $pointerOfAt
 	 local.get $secondInstructionByte
 	 call $top
-	 call $pointersAtPut
+	 call $pointerOfAt
 	 call $pop
 	 return))
 
@@ -1038,7 +1486,7 @@
 
        (if
 	(then
-	 call $thePC
+	 call $pc
 	 local.get $firstInstructionByte
 	 i32.const 7
 	 i32.and
@@ -1070,7 +1518,7 @@
 	(then
 	 call $nextByte
 	 local.set $secondInstructionByte
-	 call $thePC
+	 call $pc
 	 local.get $firstInstructionByte
 	 i32.const 7
 	 i32.and
@@ -1092,13 +1540,13 @@
 	 (if
 	  (then
 	   call $theInterruptCheckCounter
-	   i32.const 0
-	   local.set $temp
-	   call $theInterruptCheckCounter
    	   i32.const 1
 	   i32.sub
+	   local.set $interruptCheckCounter
+	   local.get $interruptCheckCounter
 	   call $setTheInterruptCheckCounter
-	   local.get $temp
+	   local.get $interruptCheckCounter
+	   i32.const 0
 	   i32.le_u
 	   (if
 	    (then
@@ -1148,7 +1596,6 @@
 	 call $setSuccess
 	 i32.const 0
 	 call $setResultIsFloat
-
 	 i32.const 1
 	 call $stackIntOrFloat
 	 i32.const 0
@@ -1490,7 +1937,6 @@
 	 call $stackInteger
 	 i32.const 0
 	 call $stackInteger
-	 call $safeShift
 	 call $pop2AndPushIntResult
 	 i32.const 0
 	 i32.eq
@@ -1594,10 +2040,8 @@
 
        (if
 	(then
+	 global.get $receiver
 	 local.get $firstInstructionByte
-	 local.set $temp
-	 call $theReceiver
-	 local.get $temp
 	 i32.const 15
 	 i32.and
 	 call $quickSendOther
@@ -1606,7 +2050,7 @@
 
 	 (if
 	  (then
-	   local.get $temp
+	   local.get $firstInstructionByte
 	   i32.const 15
 	   i32.and
 	   i32.const 16
@@ -1661,4 +2105,10 @@
 	 call $send
 	 return))
 
-       return))
+       i32.const 100050000
+       call $load32BitsWithSwitchedEndianness
+       i32.const 512
+       i32.eq
+       (if
+	(then
+	 unreachable))))
