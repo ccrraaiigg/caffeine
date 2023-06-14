@@ -1702,6 +1702,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			  wasmAddress = SqueakJS.vm.image.youngObjectsSegment
 			  currentYoungObject = this.firstYoungObject}
 			else {
+			  // For now, allocate 64 4-byte words for every object. Minimize size later.
 			  wasmAddress += 256
 			  currentYoungObject = currentYoungObject.nextObject}}
 		      
@@ -3284,59 +3285,6 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			  
 		      debugger},
 
-		    doReturnWithUUID: function(value, context) {
-		      var oldPC,
-			  oldSP,
-			  wasmAddress = this.activeContext.wasmAddress()
-
-		      oldPC = this.pc
-		      oldSP = this.sp
-
-		      this.pc = this.decodeSqueakPC(this.image.memoryView.getInt32(wasmAddress + 8) >> 1, this.method)
-		      this.sp = this.decodeSqueakSP(this.image.memoryView.getInt32(wasmAddress + 12) >> 1)
-		      
-		      if ((this.pc - oldPC > 3) || (Math.abs(this.sp - oldSP) > 3)) debugger
-		      if (this.pc > this.method.bytes.length) debugger
-
-		      this.doReturn(this.objectWithUUID(value), this.objectWithUUID(context))},
-
-		    sendFromUUID: function(uuid, index, bool) {
-		      var oldPC,
-			  oldSP, 
-			  wasmAddress = this.activeContext.wasmAddress()
-		      
-		      oldPC = this.pc
-		      oldSP = this.sp
-
-		      this.pc = this.decodeSqueakPC(this.image.memoryView.getInt32(wasmAddress + 8) >> 1, this.method)
-		      this.sp = this.decodeSqueakSP(this.image.memoryView.getInt32(wasmAddress + 12) >> 1)
-		      
-		      if ((this.pc - oldPC > 3) || (Math.abs(this.sp - oldSP) > 3)) debugger
-		      if (this.pc > this.method.bytes.length) debugger
-
-		      this.send(this.objectWithUUID(uuid), index, bool)},
-
-		    quickSendOtherWithUUID: function(uuid, lobits) {return this.primHandler.quickSendOther(this.objectWithUUID(uuid), lobits)},
-
-		    setSuccess: function(theSuccess) {
-		      if (theSuccess) this.success = true
-		      else this.success = false},
-
-		    pop2AndPushDivResult: function(first, second) {return this.pop2AndPushIntResult(this.div(first, second))},
-		    pop2AndPushNumResultWithUUID: function(num) {return this.pop2AndPushNumResult(num)},
-		    pop2AndPushBoolResultWithUUID: function(bool) {return this.pop2AndPushBoolResult(bool)},
-		    stackIntOrFloatUsingUUID: function(depth) {return this.stackIntOrFloat(depth)},
-
-		    setResultIsFloat: function(theResultIsFloat) {
-		      if (theResultIsFloat) this.resultIsFloat = true
-		      else this.resultIsFloat = false},
-
-		    setTheInterruptCheckCounter: function(int) {this.interruptCheckCounter = int},
-		    theInterruptCheckCounter: function() {return this.interruptCheckCounter},
-		    pushExportThisContext: function() {this.push(this.exportThisContext())},
-		    theByteCodeCount: function() {return this.byteCodeCount},
-		    setByteCodeCount: function(count) {this.byteCodeCount = count},
-
 		    loadImageState: function() {
 		      this.specialObjects = this.image.specialObjectsArray.pointers;
 		      this.specialSelectors = this.specialObjects[Squeak.splOb_SpecialSelectors].pointers;
@@ -3662,6 +3610,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 //			this.method.compiled(this);
 //			return;
 //		      }
+
 		      this.byteCodeCount++;
 		      this.wasmCount++
 
@@ -3675,8 +3624,6 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      this.specialObjects[Squeak.splOb_SchedulerAssociation].pointers[Squeak.Assn_value].pointers[Squeak.ProcSched_activeProcess].writeToWASM();
 		      this.specialObjects[Squeak.splOb_SchedulerAssociation].pointers[Squeak.Assn_value].writeToWASM();
 
-		      if ((this.receiver) && (this.receiver.sqClass)) this.receiver.writeToWASM()
-		      
 		      try {
 			console.log(this.wasmCount + ' :: ' + this.pc + ' :: ' + this.sp + ' :: ' + this.method.bytes[this.pc].toString(16) + ' :: ' + this.activeContext.wasmAddress() + ' :: ' + this.printContext(this.activeContext))
 //			if (this.image.memoryView.getInt32(6727788) == 0) debugger
@@ -4398,14 +4345,6 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      this.receiver = this.homeContext.pointers[Squeak.Context_receiver];
 		      this.method = meth;
 
-//		      if (this.image.wasmStarted4()) {
-//			this.image.storingContextRegisters = true
-//			var wasmAddress = ctxt.wasmAddress()
-//			
-//			ctxt.pointers[Squeak.Context_instructionPointer] = this.image.memoryView.getInt32(wasmAddress + 8) >> 1
-//			ctxt.pointers[Squeak.Context_stackPointer] = this.image.memoryView.getInt32(wasmAddress + 12) >> 1
-//			this.image.storingContextRegisters = false}
-		      
 		      this.pc = this.decodeSqueakPC(ctxt.pointers[Squeak.Context_instructionPointer], meth)
 		      this.sp = this.decodeSqueakSP(ctxt.pointers[Squeak.Context_stackPointer]);
 		    },
@@ -5975,12 +5914,14 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			return array.pointers[index-1];
 		      if (array.isPointers())   //pointers...   normal at:
 			return array.pointers[index-1+info.ivarOffset];
-		      if (array.isWords()) // words...
+		      if (array.isWords()) {
+			// words...
 			if (info.convertChars) return this.charFromInt(array.words[index-1] & 0x3FFFFFFF);
-		      else return this.pos32BitIntFor(array.words[index-1]);
-		      if (array.isBytes()) // bytes...
+			else return this.pos32BitIntFor(array.words[index-1]);}
+		      if (array.isBytes()) {
+			// bytes...
 			if (info.convertChars) return this.charFromInt(array.bytes[index-1] & 0xFF);
-		      else return array.bytes[index-1] & 0xFF;
+			else return array.bytes[index-1] & 0xFF;}
 		      // methods must simulate Squeak's method indexing
 		      var offset = array.pointersSize() * 4;
 		      if (index-1-offset < 0) {this.success = false; return array;} //reading lits as bytes

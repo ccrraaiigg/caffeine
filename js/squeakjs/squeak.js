@@ -1185,40 +1185,16 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
 
 	  WebAssembly.instantiateStreaming(
 	    fetch("/wasm/interpreter.wasm"),
-	    {wasm: {
-	      memory: vm.image.memory,
+	    {wasm: {memory: vm.image.memory}}).then((wasm) => {
+	      vm.image.minimal = (name == '/minimal2.image')
+	      vm.image.youngObjectsTable = 100000000;
+	      vm.image.youngObjectsSegment = vm.image.youngObjectsTable + 50000
+	      vm.image.dirtyTableAddress = vm.image.youngObjectsSegment + 1000000;
+	      vm.image.wasmStarted2 = false;
+	      vm.imageName = name;
+	      vm.interpretOneWASM = wasm.instance.exports.interpretOne;
 
-	      doReturn: vm.doReturnWithUUID.bind(vm),
-	      send: vm.sendFromUUID.bind(vm),
-	      quickSendOther: vm.quickSendOtherWithUUID.bind(vm),
-	      stackInteger: vm.stackInteger.bind(vm), // not a wrapper
-	      setSuccess: vm.setSuccess.bind(vm),
-	      primitiveMakePoint: vm.primHandler.primitiveMakePoint.bind(vm.primHandler), //not a wrapper
-	      mod: vm.mod.bind(vm), // not a wrapper
-	      pop2AndPushIntResult: vm.pop2AndPushIntResult.bind(vm), // not a wrapper
-	      pop2AndPushDivResult: vm.pop2AndPushDivResult.bind(vm), // not a wrapper
-	      pop2AndPushNumResult: vm.pop2AndPushNumResultWithUUID.bind(vm),
-	      pop2AndPushBoolResult: vm.pop2AndPushBoolResultWithUUID.bind(vm),
-	      stackIntOrFloat: vm.stackIntOrFloat.bind(vm),
-	      setResultIsFloat: vm.setResultIsFloat.bind(vm),
-	      checkForInterrupts: vm.checkForInterrupts.bind(vm), // not a wrapper
-	      setTheInterruptCheckCounter: vm.setTheInterruptCheckCounter.bind(vm),
-	      theInterruptCheckCounter: vm.theInterruptCheckCounter.bind(vm),
-	      callPrimBytecode: vm.callPrimBytecode.bind(vm), // not a wrapper
-	      pushClosureCopy: vm.pushClosureCopy.bind(vm), // not a wrapper
-	      pushNewArray: vm.pushNewArray.bind(vm), // not a wrapper
-	      pushExportThisContext: vm.pushExportThisContext.bind(vm), // not a wrapper
-	      setByteCodeCount: vm.setByteCodeCount.bind(vm),
-	      theByteCodeCount: vm.theByteCodeCount.bind(vm)}}).then((wasm) => {
-		vm.image.minimal = (name == '/minimal2.image')
-		vm.image.youngObjectsTable = 100000000;
-		vm.image.youngObjectsSegment = vm.image.youngObjectsTable + 50000
-		vm.image.dirtyTableAddress = vm.image.youngObjectsSegment + 1000000;
-		vm.image.wasmStarted2 = false;
-		vm.imageName = name;
-		vm.interpretOneWASM = wasm.instance.exports.interpretOne;
-
-		run()})
+	      run()})
 	},
 	function readProgress(value) {display.showProgress(value)})},
 		      0)
