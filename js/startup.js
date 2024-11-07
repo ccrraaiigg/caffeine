@@ -13,13 +13,6 @@ window.startup = function () {
 
   console.log('starting Caffeine...')
 
-  if (window.top.WebMidi) {
-    window.top.WebMidi.enable(
-      (err) => {
-	if (err) {console.warn(err)}
-	else {console.log("Sysex is enabled.")}},
-      true)}
-
   window.top.document.ontouchend = (event) => {
     var div = window.top.document.getElementById("caffeine-div"),
 	canvas = document.getElementById('caffeine-canvas')

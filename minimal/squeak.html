@@ -91,6 +91,11 @@
     <script src="js/startup.js"></script>
     <script>
       window.onload = () => {
+	const otMeta = document.createElement('meta');
+	otMeta.httpEquiv = 'origin-trial';
+	otMeta.content = 'AwUX8JRw5oeZmHTNEqe2UAXVyPCujWK2Eo1c+fZxT8w6JUi6syDFTww78Fq4v37b8Iqklo5pvmO55ZBTBWq34w0AAABieyJvcmlnaW4iOiJodHRwOi8vbG9jYWxob3N0OjgwIiwiZmVhdHVyZSI6IldlYkFzc2VtYmx5R0MiLCJleHBpcnkiOjE2OTg5Njk1OTksImlzVGhpcmRQYXJ0eSI6dHJ1ZX0=';
+	document.head.append(otMeta);
+	
     	window.startup()
       
         window.top.startCaffeine(
