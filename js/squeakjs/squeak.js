@@ -1148,7 +1148,8 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
           localStorage["squeakImageName"] = name;
           setupSwapButtons(options);
           display.clear();
-	  vm.image.alignOops();
+	  // The linear-memory version of the hybrid WASM/JS VM wants this.
+	  // vm.image.alignOops();
           display.showBanner("starting app '" + SqueakJS.appName + "'...");
           var spinner = setupSpinner(vm, options);
 
@@ -1184,6 +1185,12 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
 	  };
 
 	  WebAssembly.instantiateStreaming(
+	    fetch("wasm/gc.wasm")).then((wasm) => {
+	      vm.testGC = function () {
+//		debugger
+		return wasm.instance.exports.test()}})
+	      
+/*	  WebAssembly.instantiateStreaming(
 	    fetch("/wasm/interpreter.wasm"),
 	    {wasm: {memory: vm.image.memory}}).then((wasm) => {
 	      vm.image.minimal = (name == '/minimal2.image')
@@ -1194,7 +1201,8 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
 	      vm.imageName = name;
 	      vm.interpretOneWASM = wasm.instance.exports.interpretOne;
 
-	      run()})
+	      run()})*/
+	  run()
 	},
 	function readProgress(value) {display.showProgress(value)})},
 		      0)

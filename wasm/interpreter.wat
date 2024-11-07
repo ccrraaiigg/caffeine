@@ -1,66 +1,77 @@
-;; Each object is preceded by metadata. The first word before an
-;; object's address is a bitfield, indicating which of 32 pieces of
-;; metadata the object has. The words before that are metadata.
+;; Each object is a WASMGC struct, with a 32-bit word of bitwise
+;; metadata called "metabits" for indicating booleans such as isNil,
+;; isTrue, etc.
 ;;
-;; metaword 0: metabits
-;; metaword 1: sqClass
-;; metaword 2: hash
-;; metaword 3: nextObject
-;; metaword 4: float
 ;; metabit 0: has pointers
 ;; metabit 1: has words
 ;; metabit 2: has bytes
 ;; metabit 3: isNil
 ;; metabit 4: isFalse
 ;; metabit 5: isFloat
-;; metabit 6: isFloatClass
-;; metabit 7: isCompact
-;; metabit 8: mark
-;; metabit 9: dirty
-;; metabit 10: hasNewInstances
-;; metabit 11: isCompiled
+;; metabit 6: isInteger
+;; metabit 7: isFloatClass
+;; metabit 8: isCompact
+;; metabit 9: mark
+;; metabit 10: dirty
+;; metabit 11: hasNewInstances
+;; metabit 12: isCompiled
+;; metabit 13: hasClosures
 
 (module
-;; (import "wasm" "memory" (memory 1600 1800 shared))
+ ;; (import "wasm" "memory" (memory 1600 1800 shared))
  (memory $wasm.memory (import "wasm" "memory") 1)
 
- (type $array (array (mut i32)))
+ (type $bytes (array (mut i8)))
+ (type $words (array (mut i32)))
+ (type $pointers (array (ref $object)))
 
- (global $dirtyTableAddress (mut i32) (i32.const 0))
- (global $activeContext (mut i32) (i32.const 0))
- (global $receiver (mut i32) (i32.const 0))
- (global $method (mut i32) (i32.const 0))
+ (type $object (struct
+		(field $metabits (mut i32))
+		(field $class (ref $object))
+		(field $format (mut i32))
+		(field $hash (mut i32))
+		(field $pointers (ref $pointers))
+		(field $words (ref $words))
+		(field $bytes (ref $bytes))
+		(field $float (mut f32))
+		(field $integer (mut i32))
+		(field $address (mut i32))
+		(field $nextObject (ref $object))))
+
+ (type $atCacheEntry (struct
+		      (field $array (ref $pointers))
+		      (field $convertChars (mut i8))
+		      (field $size (mut i32))
+		      (field $ivarOffset (mut i32))))
+
+ (type $atCacheArray (array (ref $atCacheEntry)))
+
+ (global $activeContext (ref $object))
+ (global $receiver (ref $object))
+ (global $method (ref $object))
  (global $pc (mut i32) (i32.const 0))
  (global $sp (mut i32) (i32.const 0))
-
- (global $association (mut i32) (i32.const 0))
- (global $processor (mut i32) (i32.const 0))
- (global $process (mut i32) (i32.const 0))
- (global $numberOfMethodLiterals (mut i32) (i32.const 0))
- (global $methodBytes (mut i32) (i32.const 0))
- (global $homeContext (mut i32) (i32.const 0))
+ (global $homeContext (ref $object))
  (global $hasClosures (mut i32) (i32.const 0))
- (global $freeContexts (mut i32) (i32.const 0))
- (global $freeLargeContexts (mut i32) (i32.const 0))
+ (global $freeContexts (ref $object) (global.get $nilObj))
+ (global $freeLargeContexts (ref $object) (global.get $nilObj))
  (global $reclaimableContextCount (mut i32) (i32.const 0))
- (global $specialObjectsArray (mut i32) (i32.const 0))
- (global $verifyAtSelector (mut i32) (i32.const 0))
- (global $verifyAtClass (mut i32) (i32.const 0))
+ (global $specialObjectsArray (ref $object))
+ (global $verifyAtSelector (ref $object))
+ (global $verifyAtClass (ref $object))
  (global $methodCacheRandomish (mut i32) (i32.const 0))
  (global $methodCacheMask (mut i32) (i32.const 0))
- (global $methodCache (mut i32) (i32.const 0))
- (global $nilObj (mut i32) (i32.const 0))
+ (global $methodCache (ref $object))
+ (global $nilObj (ref $object))
  (global $lastHash (mut i32) (i32.const 0))
  (global $youngObjectsCount (mut i32) (i32.const 0))
- (global $youngObjectsSegment (mut i32) (i32.const 0))
- (global $youngObjectsTable (mut i32) (i32.const 0))
  (global $success (mut i32) (i32.const 0))
  (global $instructionCount (mut i32) (i32.const 0))
  (global $atCacheSize (mut i32) (i32.const 0))
  (global $atCacheMask (mut i32) (i32.const 0))
- (global $atPutCache (ref $array))
- (global $atCache (ref $array))
- (global $nonCachedInfo i32)
+ (global $atPutCache (ref $atCacheArray))
+ (global $atCache (ref $atCacheArray))
+ (global $nonCachedInfo (ref $atCacheEntry))
  
  (func $initAtCache
        i32.const 32
@@ -71,18 +82,15 @@
        i32.sub
        global.set $atCacheMask
 
-       i32.const 0 ;; initial element value
        global.get $atCacheSize ;; collection size
-       array.new $array
+       struct.new $atCacheArray
        global.set $atCache
 
        i32.const 0
        i32.const 1024 ;; What should this be?
-       array.new $array
+       struct.new $atCacheArray
        global.set $atPutCache)
        
-       
- 
  (func $beSuccessful
        i32.const 1
        global.set $success)
@@ -91,124 +99,20 @@
        i32.const 0
        global.set $success)
  
- (func $addressOfMetawordOfAt
-       (param $object i32)
-       (param $index i32)
-       (result i32)
-
-       local.get $object
-       local.get $index
-       i32.const 2
-       i32.add
-       i32.const -1
-       i32.mul
-       i32.add)
- 
- (func $metawordOfAt
-       (param $object i32)
-       (param $index i32)
-       (result i32)
-
-       local.get $object
-       local.get $index
-       call $addressOfMetawordOfAt
-       call $load32BitInteger)
-
- (func $metawordOfAtPut
-       (param $object i32)
-       (param $index i32)
-       (param $value i32)
-
-       local.get $object
-       local.get $index
-       call $addressOfMetawordOfAt
-       local.get $value
-       call $store32BitInteger)
- 
- (func $metawordOfAtPutFloat
-       (param $object i32)
-       (param $index i32)
-       (param $value f32)
-
-       local.get $object
-       local.get $index
-       call $addressOfMetawordOfAt
-       local.get $value
-       call $store32BitFloat)
- 
- (func $sqClass
-       (param $object i32)
-       (result i32)
-
-       local.get $object
-       i32.const 1
-       call $metawordOfAt)
-
- (func $setSqClass
-       (param $object i32)
-       (param $class i32)
-
-       local.get $object
-       local.get $class
-       i32.const 1
-       call $metawordOfAtPut)
-
- (func $hash
-       (param $object i32)
-       (result i32)
-
-       local.get $object
-       i32.const 2
-       call $metawordOfAt)
-
- (func $setHash
-       (param $object i32)
-       (param $hash i32)
-
-       local.get $object
-       local.get $hash
-       i32.const 2
-       call $metawordOfAtPut)
-
- (func $nextObject
-       (param $object i32)
-       (result i32)
-
-       local.get $object
-       i32.const 3
-       call $metawordOfAt)
-
- (func $setNextObject
-       (param $object i32)
-       (param $nextObject i32)
-
-       local.get $object
-       local.get $nextObject
-       i32.const 3
-       call $metawordOfAtPut)
-
- (func $metabits
-       (param $object i32)
-       (result i32)
-
-       local.get $object
-       i32.const 0
-       call $metawordOfAt)
-
  (func $metabitOfAt
-       (param $object i32)
+       (param $object (ref $object))
        (param $index i32)
        (result i32)
 
        local.get $object
-       call $metabits
+       struct.get $object $metabits
        local.get $index
        i32.shr_u
        i32.const 1
        i32.and)
 
  (func $setMetabitOfAt
-       (param $object i32)
+       (param $object (ref $object))
        (param $index i32)
 
        local.get $object
@@ -216,30 +120,12 @@
        local.get $index
        i32.shl
        local.get $object
-       call $metabits
+       struct.get $object $metabits
        i32.and
-       call $setMetabits)
+       struct.set $object $metabits)
 
- (func $setMetabits
-       (param $object i32)
-       (param $metabits i32)
-       
-       local.get $object
-       i32.const 0
-       local.get $metabits
-       call $metawordOfAtPut)
-
- (func $setFloat
-       (param $object i32)
-       (param $float f32)
-
-       local.get $object
-       i32.const 4
-       local.get $float
-       call $metawordOfAtPutFloat)
-       
  (func $clearMetabitOfAt
-       (param $object i32)
+       (param $object (ref $object))
        (param $index i32)
        (local $mask i32)
 
@@ -249,15 +135,15 @@
        i32.shl
        local.set $mask
        local.get $object
-       call $metabits
+       struct.get $object $metabits
        local.get $mask
        i32.xor
        local.get $mask
        i32.xor
-       call $setMetabits)
+       struct.set $object $metabits)
 
  (func $hasPointers
-       (param $object i32)
+       (param $object (ref $object))
        (result i32)
 
        local.get $object
@@ -265,14 +151,14 @@
        call $metabitOfAt)
 
  (func $havePointers
-       (param $object i32)
+       (param $object (ref $object))
 
        local.get $object
        i32.const 0
        call $setMetabitOfAt)
  
  (func $hasWords
-       (param $object i32)
+       (param $object (ref $object))
        (result i32)
 
        local.get $object
@@ -280,14 +166,14 @@
        call $metabitOfAt)
 
  (func $haveWords
-       (param $object i32)
+       (param $object (ref $object))
 
        local.get $object
        i32.const 1
        call $setMetabitOfAt)
 
  (func $hasBytes
-       (param $object i32)
+       (param $object (ref $object))
        (result i32)
 
        local.get $object
@@ -295,14 +181,14 @@
        call $metabitOfAt)
 
  (func $haveBytes
-       (param $object i32)
+       (param $object (ref $object))
 
        local.get $object
        i32.const 2
        call $setMetabitOfAt)
 
  (func $isNil
-       (param $object i32)
+       (param $object (ref $object))
        (result i32)
 
        local.get $object
@@ -310,14 +196,14 @@
        call $metabitOfAt)
 
  (func $beNil
-       (param $object i32)
+       (param $object (ref $object))
 
        local.get $object
        i32.const 3
        call $setMetabitOfAt)
 
  (func $isFalse
-       (param $object i32)
+       (param $object (ref $object))
        (result i32)
 
        local.get $object
@@ -325,14 +211,14 @@
        call $metabitOfAt)
 
  (func $beFalse
-       (param $object i32)
+       (param $object (ref $object))
 
        local.get $object
        i32.const 4
        call $setMetabitOfAt)
 
  (func $isFloat
-       (param $object i32)
+       (param $object (ref $object))
        (result i32)
 
        local.get $object
@@ -340,89 +226,134 @@
        call $metabitOfAt)
 
  (func $beFloat
-       (param $object i32)
+       (param $object (ref $object))
 
        local.get $object
        i32.const 5
        call $setMetabitOfAt)
 
- (func $isFloatClass
-       (param $object i32)
+ (func $isInteger
+       (param $object (ref $object))
        (result i32)
 
        local.get $object
        i32.const 6
+       call $metabitOfAt)
+ 
+ (func $beInteger
+       (param $object (ref $object))
+
+       local.get $object
+       i32.const 6
+       call $setMetabitOfAt)
+ 
+ (func $isFloatClass
+       (param $object (ref $object))
+       (result i32)
+
+       local.get $object
+       i32.const 7
        call $metabitOfAt)
 
  (func $beFloatClass
-       (param $object i32)
+       (param $object (ref $object))
 
        local.get $object
-       i32.const 6
+       i32.const 7
        call $setMetabitOfAt)
 
  (func $isCompact
-       (param $object i32)
+       (param $object (ref $object))
        (result i32)
 
        local.get $object
-       i32.const 7
+       i32.const 8
        call $metabitOfAt)
 
  (func $beCompact
-       (param $object i32)
+       (param $object (ref $object))
 
        local.get $object
-       i32.const 7
+       i32.const 8
        call $setMetabitOfAt)
 
  (func $isMarked
-       (param $object i32)
+       (param $object (ref $object))
        (result i32)
 
        local.get $object
-       i32.const 8
+       i32.const 9
        call $metabitOfAt)
 
  (func $beMarked
-       (param $object i32)
+       (param $object (ref $object))
 
        local.get $object
-       i32.const 8
+       i32.const 9
        call $setMetabitOfAt)
 
  (func $isDirty
-       (param $object i32)
+       (param $object (ref $object))
        (result i32)
 
        local.get $object
-       i32.const 9
+       i32.const 10
        call $metabitOfAt)
 
  (func $beDirty
-       (param $object i32)
+       (param $object (ref $object))
 
        local.get $object
-       i32.const 9
+       i32.const 10
        call $setMetabitOfAt)
 
- (func $isCompiled
-       (param $object i32)
+ (func $hasNewInstances
+       (param $object (ref $object))
        (result i32)
 
        local.get $object
        i32.const 11
        call $metabitOfAt)
 
- (func $beCompiled
-       (param $object i32)
+ (func $haveNewInstances
+       (param $object (ref $object))
 
        local.get $object
        i32.const 11
        call $setMetabitOfAt)
        
+ (func $isCompiled
+       (param $object (ref $object))
+       (result i32)
+
+       local.get $object
+       i32.const 12
+       call $metabitOfAt)
+
+ (func $beCompiled
+       (param $object (ref $object))
+
+       local.get $object
+       i32.const 12
+       call $setMetabitOfAt)
+       
+ (func $hasClosures
+       (param $object (ref $object))
+       (result i32)
+
+       local.get $object
+       i32.const 13
+       call $metabitOfAt)
+
+ (func $haveClosures
+       (param $object (ref $object))
+
+       local.get $object
+       i32.const 13
+       call $setMetabitOfAt)
+       
  (func $numberOfWordsOf
-       (param $object i32)
+       (param $object (ref $object))
        (result i32)
        (local $header i32)
        (local $headerType i32)
@@ -450,24 +381,23 @@
 	    i32.and)))
 
  (func $exportThisContext
-       (result i32)
+       (result (ref $object))
 
        i32.const 0
        global.set $reclaimableContextCount
        global.get $activeContext)
 
  (func $isContext
-       (param $object i32)
+       (param $object (ref $object))
        (result i32)
-       (local $class i32)
+       (local $class (ref $object))
 
        local.get $object
-       call $sqClass
+       struct.get $object $class
        local.set $class
        local.get $class
-       call $specialObjectsArray
        i32.const 10 ;; Squeak.splOb_ClassMethodContext
-       call $pointerOfAt
+       call $specialObjectAt
        i32.eq
 
        (if (result i32)
@@ -475,9 +405,8 @@
 	    i32.const 1)
 	   (else
 	    local.get $class
-	    global.get $specialObjectsArray
 	    i32.const 11 ;; Squeak.splOb_ClassBlockContext
-	    call $pointerOfAt
+	    call $specialObjectAt
 	    i32.eq
 
 	    (if (result i32)
@@ -487,18 +416,17 @@
 		 i32.const 0)))))
 
  (func $isMethodContext
-       (param $object i32)
+       (param $object (ref $object))
        (result i32)
 
        local.get $object
-       call $sqClass
-       call $specialObjectsArray
+       struct $object $class
        i32.const 10 ;; Squeak.splOb_ClassMethodContext
-       call $pointerOfAt
+       call $specialObjectAt
        i32.eq)
 
  (func $pointersSize
-       (param $object i32)
+       (param $object (ref $object))
        (result i32)
 
        local.get $object
@@ -511,17 +439,9 @@
 	   (else
 	    i32.const 0)))
  
- (func $isSmallInteger
-       (param $object i32)
-       (result i32)
-
-       local.get $object
-       i32.const 1
-       i32.and)
-
  (func $decodeSqueakPC
        (param $squeakPC i32)
-       (param $method i32)
+       (param $method (ref $object))
        (result i32)
 
        local.get $squeakPC
@@ -544,7 +464,7 @@
        i32.sub)
 
  (func $methodPrimitiveIndex
-       (param $method i32)
+       (param $method (ref $object))
        (result i32)
        (local $primBits i32)
 
@@ -572,15 +492,14 @@
 
  (func $cannotReturn
        (param $returnValue i32)
-       (local $cannotReturnSelector i32)
+       (local $cannotReturnSelector (ref $object))
 
        call $exportThisContext
        call $pushPointer
        local.get $returnValue
        call $pushPointer
-       call $specialObjectsArray
        i32.const 21 ;; Squeak.splOb_SelectorCannotReturn
-       call $pointerOfAt
+       call $specialObjectAt
        local.set $cannotReturnSelector
        local.get $cannotReturnSelector
        i32.const 1
@@ -588,9 +507,9 @@
        call $send)
  
  (func $isUnwindMarked
-       (param $context i32)
+       (param $context (ref $object))
        (result i32)
-       (local $method i32)
+       (local $method (ref $object))
        
        local.get $context
        call $isMethodContext
@@ -611,15 +530,12 @@
 	    i32.eq)))
  
  (func $recycleIfPossible
-       (param $context i32)
+       (param $context (ref $object))
 
        local.get $context
        call $isMethodContext
        i32.eqz
-
-       (if
-	(then
-	 return))
+       (if (then return))
 
        local.get $context
        call $pointersSize
@@ -644,10 +560,7 @@
 	 i32.const 62 ;; Squeak.Context_tempFrameStart + Squeak.Context_largeFrameSize
 	 i32.eq
 	 i32.eqz
-
-	 (if
-	  (then
-	   return))
+	 (if (then return))
 
 	 local.get $context
 	 i32.const 0
@@ -657,7 +570,7 @@
 	 global.set $freeLargeContexts)))
  
  (func $fetchContextRegisters
-       (param $context i32)
+       (param $context (ref $object))
        (local $method i32)
 
        local.get $context
@@ -665,11 +578,16 @@
        call $pointerOfAt
        local.set $method
        local.get $method
-       call $isSmallInteger
+       ref.test $object
 
        (if
 	(then
-	 ;; If the method field is an integer, the active context is a block context.
+	 ;; If the value of the method field is an object, home = context
+
+	 local.get $context
+	 global.set $homeContext)
+	(else
+	 ;; ...otherwise, the active context is a block context.
 
 	 local.get $context
 	 i32.const 5 ;; Squeak.BlockContext_home
@@ -678,12 +596,7 @@
 	 global.get $homeContext
 	 i32.const 3 ;; Squeak.Context_method
 	 call $pointerOfAt
-	 local.set $method)
-	(else
-	 ;; ...otherwise, home = context
-
-	 local.get $context
-	 global.set $homeContext))
+	 local.set $method))
 
        global.get $homeContext
        i32.const 5 ;; Squeak.Context_receiver
@@ -706,28 +619,27 @@
 
  (func $aboutToReturnThrough
        (param $result i32)
-       (param $context i32)
-       (local $aboutToReturnSelector i32)
+       (param $context (ref $object))
+       (local $aboutToReturnSelector (ref $object))
 
        call $exportThisContext
        call $pushPointer
        local.get $result
        call $pushPointer
        local.get $context
-       call $specialObjectsArray
        i32.const 48 ;; Squeak.splOb_SelectorAboutToReturn
-       call $pointerOfAt
+       call $specialObjectAt
        local.set $aboutToReturnSelector
        local.get $aboutToReturnSelector
        i32.const 2
        call $send)
  
  (func $doReturn
-       (param $returnValue i32)
-       (param $targetContext i32)
-       (local $context i32)
-       (local $closure i32)
-       (local $nextContext i32)
+       (param $returnValue (ref $object))
+       (param $targetContext (ref $object))
+       (local $context (ref $object))
+       (local $closure (ref $object))
+       (local $nextContext (ref $object))
 
        local.get $targetContext
        i32.eqz
@@ -745,8 +657,6 @@
 		 i32.const 4 ;; Squeak.Context_closure
 		 call $pointerOfAt
 		 call $isNil
-		 i32.const 1
-		 i32.eq
 
 		 (if
 		  (then
@@ -919,15 +829,15 @@
        i32.add)
 
  (func $store32BitFloat
-       (param $address i32)
+       (param $object i32)
        (param $value f32)
 
-       local.get $address
+       local.get $object
        local.get $value
        f32.store)
  
  (func $store32BitInteger
-       (param $address i32)
+       (param $object i32)
        (param $value i32)
 
        local.get $value
@@ -937,64 +847,40 @@
 	(then
 	 unreachable))
        
-       local.get $address
+       local.get $object
        local.get $value
        call $switch32BitEndianness
        i32.store)
  
  (func $load32BitInteger
-       (param $address i32)
+       (param $object i32)
        (result i32)
 
-       local.get $address
+       local.get $object
        i32.const 0
        i32.lt_s
        (if (result i32)
 	   (then
 	    unreachable)
 	   (else
-	    local.get $address
+	    local.get $object
 	    i32.const 104857600
 	    i32.gt_u
 	    (if (result i32)
 		(then
 		 unreachable)
 		(else
-		 local.get $address
+		 local.get $object
 		 i32.load
 		 call $switch32BitEndianness)))))
 
- (func $addressOfPointerOfAt
-       (param $address i32)
-       (param $index i32)
-       (result i32)
-       (local $headerType i32)
-
-       local.get $address
-       i32.const 0
-       i32.lt_s
-       (if (result i32)
-	   (then
-	    unreachable)
-	   (else 
-	    local.get $address
-	    local.get $address
-	    call $numberOfObjectHeaderWords
-	    i32.const 4
-	    i32.mul
-	    i32.add
-	    local.get $index
-	    i32.const 4
-	    i32.mul
-	    i32.add)))
-
  (func $integerOfAt
-       (param $address i32)
+       (param $object i32)
        (param $index i32)
        (result i32)
        (local $value i32)
 
-       local.get $address
+       local.get $object
        local.get $index
        call $pointerOfAt
        local.set $value
@@ -1010,17 +896,17 @@
 	    local.get $value)))
  
  (func $pointerOfAt
-       (param $address i32)
+       (param $object (ref $object))
        (param $index i32)
        (result i32)
        
-       local.get $address
+       local.get $object
+       struct.get $object $pointers
        local.get $index
-       call $addressOfPointerOfAt
-       call $load32BitInteger)
+       array.get)
 
  (func $recordDirtyObject
-       (param $object i32)
+       (param $object (ref $object))
        (local $currentAddress i32)
 
        global.get $dirtyTableAddress
@@ -1034,51 +920,51 @@
        i32.const 0x0FFFFFFF
        call $store32BitInteger)
 
- (func $pointerOfAtPutPointer
-       (param $address i32)
+ (func $pointerOfAtPutObject
+       (param $receiver (ref $object))
        (param $index i32)
-       (param $oop i32)
+       (param $object (ref $object))
 
-       local.get $oop
-       i32.const 4161536
-       i32.eq
-       (if
-	(then
-	 unreachable))
-       
-       local.get $address
+       local.get $receiver
+       struct.get $object $pointers
        local.get $index
-       call $addressOfPointerOfAt
-       local.get $oop
-       call $store32BitInteger
+       local.get $object
+       array.put)
 
-       ;; Note the object in the dirty objects table.
-       local.get $address
-       call $recordDirtyObject)
+ (func $objectForInteger
+       (param $integer i32)
+       (result (ref $object))
+       (local $object (ref $object))
+
+       struct.new $object
+       local.set $object
+       local.get $object
+       local.get $integer
+       struct.set $object $integer
+       local.get $object
+       call $beInteger
+       local.get $object)
  
  (func $pointerOfAtPutInteger
-       (param $address i32)
+       (param $receiver (ref $object))
        (param $index i32)
        (param $integer i32)
 
-       local.get $address
+       local.get $receiver
        local.get $index
-       call $addressOfPointerOfAt
        local.get $integer
-       call $encodeSmallInteger
-       call $store32BitInteger
+       call $objectForInteger
 
-       ;; Note the object in the dirty objects table.
-       local.get $address
-       call $recordDirtyObject)
- 
+
+
+
+       
  (func $activeContext
        (result i32)
        (local $result i32)
        
-       call $specialObjectsArray
        i32.const 3
-       call $pointerOfAt ;; fetch the address of the Processor association
+       call $specialObjectAt ;; fetch the address of the Processor association
        global.set $association
        global.get $association
        i32.const 1
@@ -1126,7 +1012,7 @@
        global.get $method)
 
  (func $headerType
-       (param $object i32)
+       (param $object (ref $object))
        (result i32)
 
        local.get $object
@@ -1135,7 +1021,7 @@
        i32.and)
  
  (func $numberOfObjectHeaderWords
-       (param $object i32)
+       (param $object (ref $object))
        (result i32)
        (local $headerType i32)
 
@@ -1180,10 +1066,9 @@
        i32.const 4
        i32.mul
        i32.add ;; skip the object header words and the method header word
-       global.set $methodBytes
-       global.get $methodBytes)
+       )
 
- (func $addressOfProgramCounter
+ (func $objectOfProgramCounter
        (result i32)
 
        call $activeContext
@@ -1193,7 +1078,7 @@
  (func $pc
        (result i32)
 
-       call $addressOfProgramCounter
+       call $objectOfProgramCounter
        call $load32BitInteger ;; fetch the encoded (SmallInteger *and* byte-offset) program counter
        i32.const 1
        i32.shr_u
@@ -1230,8 +1115,7 @@
        i32.shr_u ;; shift out the primitive bits
        i32.const 255
        i32.and ;; the number of literals
-       global.set $numberOfMethodLiterals
-       global.get $numberOfMethodLiterals)
+       )
  
  (func $setPC
        (param $newPC i32)
@@ -1239,7 +1123,7 @@
        local.get $newPC
        global.set $pc
 
-       call $addressOfProgramCounter
+       call $objectOfProgramCounter
 
        local.get $newPC
        call $numberOfMethodLiterals
@@ -1259,7 +1143,7 @@
        (result i32)
        (local $theMethodBytes i32)
        (local $thePC i32)
-       (local $address i32)
+       (local $object i32)
        
        call $methodBytes
        local.set $theMethodBytes
@@ -1268,14 +1152,14 @@
        local.set $thePC
        local.get $thePC
        i32.add
-       local.set $address
-       local.get $address
+       local.set $object
+       local.get $object
        i32.const 104857600
        i32.ge_s
        (if
 	(then
 	 unreachable))
-       local.get $address
+       local.get $object
        i32.load ;; load little-endian, so we can easily read the least-significant next byte
        i32.const 0xFF
        i32.and)
@@ -1326,7 +1210,7 @@
        i32.const 4)
 
  (func $isBlockContext
-       (param $context i32)
+       (param $context (ref $object))
        (result i32)
 
        local.get $context
@@ -1339,7 +1223,7 @@
        i32.eq)
  
  (func $homeContextOf
-       (param $context i32)
+       (param $context (ref $object))
        (result i32)
        (local $closureOrNil i32)
        
@@ -1729,18 +1613,10 @@
  (func $specialObjectAt
        (param $index i32)
 
-       call $specialObjectsArray
+       global.get $specialObjectsArray
        local.get $index
-       call $pointerOfAt)
-       
- (func $specialObjectsArray
-       (result i32)
+       array.get)
 
-       i32.const 0
-       call $load32BitInteger
-       global.set $specialObjectsArray
-       global.get $specialObjectsArray)
- 
  (func $jumpIfFalse
        (param $delta i32)
        (local $top i32)
@@ -1767,9 +1643,8 @@
 	  (else
 	   local.get $top
 	   call $pushPointer
-	   call $specialObjectsArray
 	   i32.const 25 ;; Squeak.splOb_SelectorMustBeBoolean
-	   call $pointerOfAt
+	   call $specialObjectAt
 	   i32.const 0
 	   i32.const 0
 	   call $send)))))
@@ -1800,9 +1675,8 @@
 	  (else
 	   local.get $top
 	   call $pushPointer
-	   call $specialObjectsArray
 	   i32.const 25 ;; Squeak.splOb_SelectorMustBeBoolean
-	   call $pointerOfAt
+	   call $specialObjectAt
 	   i32.const 0
 	   i32.const 0
 	   call $send)))))
@@ -1812,9 +1686,8 @@
        (local $specialSelectors i32)
        (local $selectorAddress i32)
        
-       call $specialObjectsArray
        i32.const 23 ;; Squeak.splOb_SpecialSelectors
-       call $pointerOfAt
+       call $specialObjectAt
        local.set $specialSelectors
        local.get $specialSelectors
        local.get $lobits
@@ -1850,23 +1723,22 @@
        call $pointerOfAt)
 
  (func $getClass
-       (param $object i32)
+       (param $object (ref $object))
        (result i32)
 
        local.get $object
-       call $isSmallInteger
+       ref.test $object
 
        (if (result i32)
 	   (then
-	    call $specialObjectsArray
 	    i32.const 5 ;; Squeak.splOb_ClassInteger
-	    call $pointerOfAt)
+	    call $specialObjectAt)
 	   (else
 	    local.get $object
-	    call $sqClass)))
+	    struct.get $object $class)))
 
  (func $methodNumLits
-       (param $method i32)
+       (param $method (ref $object))
        (result i32)
 
        local.get $method
@@ -2035,7 +1907,7 @@
 
  (func $popNandPush
        (param $amountToPop i32)
-       (param $object i32)
+       (param $object (ref $object))
 
        global.get $activeContext
        global.get $sp
@@ -2074,9 +1946,9 @@
        global.set $methodCacheRandomish
 
        local.get $selector
-       call $hash
+       struct.get $object $hash
        local.get $lookupClass
-       call $hash
+       struct.get $object $hash
        i32.xor
        global.get $methodCacheMask
        i32.and
@@ -2120,7 +1992,7 @@
 
 	     local.get $probe
 	     local.get $selector
-	     call $hash
+	     struct.get $object $hash
 	     i32.add
 	     global.get $methodCacheMask
 	     i32.and
@@ -2205,7 +2077,7 @@
 
        local.get $mask
        local.get $selector
-       call $hash
+       struct.get $object $hash
        i32.and
        i32.const 2 ;; Squeak.MethodDict_selectorStart
        i32.add
@@ -2272,7 +2144,7 @@
        
  (func $setMethodCacheEntryMethod
        (param $methodCacheEntry i32)
-       (param $method i32)
+       (param $method (ref $object))
 
        local.get $methodCacheEntry
        i32.const 8
@@ -2310,7 +2182,7 @@
        call $load32BitInteger)
        
  (func $methodClassForSuper
-       (param $object i32)
+       (param $object (ref $object))
        (result i32)
        (local $association i32)
 
@@ -2325,7 +2197,7 @@
        call $pointerOfAt)
 
  (func $isMethod
-       (param $object i32)
+       (param $object (ref $object))
        (result i32)
 
        local.get $object
@@ -2603,7 +2475,7 @@
        call $executeNewMethod)
 
  (func $registerObject
-       (param $object i32)
+       (param $object (ref $object))
        (result i32)
 
        ;; oop is determined by instantiateClass()
@@ -2628,7 +2500,7 @@
        call $setMetabitOfAt)
 
  (func $initializeBytesOf
-       (param $object i32)
+       (param $object (ref $object))
 
        ;; For now, assume that each new object will fit in 64
        ;; words. Ultimately, ensure that a new object uses a minimal
@@ -2637,7 +2509,7 @@
 )       
        
  (func $fillArrayOf
-       (param $object i32)
+       (param $object (ref $object))
        (param $quantity i32)
        (param $value i32)
        (local $index i32)
@@ -2664,7 +2536,7 @@
 	     br_if $loop1))
 
  (func $initializeWordsOf
-       (param $object i32)
+       (param $object (ref $object))
 
        ;; For now, assume that each new object will fit in 64
        ;; words. Ultimately, ensure that a new object uses a minimal
@@ -2673,7 +2545,7 @@
        )
  
  (func $initInstanceOf
-       (param $object i32)
+       (param $object (ref $object))
        (param $class i32)
        (param $indexableSize i32)
        (param $hash i32)
@@ -2683,11 +2555,11 @@
 
        local.get $object
        local.get $class
-       call $setSqClass
+       struct.set $object $class
 
        local.get $object
        local.get $hash
-       call $setHash
+       struct.set $object $hash
 
        local.get $class
        call $instanceSpecificationFrom
@@ -2777,7 +2649,7 @@
 
 		  local.get $object
  		  f32.const 0
-		  call $setFloat)
+		  struct.set $object $float)
 		 (else
 		  local.get $object
 		  local.get $indexableSize
@@ -2845,12 +2717,11 @@
        local.get $newObject)
        
  (func $pointersOf
-       (param $object i32)
+       (param $object (ref $object))
        (result i32)
 
        local.get $object
-       i32.const 0
-       call $addressOfPointerOfAt)
+       struct.get $object $pointers)
        
  (func $arrayCopy
        (param $src i32)
@@ -2972,7 +2843,7 @@
        call $store32BitInteger)
 
  (func $formatOfPut
-       (param $object i32)
+       (param $object (ref $object))
        (param $format i32)
        (local $header i32)
 
@@ -3049,7 +2920,7 @@
        i32.ge_u)
  
  (func $formatOf
-       (param $object i32)
+       (param $object (ref $object))
        (result i32)
 
        local.get $object
@@ -3067,14 +2938,14 @@
        call $pop2AndPushBoolResult)
 
  (func $checkNonInteger
-       (param $object i32)
+       (param $object (ref $object))
        (result i32)
 
        local.get $object
        i32.const 1
        i32.and
-       i32.const 0
-       i32.eq
+       i32.eqz
+
        (if (then
 	    local.get $object
 	    return))
@@ -3083,22 +2954,23 @@
        global.get $nilObj)
 
  (func $isNumber
-       (param $object i32)
+       (param $object (ref $object))
        (result i32)
 
        local.get $object
+       
        call $load32BitInteger
        i32.const 1
        i32.and)
 
  (func $isA
-       (param $object i32)
+       (param $object (ref $object))
        (param $knownClass i32)
        (local $classOrSuper i32)
        (local $class i32)
 
        local.get $object
-       call $sqClass
+       struct $object $class
        local.set $classOrSuper
 
        local.get $knownClass
@@ -3127,7 +2999,7 @@
        i32.const 0)
 
  (func $bytesSize
-       (param $object i32)
+       (param $object (ref $object))
        (result i32)
 
        local.get $object
@@ -3136,7 +3008,7 @@
        i32.mul)
  
  (func $wordsSize
-       (param $object i32)
+       (param $object (ref $object))
        (result i32)
        (local $numberOfHeaderWords i32)
 
@@ -3176,32 +3048,28 @@
        i32.shr_u)
 
  (func $byteOfAt
-       (param $object i32)
+       (param $object (ref $object))
        (param $index i32)
        (result i32)
 
        local.get $object
-       i32.const 0
-       call $addressOfPointerOfAt
+       struct.get $object $bytes
        local.get $index
-       i32.add
-       i32.load
-       i32.const 0xFF
-       i32.and)
+       array.get)
        
  (func $positive32BitValueOf
-       (param $object i32)
+       (param $object (ref $object))
        (result i32)
-       (local $bytes i32)
+       (local $bytes (ref $bytes))
        (local $value i32)
        (local $index i32)
        (local $f i32)
        
        local.get $object
-       call $isNumber
+       call $isInteger
        (if (then
 	    local.get $object
-	    call $load32BitInteger
+	    struct.get $object $integer
 	    i32.const 0
 	    i32.ge_s
 	    (if (then
@@ -3214,8 +3082,7 @@
        local.get $object
        i32.const 13 ;; Squeak.splOb_ClassLargePositiveInteger
        call $isA
-       i32.const 0
-       i32.eq
+       i32.eqz
        local.get $object
        call $bytesSize
        i32.const 4
@@ -3227,8 +3094,7 @@
 	    return))
 
        local.get $object
-       i32.const 0
-       call $addressOfPointerOfAt
+       struct.get $object $bytes
        local.set $bytes
 
        i32.const 0
@@ -3307,8 +3173,7 @@
        local.set $index
 
        global.get $success
-       i32.const 0
-       i32.eq
+       i32.eqz
        (if (then
 	    local.get $array
 	    return))
@@ -3318,7 +3183,7 @@
 	(then
 	 ;; fast entry checks cache
 	 local.get $array
-	 call $hash
+	 struct.get $object $hash
 	 global.get $atCacheMask
 	 i32.and
 	 array.get $array
@@ -3328,8 +3193,7 @@
 	 i32.const 0 ;; info.array offset is 0
 	 local.get $array
 	 i32.eq
-	 i32.const 0
-	 i32.eq
+	 i32.eqz
 	 (if (then
 	      call $beUnsuccessful
 	      local.get $array
@@ -3376,7 +3240,7 @@
 		local.get $floatData
 		i32.const 0
 		call $getFloat64
-		call $setFloat)
+		struct.set $object $float)
 	       (else
 		call $beUnsuccessful))
 
@@ -3457,12 +3321,11 @@
 	     (then
 	      ;; put a character...
 	      local.get $objToPut
-	      call $sqClass
+	      struct.get $object $class
 	      i32.const 19 ;; Squeak.splOb_ClassCharacter
-	      call $specialObjectsAt
+	      call $specialObjectAt
 	      i32.eq
-	      i32.const 0
-	      i32.eq
+	      i32.eqz
 	      (if (then
 		   call $beUnsuccessful
 		   local.get $objToPut
@@ -3474,8 +3337,7 @@
 
 	      local.get $intToPut
 	      call $isNumber
-	      i32.const 0
-	      i32.eq
+	      i32.eqz
 	      (if (then
 		   call $beUnsuccessful
 		   local.get $objToPut
@@ -3502,12 +3364,11 @@
 	(then
 	 ;; put a character...
 	 local.get $objToPut
-	 call $sqClass
+	 struct.get $object $class
 	 i32.const 19 ;; Squeak.splOb_ClassCharacter
 	 call $specialObjectAt
 	 i32.eq
-	 i32.const 0
-	 i32.eq
+	 i32.eqz
 	 (if (then
 	      call $beUnsuccessful
 	      local.get $objToPut
@@ -3518,8 +3379,7 @@
 	 local.set $intToPut
 	 local.get $intToPut
 	 call $isNumber
-	 i32.const 0
-	 i32.eq
+	 i32.eqz
 	 (if (then
 	      call $beUnsuccessful
 	      local.get $objToPut
@@ -3528,8 +3388,7 @@
 	 ;; put a byte...
 	 local.get $objToPut
 	 call $isNumber
-	 i32.const 0
-	 i32.eq
+	 i32.eqz
 	 (if (then
 	      call $beUnsuccessful
 	      local.get $objToPut
@@ -3605,8 +3464,7 @@
        call $beSuccessful
        
        local.get $lobits
-       i32.const 0
-       i32.eq
+       i32.eqz
 
        (if (then
 	    ;; at:
@@ -3730,8 +3588,7 @@
 	    call $checkFloat
 
 	    global.get $success
-	    i32.const 0
-	    i32.eq
+	    i32.eqz
 	    (if (then return))))
 
        local.get $argCount
@@ -3901,7 +3758,7 @@
        call $push)
 
  (func $push
-       (param $object i32)
+       (param $object (ref $object))
 
        global.get $activeContext
        global.get $sp
@@ -3936,8 +3793,7 @@
        (result i32)
 
        local.get $argument
-       i32.const 0
-       i32.eq
+       i32.eqz
 
        (if (then
 	    ;; fail if dividing by zero
@@ -3956,8 +3812,7 @@
        (local $result i32)
 
        local.get $argument
-       i32.const 0
-       i32.eq
+       i32.eqz
 
        (if (then
 	    ;; fail if dividing by zero
@@ -3991,7 +3846,7 @@
        (local $unsigned i32)
        (local $largeIntegerClass i32)
        (local $largeIntegerObject i32)
-       (local $address i32)
+       (local $bytes i32)
 
        ;; return success indicator
        global.get $success
@@ -4050,50 +3905,44 @@
 		 local.set $largeIntegerClass
 
 		 local.get $largeIntegerClass
-		 call $specialObjectsAt
+		 call $specialObjectAt
 		 i32.const 4
 		 call $instantiateClass
 		 local.set $largeIntegerObject
 
-		 local.get $largeIntegerClass
+		 local.get $largeIntegerObject
+		 struct.get $object $bytes
+		 local.set $bytes
+
 		 i32.const 0
-		 call $addressOfPointerOfAt
-		 local.set $address
-		 local.get $address
 		 local.get $unsigned
 		 i32.const 255
 		 i32.and
-		 call $store8BitInteger
+		 array.set $bytes
 
-		 local.get $address
 		 i32.const 1
-		 i32.add
 		 local.get $unsigned
 		 i32.const 8
 		 i32.shr_u
 		 i32.const 255
 		 i32.and
-		 call $store8BitInteger
+		 array.set $bytes
 
-		 local.get $address
 		 i32.const 2
-		 i32.add
 		 local.get $unsigned
 		 i32.const 16
 		 i32.shr_u
 		 i32.const 255
 		 i32.and
-		 call $store8BitInteger
+		 array.set $bytes
 
-		 local.get $address
 		 i32.const 3
-		 i32.add
 		 local.get $unsigned
 		 i32.const 24
 		 i32.shr_u
 		 i32.const 255
 		 i32.and
-		 call $store8BitInteger
+		 array.set $bytes
 
 		 i32.const 2
 		 local.get $largeIntegerObject
@@ -4108,8 +3957,7 @@
        (result i32)
 
        global.get $success
-       i32.const 0
-       i32.eq
+       i32.eqz
        (if (then
 	    i32.const 0
 	    return))
@@ -4136,7 +3984,7 @@
        (param $depth i32)
        (result i32)
        (local $number i32)
-       (local $address i32)
+       (local $object i32)
        (local $endingAddress i32)
        (local $value i32)
 
@@ -4144,15 +3992,18 @@
        call $stackValue
        local.set $number
 
+       ;; Is it a SmallInteger?
        local.get $number
-       i32.const 1
-       i32.and
+       call $isInteger
+       
        (if (then
 	    local.get $number
 	    return))
 
+       ;; Is it a float?
        local.get $number
        call $isFloat
+
        (if (then
 	    i32.const 1
 	    global.set $resultIsFloat
@@ -4160,25 +4011,28 @@
 	    call $float
 	    return))
 
+       ;; Maybe a 32-bit LargeInt?
        local.get $number
-       call $hasBytes
-       local.get $number
-       call $sizeOf
-       i32.const 4
+       struct.get $object $class
+       i32.const 13 ;; Squeak.splOb_ClassLargePositiveInteger
+       call $specialObjectAt
        i32.eq
-       i32.and
-       i32.const 0
-       i32.eq
-       (if (then
-	    call $beUnsuccessful
-	    i32.const 0
-	    return))
-       
        local.get $number
-       i32.const 0
-       call $addressOfPointerOfAt
-       local.set $address
-       local.get $address
+       struct.get $object $class
+       i32.const 42 ;; Squeak.splOb_ClassLargeNegativeInteger
+       call $specialObjectAt
+       i32.eq
+       i32.or
+
+       (if
+	(then
+	 local.get $number
+	 struct.get $object $bytes
+	 
+xxx
+	 
+       local.set $object
+       local.get $object
        i32.const 3
        i32.add
        local.set $endingAddress
@@ -4190,7 +4044,7 @@
 	     local.get $value
 	     i32.const 256
 	     i32.mul
-	     local.get $address
+	     local.get $object
 	     call $load8BitInteger
 	     i32.add
 	     i32.add
@@ -4199,18 +4053,13 @@
 	     i32.gt_u
 	     br_if $loop1)
 
-       local.get $number
-       call $sqClass
-       i32.const 13 ;; Squeak.splOb_ClassLargePositiveInteger
-       call $specialObjectAt
-       i32.eq
        (if (then
 	    local.get $value
 	    return))
 
        local.get $number
-       call $sqClass
-       i32.const 42 ;; Squeak.splOb_ClassLargeNegativeInteger
+       struct.get $object $class
+
        call $specialObjectAt
        i32.eq
        (if (then
@@ -4228,8 +4077,7 @@
        (result i32)
 
        local.get $argument
-       i32.const 0
-       i32.eq
+       i32.eqz
        (if (then
 	    i32.const -0x50000000 ;; Squeak.NonSmallInt
 	    return))
@@ -4272,10 +4120,8 @@
 	    global.set $breakOutTick
 
 	    global.get $nextWakeupTick
-	    i32.const 0
-	    i32.eq
-	    i32.const 0
-	    i32.eq
+	    i32.eqz
+	    i32.eqz
 	    (if (then
 		 local.get $now
 		 global.get $nextWakeupTick
@@ -4331,22 +4177,19 @@
 	    i32.const 0
 	    global.set $interruptPending
 	    i32.const 30 ;; Squeak.splOb_TheInterruptSemaphore
-	    call $specialObjectArrayAt
+	    call $specialObjectAt
 	    local.set $semaphore
 
 	    local.get $semaphore
 	    call $isNil
-	    i32.const 0
-	    i32.eq
+	    i32.eqz
 	    (if (then
 		 local.get $semaphore
 		 call $synchronousSignal))))
 
        global.get $nextWakeupTick
-       i32.const 0
-       i32.eq
-       i32.const 0
-       i32.eq
+       i32.eqz
+       i32.eqz
        local.get $now
        global.get $nextWakeupTick
        i32.ge_s
@@ -4357,13 +4200,12 @@
 	    global.set $nextWakeupTick
 
 	    i32.const 29 ;; Squeak.splOb_TheTimerSemaphore
-	    call $specialObjectArrayAt
+	    call $specialObjectAt
 	    local.set $semaphore
 
 	    local.get $semaphore
 	    call $isNil
-	    i32.const 0
-	    i32.eq
+	    i32.eqz
 	    (if (then
 		 local.get $semaphore
 		 call $synchronousSignal))))
@@ -4382,8 +4224,7 @@
 
 	    local.get $semaphore
 	    call $isNil
-	    i32.const 0
-	    i32.eq
+	    i32.eqz
 	    (if (then
 		 local.get $semaphore
 		 call $synchronousSignal))))
@@ -4398,20 +4239,16 @@
        ;; if this is a long-running do-it, compile it
        global.get $method
        call $isCompiled
-       i32.const 0
-       i32.eq
+       i32.eqz
        global.get $compiler
-       i32.const 0
-       i32.eq
-       i32.const 0
-       i32.eq
+       i32.eqz
+       i32.eqz
        i32.and
        global.get $method
        i32.const 122 ;; Squeak.splOb_ReloadingMethod
        call $specialObjectAt
        i32.eq
-       i32.const 0
-       i32.eq
+       i32.eqz
        i32.and
        (if (then
 	    global.get $method
@@ -4466,8 +4303,7 @@
        local.set $index
 
        global.get $success
-       i32.const 0
-       i32.eq
+       i32.eqz
        (if (then
 	    local.get $array
 	    return))
@@ -4477,7 +4313,7 @@
 	(then
 	 ;; fast entry checks cache
 	 local.get $array
-	 call $hash
+	 struct.get $object $hash
 	 global.get $atCacheMask
 	 i32.and
 	 call $atCacheAt
@@ -4486,8 +4322,7 @@
 	 local.get $info
 	 call $load32BitInteger ;; array is at offset 0
 	 local.get $array
-	 i32.const 0
-	 i32.eq
+	 i32.eqz
 	 (if (then
 	      call $beUnsuccessful
 	      local.get $array
@@ -5266,8 +5101,7 @@
 	 call $stackIntOrFloat
 	 i32.add
 	 call $pop2AndPushNumResult
-	 i32.const 0
-	 i32.eq
+	 i32.eqz
 
 	 (if
 	  (then
@@ -5295,8 +5129,7 @@
 	 call $stackIntOrFloat
 	 i32.sub
 	 call $pop2AndPushNumResult
-	 i32.const 0
-	 i32.eq
+	 i32.eqz
 
 	 (if
 	  (then
@@ -5322,8 +5155,7 @@
 	 call $stackIntOrFloat
 	 i32.lt_s
 	 call $pop2AndPushBoolResult
-	 i32.const 0
-	 i32.eq
+	 i32.eqz
 
 	 (if
 	  (then
@@ -5349,8 +5181,7 @@
 	 call $stackIntOrFloat
 	 i32.gt_s
 	 call $pop2AndPushBoolResult
-	 i32.const 0
-	 i32.eq
+	 i32.eqz
 
 	 (if
 	  (then
@@ -5376,8 +5207,7 @@
 	 call $stackIntOrFloat
 	 i32.le_s
 	 call $pop2AndPushBoolResult
-	 i32.const 0
-	 i32.eq
+	 i32.eqz
 
 	 (if
 	  (then
@@ -5403,8 +5233,7 @@
 	 call $stackIntOrFloat
 	 i32.ge_s
 	 call $pop2AndPushBoolResult
-	 i32.const 0
-	 i32.eq
+	 i32.eqz
 
 	 (if
 	  (then
@@ -5430,8 +5259,7 @@
 	 call $stackIntOrFloat
 	 i32.eq
 	 call $pop2AndPushBoolResult
-	 i32.const 0
-	 i32.eq
+	 i32.eqz
 
 	 (if
 	  (then
@@ -5457,8 +5285,7 @@
 	 call $stackIntOrFloat
 	 i32.ne
 	 call $pop2AndPushBoolResult
-	 i32.const 0
-	 i32.eq
+	 i32.eqz
 
 	 (if
 	  (then
@@ -5486,8 +5313,7 @@
 	 call $stackIntOrFloat
 	 i32.mul
 	 call $pop2AndPushNumResult
-	 i32.const 0
-	 i32.eq
+	 i32.eqz
 
 	 (if
 	  (then
@@ -5513,8 +5339,7 @@
 	 call $stackInteger
 	 i32.div_u
 	 call $pop2AndPushIntResult
-	 i32.const 0
-	 i32.eq
+	 i32.eqz
 
 	 (if
 	  (then
@@ -5540,8 +5365,7 @@
 	 call $stackInteger
 	 call $mod
 	 call $pop2AndPushIntResult
-	 i32.const 0
-	 i32.eq
+	 i32.eqz
 
 	 (if
 	  (then
@@ -5564,8 +5388,7 @@
 	 i32.const 1
 	 i32.const 0
 	 call $primitiveMakePoint
-	 i32.const 0
-	 i32.eq
+	 i32.eqz
 
 	 (if
 	  (then
@@ -5590,8 +5413,7 @@
 	 i32.const 0
 	 call $stackInteger
 	 call $pop2AndPushIntResult
-	 i32.const 0
-	 i32.eq
+	 i32.eqz
 
 	 (if
 	  (then
@@ -5617,8 +5439,7 @@
 	 call $stackInteger
 	 call $div
 	 call $pop2AndPushIntResult
-	 i32.const 0
-	 i32.eq
+	 i32.eqz
 
 	 (if
 	  (then
@@ -5644,8 +5465,7 @@
 	 call $stackInteger
 	 i32.and
 	 call $pop2AndPushIntResult
-	 i32.const 0
-	 i32.eq
+	 i32.eqz
 
 	 (if
 	  (then
@@ -5671,8 +5491,7 @@
 	 call $stackInteger
 	 i32.or
 	 call $pop2AndPushIntResult
-	 i32.const 0
-	 i32.eq
+	 i32.eqz
 
 	 (if
 	  (then
@@ -5695,8 +5514,7 @@
 	 i32.const 15
 	 i32.and
 	 call $quickSendOther
-	 i32.const 0
-	 i32.eq
+	 i32.eqz
 
 	 (if
 	  (then
