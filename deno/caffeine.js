@@ -73,6 +73,6 @@ let p = Deno.run({cmd: [
   '--allow-write',
   '--allow-net',
   '--allow-run',
-  caffeineFolder + '/bridge.ts']})
+  caffeineFolder + '/bridge.ts']}) 
 
 await p.status()

@@ -321,5 +321,5 @@ caffeine.UUID = class {constructor(tether) {
       tether.nextBytePut(this.bytes[i])}}}}
 
 caffeine.classes.set(caffeine.tags.get('tetherTag'), caffeine.Tether)
-caffeine.classes.set(caffeine.tags.get('uuidTag'), caffeine.UUID)
+caffeine.classes.set(caffeine.tags.get('uuidTag'), caffeine.UUID) 
 
