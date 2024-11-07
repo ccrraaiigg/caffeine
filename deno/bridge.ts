@@ -1,4 +1,4 @@
-import {serve} from "https://deno.land/std/http/mod.ts"
+import {serve} from "https://deno.land/std/http/mod.ts" 
 
 // Uncomment the following line for production.
 // try {const tether = await import("https://caffeine.js.org/deno/tether.js")}
