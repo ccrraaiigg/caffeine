@@ -448,6 +448,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    if (typeof SqueakDBFake == "undefined") {
 		      if (typeof indexedDB == "undefined")
 			console.warn("IndexedDB not supported by this browser, using localStorage");
+
 		      self.SqueakDBFake = {
 			bigFiles: {},
 			bigFileThreshold: 100000,
