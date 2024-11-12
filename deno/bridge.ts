@@ -1,10 +1,10 @@
 import {serve} from "https://deno.land/std/http/mod.ts" 
 
 // Uncomment the following line for production.
-// try {const tether = await import("https://caffeine.js.org/deno/tether.js")}
+try {const tether = await import("https://caffeine.js.org/deno/tether.js")}
 
 // Uncomment the following line for development.
-try {const tether = await import("./tether.js")}
+// try {const tether = await import("./tether.js")}
 catch(e) {console.log('=== '+e.message)}
 
 import {delay} from "https://deno.land/std/async/mod.ts"
@@ -13,10 +13,10 @@ caffeine.worker = (
   new Worker(
     new URL(
       // Uncomment the following line for production.
-      // "https://caffeine.js.org/deno/squeak-worker.js",
+      "https://caffeine.js.org/deno/squeak-worker.js",
 
       // Uncomment the following line for development.
-      "./squeak-worker.js",
+//      "./squeak-worker.js",
       import.meta.url).href,
     {type: "module"}))
   
@@ -77,12 +77,12 @@ caffeine.worker.postMessage(JSON.stringify({
   imageName: 'caffeine',
   appName: 'caffeine',
   // Uncomment the following line for production.
-  // proxy: 'https://caffeine.js.org/',
+  proxy: 'https://caffeine.js.org/',
 
   // Uncomment the following line for development. You'll need to
   // check out the Caffeine repository from GitHub, and serve it with
   // a local webserver, so that http://localhost/memories has the
   // memory ZIPs.
-    proxy: 'http://192.168.1.66:8080/',
-//  proxy: 'http://localhost:8080/',
+//    proxy: 'http://192.168.1.66:8080/',
+  proxy: 'http://localhost:8080/',
   parameters: {fibbly: 'wibbly'}}))
