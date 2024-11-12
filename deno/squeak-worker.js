@@ -111,12 +111,12 @@
   import(vmDir + "lib/FileSaver.js")
 
   // Uncomment the following line for production.
-  // import(vmDir + "vm.js")
+import(vmDir + "vm.js")
 
   // Uncomment the following line for development. You'll need to
   // symlink .../caffeine/js/squeakjs/vm.js to
   // .../caffeine/deno/vm.js.
-  import("./vm.js")
+//  import("./vm.js")
 
   module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
 
