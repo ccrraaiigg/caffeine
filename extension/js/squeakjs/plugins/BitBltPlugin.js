@@ -287,7 +287,8 @@ function alphaBlendwith(sourceWord, destinationWord) {
 
 	blendRB = ((blendRB + (((blendRB - 65537) >>> 8) & 16711935)) >>> 8) & 16711935;
 	blendAG = ((blendAG + (((blendAG - 65537) >>> 8) & 16711935)) >>> 8) & 16711935;
-	result = blendRB | (blendAG << 8);
+  result = blendRB | (blendAG << 8);
+  if (result != alphaBlendWithWASM(sourceWord, destinationWord)) debugger;
 	return result;
 }
 
@@ -1848,6 +1849,57 @@ function ignoreSourceOrHalftone(formPointer) {
 	return false;
 }
 
+  var partitionedADD,
+      partitionedAND,
+      partitionedMUL,
+      partitionedSUB,
+      alphaBlendWithWASM
+  
+  const memory = new WebAssembly.Memory({initial: 1, maximum: 1});
+  var writer = new Int32Array(memory.buffer);
+  writer[0] = 0;
+  writer[1] = 1;
+  writer[2] = 3;
+  writer[3] = 0;
+  writer[4] = 15;
+  writer[5] = 31;
+  writer[6] = 0;
+  writer[7] = 0;
+  writer[8] = 255;
+  writer[9] = 0;
+  writer[10] = 0;
+  writer[11] = 0;
+  writer[12] = 0;
+  writer[13] = 0;
+  writer[14] = 0;
+  writer[15] = 0;
+  writer[16] = 65535;
+  writer[17] = 0;
+  writer[18] = 0;
+  writer[19] = 0;
+  writer[20] = 0;
+  writer[21] = 0;
+  writer[22] = 0;
+  writer[23] = 0;
+  writer[24] = 0;
+  writer[25] = 0;
+  writer[26] = 0;
+  writer[27] = 0;
+  writer[28] = 0;
+  writer[29] = 0;
+  writer[30] = 0;
+  writer[31] = 0;
+  writer[32] = -1;
+
+  WebAssembly.instantiateStreaming(
+    fetch("/wasm/bitblt.wasm"),
+    {wasm: {memory: memory}}).then((wasm) => {
+      partitionedAND = wasm.instance.exports.partitionedAND;
+      partitionedADD = wasm.instance.exports.partitionedADD;
+      partitionedSUB = wasm.instance.exports.partitionedSUB;
+      partitionedMUL = wasm.instance.exports.partitionedMUL;
+      alphaBlendWithWASM = wasm.instance.exports.alphaBlendWithWASM;});
+
 function initBBOpTable() {
 	opTable[0+1] = clearWordwith;
 	opTable[1+1] = bitAndwith;
@@ -1873,7 +1925,8 @@ function initBBOpTable() {
 	opTable[21+1] = rgbSubwith;
 	opTable[22+1] = OLDrgbDiffwith;
 	opTable[23+1] = OLDtallyIntoMapwith;
-	opTable[24+1] = alphaBlendwith;
+//	opTable[24+1] = alphaBlendwith;
+        opTable[24+1] = alphaBlendWithWASM;
 	opTable[25+1] = pixPaintwith;
 	opTable[26+1] = pixMaskwith;
 	opTable[27+1] = rgbMaxwith;
@@ -2805,14 +2858,16 @@ function pixClearwith(sourceWord, destinationWord) {
 }
 
 function pixMaskwith(sourceWord, destinationWord) {
-	return partitionedANDtonBitsnPartitions(~sourceWord, destinationWord, destDepth, destPPW);
+  //	return partitionedANDtonBitsnPartitions(~sourceWord, destinationWord, destDepth, destPPW);
+  	return partitionedAND(~sourceWord, destinationWord, destDepth, destPPW);
 }
 
 function pixPaintwith(sourceWord, destinationWord) {
 	if (sourceWord === 0) {
 		return destinationWord;
 	}
-	return sourceWord | partitionedANDtonBitsnPartitions(~sourceWord, destinationWord, destDepth, destPPW);
+//  	return sourceWord | partitionedANDtonBitsnPartitions(~sourceWord, destinationWord, destDepth, destPPW);
+  	return sourceWord | partitionedAND(~sourceWord, destinationWord, destDepth, destPPW);
 }
 
 
@@ -3160,7 +3215,8 @@ function rgbAddwith(sourceWord, destinationWord) {
 
 		componentMask = (SHL(1, destDepth)) - 1;
 		carryOverflowMask = SHL((DIV(4294967295, componentMask)), (destDepth - 1));
-		return partitionedAddtonBitscomponentMaskcarryOverflowMask(sourceWord, destinationWord, destDepth, componentMask, carryOverflowMask);
+	  //		return partitionedAddtonBitscomponentMaskcarryOverflowMask(sourceWord, destinationWord, destDepth, componentMask, carryOverflowMask);
+	  return partitionedADD(sourceWord, destinationWord, destDepth, componentMask, carryOverflowMask);
 	}
 	if (destDepth === 16) {
 
@@ -3168,14 +3224,16 @@ function rgbAddwith(sourceWord, destinationWord) {
 
 		componentMask = 31;
 		carryOverflowMask = 1108361744;
-		return partitionedAddtonBitscomponentMaskcarryOverflowMask(sourceWord & 2147450879, destinationWord & 2147450879, 5, componentMask, carryOverflowMask);
+	  //		return partitionedAddtonBitscomponentMaskcarryOverflowMask(sourceWord & 2147450879, destinationWord & 2147450879, 5, componentMask, carryOverflowMask);
+	  return partitionedADD(sourceWord & 2147450879, destinationWord & 2147450879, 5, componentMask, carryOverflowMask);
 	} else {
 
 		/* Add RGBA components of the pixel separately */
 
 		componentMask = 255;
 		carryOverflowMask = 2155905152;
-		return partitionedAddtonBitscomponentMaskcarryOverflowMask(sourceWord, destinationWord, 8, componentMask, carryOverflowMask);
+	  //		return partitionedAddtonBitscomponentMaskcarryOverflowMask(sourceWord, destinationWord, 8, componentMask, carryOverflowMask);
+	  return partitionedADD(sourceWord, destinationWord, 8, componentMask, carryOverflowMask);
 	}
 }
 
@@ -3662,10 +3720,11 @@ function rgbDiffwith(sourceWord, destinationWord) {
 					diff = 1;
 				}
 			} else {
-				diff = partitionedSubfromnBitsnPartitions(sourcePixVal, destPixVal, bitsPerColor, 3);
-				diff = ((diff & rgbMask) + ((SHR(diff, bitsPerColor)) & rgbMask)) + ((SHR((SHR(diff, bitsPerColor)), bitsPerColor)) & rgbMask);
+			  //				diff = partitionedSubfromnBitsnPartitions(sourcePixVal, destPixVal, bitsPerColor, 3);
+			  diff = partitionedSUB(sourcePixVal, destPixVal, bitsPerColor, 3);
+			  diff = ((diff & rgbMask) + ((SHR(diff, bitsPerColor)) & rgbMask)) + ((SHR((SHR(diff, bitsPerColor)), bitsPerColor)) & rgbMask);
 			}
-			bitCount += diff;
+		  bitCount += diff;
 		}
 		maskShifted = SHR(maskShifted, destDepth);
 		sourceShifted = SHR(sourceShifted, destDepth);
@@ -3834,18 +3893,21 @@ function rgbMulwith(sourceWord, destinationWord) {
 
 		/* Mul each pixel separately */
 
-		return partitionedMulwithnBitsnPartitions(sourceWord, destinationWord, destDepth, destPPW);
+//	  return partitionedMulwithnBitsnPartitions(sourceWord, destinationWord, destDepth, destPPW);
+	  return partitionedMUL(sourceWord, destinationWord, destDepth, destPPW);
 	}
 	if (destDepth === 16) {
 
 		/* Mul RGB components of each pixel separately */
 
-		return partitionedMulwithnBitsnPartitions(sourceWord, destinationWord, 5, 3) + (partitionedMulwithnBitsnPartitions(sourceWord >>> 16, destinationWord >>> 16, 5, 3) << 16);
+//	  return partitionedMulwithnBitsnPartitions(sourceWord, destinationWord, 5, 3) + (partitionedMulwithnBitsnPartitions(sourceWord >>> 16, destinationWord >>> 16, 5, 3) << 16);
+	  return partitionedMUL(sourceWord, destinationWord, 5, 3) + (partitionedMUL(sourceWord >>> 16, destinationWord >>> 16, 5, 3) << 16);
 	} else {
 
 		/* Mul RGBA components of the pixel separately */
 
-		return partitionedMulwithnBitsnPartitions(sourceWord, destinationWord, 8, 4);
+//	  return partitionedMulwithnBitsnPartitions(sourceWord, destinationWord, 8, 4);
+	  return partitionedMUL(sourceWord, destinationWord, 8, 4);
 	}
 }
 
@@ -3854,18 +3916,21 @@ function rgbSubwith(sourceWord, destinationWord) {
 
 		/* Sub each pixel separately */
 
-		return partitionedSubfromnBitsnPartitions(sourceWord, destinationWord, destDepth, destPPW);
+	  //		return partitionedSubfromnBitsnPartitions(sourceWord, destinationWord, destDepth, destPPW);
+	  return partitionedSUB(sourceWord, destinationWord, destDepth, destPPW);
 	}
 	if (destDepth === 16) {
 
 		/* Sub RGB components of each pixel separately */
 
-		return partitionedSubfromnBitsnPartitions(sourceWord, destinationWord, 5, 3) + (partitionedSubfromnBitsnPartitions(sourceWord >>> 16, destinationWord >>> 16, 5, 3) << 16);
+	  //	return partitionedSubfromnBitsnPartitions(sourceWord, destinationWord, 5, 3) + (partitionedSubfromnBitsnPartitions(sourceWord >>> 16, destinationWord >>> 16, 5, 3) << 16);
+	  	return partitionedSUB(sourceWord, destinationWord, 5, 3) + (partitionedSubfromnBitsnPartitions(sourceWord >>> 16, destinationWord >>> 16, 5, 3) << 16);
 	} else {
 
 		/* Sub RGBA components of the pixel separately */
 
-		return partitionedSubfromnBitsnPartitions(sourceWord, destinationWord, 8, 4);
+	  //		return partitionedSubfromnBitsnPartitions(sourceWord, destinationWord, 8, 4);
+	  return partitionedSUB(sourceWord, destinationWord, 8, 4);
 	}
 }
 

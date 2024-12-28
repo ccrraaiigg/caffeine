@@ -1,7 +1,5 @@
 // Create a new panel
 chrome.devtools.panels.create("Caffeine",
-			      null,
-			      "panel.html",
-			      null
-			     )
+			      "caffeine128.png",
+			      "panel.html")
 

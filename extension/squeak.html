@@ -7,6 +7,7 @@
   </head>
   <body>
     <canvas id="squeak"
+	    class="caffeine-canvas"
 	    onselectstart="return false;"
 	    ondragstart="return false;"
 	    style="visibility: 'invisible';
@@ -20,6 +21,8 @@
     <script src="js/squeakjs/squeak.js"></script>
     <script src="js/html/utilities.js"></script>
     <script>
+        document.extension = true
+      
         // We shouldn't be using setTimeout() anywhere...
         setTimeout(
           function () {

@@ -361,6 +361,7 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
         display.mouseY,
         display.buttons & Squeak.Mouse_All,
         display.buttons >> 3,
+	display.activeElementID
       ]);
       if (display.signalInputEvent)
         display.signalInputEvent();
@@ -373,6 +374,8 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
     }
   }
 
+  window.recordMouseEvent = recordMouseEvent;
+  
   function recordKeyboardEvent(key, timestamp, display, eventQueue) {
     if (!display.vm) return;
     var code = (display.buttons >> 3) << 8 | key;
@@ -426,6 +429,7 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
     sqEvtBuf[1] = (evt[1] - sqTimeOffset) & Squeak.MillisecondClockMask;
     for (var i = 2; i < evt.length; i++)
       sqEvtBuf[i] = evt[i];
+    sqEvtBuf[8] = window.display.activeElementID;
   }
 
   function createSqueakDisplay(canvas, options) {
@@ -439,6 +443,7 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
     }
 
     var display = {
+      headless: false,
       context: canvas.getContext("2d"),
       fullscreen: false,
       width: 0,   // if 0, VM uses canvas.width
@@ -456,6 +461,9 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
       signalInputEvent: null, // function set by VM
       // additional functions added below
     };
+
+    window.display = display;
+    
     setupSwapButtons(options);
     if (options.pixelated) {
       canvas.classList.add("pixelated");
@@ -486,6 +494,8 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
     display.reset();
 
     var checkFullscreen = setupFullscreen(display, canvas, options);
+    window.checkFullscreen = checkFullscreen;
+    
     display.fullscreenRequest = function(fullscreen, thenDo) {
       // called from primitive to change fullscreen mode
       if (display.fullscreen != fullscreen) {
@@ -570,6 +580,11 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
         console.error("copy error " + err);
       }
     };
+
+    display.nextElementID = display.activeElementID = 1;
+    canvas.elementID = display.nextElementID;
+    display.nextElementID++
+    
     canvas.onmousedown = function(evt) {
       checkFullscreen();
       recordMouseEvent('mousedown', evt, canvas, display, eventQueue, options);
@@ -582,6 +597,11 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
       evt.preventDefault();
     };
     canvas.onmousemove = function(evt) {
+      if (!(evt.target.elementID)) debugger;
+      evt.target.focus();
+      display.activeElementID = evt.target.elementID;
+      if (window.currentCursor) {
+	if (currentCursor === normalCursor) document.body.style.cursor = ''};
       recordMouseEvent('mousemove', evt, canvas, display, eventQueue, options);
       evt.preventDefault();
     };
@@ -840,6 +860,7 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
       */
     };
     document.onkeydown = function(evt) {
+      if (window.display && window.display.vm) document.body.style.cursor = 'none';
       checkFullscreen();
       if (canvas.otherCanvasActive) {
 	evt.preventDefault();

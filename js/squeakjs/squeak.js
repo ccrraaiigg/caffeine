@@ -586,7 +586,8 @@ module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
       evt.target.focus();
       display.activeElementID = evt.target.elementID;
       if (window.currentCursor) {
-	if (currentCursor === normalCursor) document.body.style.cursor = ''};
+	if ((currentCursor === normalCursor) && !document.body.style.softwareCursor) {
+	  document.body.style.cursor = ''};}
       recordMouseEvent('mousemove', evt, canvas, display, display.eventQueue, options);
       evt.preventDefault();
     };

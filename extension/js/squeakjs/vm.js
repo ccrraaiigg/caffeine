@@ -895,9 +895,18 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    readFromBuffer: function(arraybuffer, thenDo, progressDo) {
 		      console.log('squeak: reading ' + this.name + ' (' + arraybuffer.byteLength + ' bytes)');
 		      this.startupTime = Date.now();
+
+		      this.memory = new WebAssembly.Memory({
+			initial: 1600,
+			maximum: 1800,
+			shared: true});
+
+		      this.memoryView = new DataView(this.memory.buffer);
+
 		      var data = new DataView(arraybuffer),
 			  littleEndian = false,
 			  pos = 0;
+		      
 		      var readWord = function() {
 			var int = data.getUint32(pos, littleEndian);
 			pos += 4;
@@ -927,6 +936,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			if (!littleEndian) fileHeaderSize += 512;
 			if (fileHeaderSize > 512) throw Error("bad image version");
 		      };
+		      this.littleEndian = littleEndian;
 		      this.version = version;
 		      var nativeFloats = [6505, 6521, 68003, 68021].indexOf(version) >= 0;
 		      this.hasClosures = [6504, 6505, 6521, 68002, 68003, 68021].indexOf(version) >= 0;
@@ -1090,6 +1100,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      }
 		      var obj = this.firstOldObject,
 			  done = 0,
+			  topmostScope = window,
 			  self = this;
 		      function mapSomeObjects() {
 			if (obj) {
@@ -4114,6 +4125,12 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      if (this.addMessage(message) == 1)
 			console.warn(message);
 		    },
+		    printContext: function(context) {
+		      var isBlock
+
+		      if (context.contextIsBlock()) isBlock = "[] in "
+		      else isBlock = ""
+		      return isBlock + this.printMethod(context.pointers[3], context)},
 		    printMethod: function(aMethod, optContext, optSel) {
 		      // return a 'class>>selector' description for the method
 		      if (optSel) return optContext.className() + '>>' + optSel.bytesAsString();
@@ -4677,8 +4694,8 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			  case 156: if (this.oldPrims) return this.primitiveFileDelete(argCount);
 			  case 157: if (this.oldPrims) return this.primitiveFileSize(argCount);
 			  case 158: if (this.oldPrims) return this.primitiveFileWrite(argCount);
-			  case 159: if (this.oldPrims) return this.primitiveFileRename(argCount);
-			  break;  // fail 150-159 if fell through
+			  break;  // fail 150-158 if fell through
+			  case 159: return this.primitiveHashMultiply(argCount);
 			  case 160: if (this.oldPrims) return this.primitiveDirectoryCreate(argCount);
 			  else return this.primitiveAdoptInstance(argCount);
 			  case 161: if (this.oldPrims) return this.primitiveDirectoryDelimitor(argCount); // new: primitiveSetIdentityHash
@@ -5163,6 +5180,11 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			result *= Math.pow(2, Math.floor((exponent + i) / steps));
 		      return result;
 		    },
+		    primitiveHashMultiply: function() {
+		      var receiver = this.stackSigned53BitInt(0),
+			  low = receiver & 16383;
+		      
+		      return this.popNandPushIfOK(1, 0x260D * low + ((0x260D * (receiver << 14) + (0x65 * low) & 16383) * 16384) & 0xFFFFFFF);},
 		    primitiveLessThanLargeIntegers: function() {
 		      return this.pop2andPushBoolIfOK(this.stackSigned53BitInt(1) < this.stackSigned53BitInt(0));
 		    },
@@ -5247,7 +5269,8 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      return false;
 		    },
 		    isAssociation: function(obj) {
-		      return typeof obj !== "number" && obj.pointersSize() == 2;
+		      return obj.sqClass && (obj.sqClass.pointers[0] === this.vm.specialObjects[Squeak.splOb_SchedulerAssociation].sqClass.pointers[0].pointers[0]);
+		      // return typeof obj !== "number" && obj.pointersSize() == 2;
 		    },
 		    ensureSmallInt: function(number) {
 		      if (number === (number|0) && this.vm.canBeSmallInt(number))
@@ -5592,6 +5615,8 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      return this.popNandPushIfOK(1, this.makeLargeIfNeeded(bytes));
 		    },
 		    primitiveFusedGC: function(argCount) {
+		      // Fail if this is Pharo trying to run a mirror-object primitive.
+		      if ((this.vm.stackValue(0) === this.vm.trueObj) || (this.vm.stackValue(0) === this.vm.trueObj)) return false;
 		      this.vm.image.fusedGC("primitive");
 		      var bytes = this.vm.image.bytesLeft();
 		      return this.popNandPushIfOK(1, this.makeLargeIfNeeded(bytes));
@@ -6386,33 +6411,47 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		  },
 		  'display', {
 		    primitiveBeCursor: function(argCount) {
-		      if (this.display.cursorCanvas) {
-			var cursorForm = this.loadForm(this.stackNonInteger(argCount), true),
-			    maskForm = argCount === 1 ? this.loadForm(this.stackNonInteger(0)) : null;
-			if (!this.success || !cursorForm) return false;
-			var cursorCanvas = this.display.cursorCanvas,
-			    context = cursorCanvas.getContext("2d"),
-			    bounds = {left: 0, top: 0, right: cursorForm.width, bottom: cursorForm.height};
-			//            cursorCanvas.width = cursorForm.width;
-			//          cursorCanvas.height = cursorForm.height;
+		      // args: cursorForm, maskForm, canvas
+		      
+		      var cursorCanvas = argCount === 1 ? null : this.stackNonInteger(0).jsObject,
+			  cursorForm = this.loadForm(this.stackNonInteger(argCount), true),
+			  maskForm = argCount === 0 ? null : this.loadForm(this.stackNonInteger(argCount - 1));
+
+		      if (!this.success || !cursorForm) return false;
+
+		      if (cursorCanvas) {
+			cursorCanvas.style.visibility = 'visible';
+			cursorCanvas.style.opacity = 1;
+			if (cursorCanvas.parentNode) {cursorCanvas.parentNode.style.cursor = 'none';}}
+		      
+		      var cursorCanvas = cursorCanvas ? cursorCanvas : this.display.cursorCanvas,
+			  context,
+			  bounds = {
+			    left: 0,
+			    top: 0,
+			    right: cursorForm.width,
+			    bottom: cursorForm.height};
+
+		      if (cursorCanvas) {
+			context = cursorCanvas.getContext("2d")
+			
 			if (cursorForm.depth === 1) {
 			  if (maskForm) {
 			    cursorForm = this.cursorMergeMask(cursorForm, maskForm);
-			    this.showForm(context, cursorForm, bounds, [0x00000000, 0xFF0000FF, 0xFFFFFFFF, 0xFF000000]);
-			  } else {
-			    this.showForm(context, cursorForm, bounds, [0x00000000, 0xFF000000]);
-			  }
-			} else {
-			  this.showForm(context, cursorForm, bounds, true);
-			}
+			    this.showForm(context, cursorForm, bounds, [0x00000000, 0xFF0000FF, 0xFFFFFFFF, 0xFF000000]);}
+			  else {this.showForm(context, cursorForm, bounds, [0x00000000, 0xFF000000]);}}
+			else {this.showForm(context, cursorForm, bounds, true);}
+
 			var canvas = this.display.context.canvas,
 			    scale = canvas.offsetWidth / canvas.width;
 
 			cursorCanvas.style.width = (cursorCanvas.width * scale|0) + "px";
 			cursorCanvas.style.height = (cursorCanvas.height * scale|0) + "px";
-			this.display.cursorOffsetX = cursorForm.offsetX * scale|0;
-			this.display.cursorOffsetY = cursorForm.offsetY * scale|0;
-		      }
+
+			if (cursorCanvas === this.display.cursorCanvas) {
+			  this.display.cursorOffsetX = cursorForm.offsetX * scale|0;
+			  this.display.cursorOffsetY = cursorForm.offsetY * scale|0;}}
+
 		      this.vm.popN(argCount);
 		      return true;
 		    },
@@ -6505,7 +6544,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			  x: originObj.pointers[Squeak.Point_x],
 			  y: originObj.pointers[Squeak.Point_y],
 			},
-			null);
+			true);
 		      this.vm.popN(argCount);
 		      return true;},
 
@@ -6627,8 +6666,14 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    },
 		    primitiveScreenSize: function(argCount) {
 		      var display = this.display,
-			  w = display.context.canvas.width,
-			  h = display.context.canvas.height;
+			  w,
+			  h;
+
+		      if (display.context) {
+			w = display.context.canvas.width;
+			h = display.context.canvas.height;}
+		      else {
+			w = h = 0;}
 		      // crl
 		      
 		      display.width = w;
@@ -6725,7 +6770,14 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      return true;
 		    },
 		    primitiveKeyboardNext: function(argCount) {
-		      return this.popNandPushIfOK(argCount+1, this.ensureSmallInt(this.display.keys.shift()));
+		      var next;
+
+		      if (this.display.keys)
+			next = this.display.keys.shift();
+		      else
+			next = 0;
+		      
+		      return this.popNandPushIfOK(argCount+1, this.ensureSmallInt(next));
 		    },
 		    primitiveKeyboardPeek: function(argCount) {
 		      var length = this.display.keys.length;
@@ -7785,13 +7837,24 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 
 		      return this.js_fromStObject(obj);
 		    },
+
 		    js_fromStArray: function(objs, maybeDict) {
-		      if (objs.length > 0 && maybeDict && this.isAssociation(objs[0]))
-			return this.js_fromStDict(objs);
-		      var jsArray = [];
-		      for (var i = 0; i < objs.length; i++)
-			jsArray.push(this.js_fromStObject(objs[i]));
-		      return jsArray;
+		      var result;
+		      
+		      if (objs.length > 0 && maybeDict && this.isAssociation(objs[0])) {
+			try {result = this.js_fromStDict(objs);}
+			catch (e) {
+			  var jsArray = [];
+			  for (var i = 0; i < objs.length; i++)
+			    jsArray.push(this.js_fromStObject(objs[i]));
+			  result = jsArray;}}
+		      else {
+			var jsArray = [];
+			for (var i = 0; i < objs.length; i++)
+			  jsArray.push(this.js_fromStObject(objs[i]));
+			result = jsArray;}
+
+		      return result;
 		    },
 		    js_fromStDict: function(objs) {
 		      var jsDict = {};
@@ -7813,19 +7876,19 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      this.vm.reclaimableContextCount = 0;
 		      if (block.sqClass === SqueakJS.vm.specialObjects[Squeak.splOb_ClassBlockContext]) {numArgs = block.pointers[Squeak.BlockContext_argumentCount];}
 		      else {numArgs = block.pointers[Squeak.Closure_numArgs];}
-//		      if (typeof numArgs !== 'number')
-//			numArgs = block.pointers[Squeak.Closure_numArgs];
+		      //		      if (typeof numArgs !== 'number')
+		      //			numArgs = block.pointers[Squeak.Closure_numArgs];
 		      var squeak = this;
 		      return function evalSqueakBlock(/* arguments */) {
 			var args = [];
 			for (var i = 0; i < numArgs; i++)
 			  args.push(arguments[i]);
 
-			if (args[0]) {
-			  if (args[0].constructor.name == 'KeyboardEvent') {
-			    args[0].preventDefault();
-			    args[0].stopPropagation();
-			  }}
+			//			if (args[0]) {
+			//			  if (args[0].constructor.name == 'KeyboardEvent') {
+			//			    args[0].preventDefault();
+			//			    args[0].stopPropagation();
+			//			  }}
 
 			return new Promise(function(resolve, reject) {
 			  function evalAsync() {
@@ -7887,6 +7950,25 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      this.vm.warnOnce('FFI: ignoring ' + moduleName + ': ' + funcName + '(' + args + ')');
 		      return false;        
 		    },
+		    ffi_primitiveFFIAllocate: function(argCount) {
+		      var externalObject;
+
+		      externalObject = this.instantiateClass(this.vm.specialObjects[Squeak.splOb_ClassExternalAddress], 1);
+		      Squeak.ExternalObjects[Squeak.ExternalObjects.length] = externalObject;
+		      return this.popNandPushIfOK(1, externalObject);
+		    },
+		    ffi_primitiveCalloutWithArgs: function(argCount) {
+		      var functionSpec = this.vm.stackValue(1),
+			  functionName = Squeak.bytesAsString(functionSpec.pointers[3].bytes),
+			  args = [];
+
+		      for (i = 3; i <= (functionSpec.pointers[2].pointers.length - 1 + 3); i++) {
+			args.push(this.vm.stackValue(i));}
+		      
+		      switch(functionName) {
+		      case 'memcpy':
+			debugger;
+			break;}}
 		  },
 		  'Obsolete', {
 		    primitiveFloatArrayAt: function(argCount) {
@@ -8368,6 +8450,9 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    methodArgumentCount: function() {
 		      return this.argCount;
 		    },
+
+		    yourself: function () {return this;},
+		    
 		    makePointwithxValueyValue: function(x, y) {
 		      return this.vm.primHandler.makePointWithXandY(x, y);
 		    },

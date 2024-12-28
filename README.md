@@ -19,8 +19,9 @@ You can read more about the design of Caffeine, and new features, at my blog, [h
 | [/](https://caffeine.js.org/)                     | this page  |  
 | [/spa](https://caffeine.js.org/spa)                 | Caffeine on a single-page-application site |  
 | [/worldly](https://caffeine.js.org/worldly)                 | Worldly, an [A-Frame](https://aframe.io)-powered in-world virtual reality livecoding space |  
-| [/minimal](https://caffeine.js.org/minimal)             | a minimal object memory |  
-| [/talk](https://caffeine.js.org/talk)             | an [impress](https://impress.js.org)-powered presentation about Caffeine and livecoding |  
+| [/minimal](https://caffeine.js.org/minimal)             | a minimal object memory |
+| [/talks/2018-08-25-demos-teaser](https://caffeine.js.org/talks/2018-08-25-demos-teaser)             | an [impress](https://impress.js.org)-powered presentation about Caffeine and livecoding |  
+| [/talks/2023-02-22-wasm](https://caffeine.js.org/talks/2023-02-22-wasm)             | an [impress](https://impress.js.org)-powered presentation about Caffeine and WebAssembly ([video](https://vimeo.com/858207177)) |  
 | [/developer](https://caffeine.js.org/developer)   | a developer-oriented overview of Caffeine, with a tutorial for developing with it |  
 | [/beatshifting](https://caffeine.js.org/beatshifting) | Beatshifting :: Play Music in Sync and Out of Phase |  
 | [/pharo](https://caffeine.js.org/pharo)           | a demo of [Pharo](https://pharo.org) 7 |  

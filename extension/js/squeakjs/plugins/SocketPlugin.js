@@ -80,7 +80,7 @@ function SocketPlugin() {
           var url = '';
           if (isRetry || this._requestNeedsProxy()) {
             var proxy = typeof SqueakJS === "object" && SqueakJS.options.proxy;
-            url += proxy || 'https://crossorigin.me/';
+            url += proxy || 'https://api.allorigins.win/raw?url=';
           }
           if (this.port !== 443) {
             url += 'http://' + this._hostAndPort() + targetURL;
@@ -341,8 +341,8 @@ function SocketPlugin() {
 
     primitiveResolverLocalAddress: function(argCount) {
       // NOTE: window.RTCPeerConnection is "not a constructor" in FF22/23
-      var promise,
-	  RTCPeerConnection = /*window.RTCPeerConnection ||*/ window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
+      /* var promise,
+	  RTCPeerConnection = /*window.RTCPeerConnection || // window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
 
       if (RTCPeerConnection) {
 	promise = () => new Promise((resolve, reject) => {
@@ -395,7 +395,8 @@ function SocketPlugin() {
 	addr.split(".").map(string => {bytearray.pointers[i++] = Number(string)})
 	this.interpreterProxy.popthenPush(1, bytearray);
       }, (message) => {
-	return false})
+      return false}) */
+      this.interpreterProxy.primitiveFail();
     },
     
     primitiveHasSocketAccess: function(argCount) {

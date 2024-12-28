@@ -1,0 +1,20 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 10px;
+}
+
+h1 {
+  font-size: 1.2em;
+  margin-bottom: 10px;
+}
+
+button {
+  margin: 5px 0;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+#database-list, #file-list {
+  margin: 10px 0;
+}
