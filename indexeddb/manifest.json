@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "IndexedDB Downloader",
+  "version": "1.0",
+  "description": "Download files stored in IndexedDB.",
+  "permissions": ["storage", "scripting"],
+  "host_permissions": ["<all_urls>"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "caffeine16.png"
+  }
+}

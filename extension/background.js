@@ -10,6 +10,7 @@ try {
   var version = "1.3"
   var tethers = []
 
+  // need equivalent APIs in Firefox
   chrome.debugger.onEvent.addListener(onDebuggerEvent)
   chrome.debugger.onDetach.addListener(onDetach)
   chrome.tabs.onCreated.addListener(onTabCreatedEvent)

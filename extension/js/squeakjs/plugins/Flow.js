@@ -9,7 +9,8 @@ module("SqueakJS.plugins.Flow").requires("users.bert.SqueakJS.vm").toRun(
 
     function setInterpreter(interpreter) {
       interpreterProxy = interpreter
-      window.interpreter = interpreter
+      self.interpreter = interpreter
+
       if ((interpreterProxy.majorVersion() == VM_PROXY_MAJOR) === false) return false
       else return (interpreterProxy.minorVersion() >= VM_PROXY_MINOR)}
 
@@ -17,92 +18,84 @@ module("SqueakJS.plugins.Flow").requires("users.bert.SqueakJS.vm").toRun(
     // MIDI (via WebMidi.js)
 
     function numberOfMIDIPorts () {
-      interpreterProxy.popthenPush(
-	1,
-	top.WebMidi.outputs.length)}
+      if (top.WebMidi) {
+	interpreterProxy.popthenPush(
+	  1,
+	  (top.WebMidi.inputs.length + top.WebMidi.outputs.length))}
+      else {
+	interpreterProxy.popthenPush(1, 0)}}
 
     function nameOfMIDIPortAt () {
-      interpreterProxy.popthenPush(
-	2,
-	interpreterProxy.vm.Squeak.Primitives.prototype.makeStString.apply(
-	  interpreterProxy,
-	  [top.WebMidi.outputs[interpreterProxy.stackIntegerValue(0)].name]))}
+      var portIndex = interpreterProxy.stackIntegerValue(0),
+	  numberOfInterfaces = top.WebMidi.inputs.length
+
+      if (portIndex < numberOfInterfaces) {
+	// input
+	interpreterProxy.popthenPush(
+	  2,
+	  interpreterProxy.vm.Squeak.Primitives.prototype.makeStString.apply(
+	    interpreterProxy,
+	    ["in: " + top.WebMidi.inputs[portIndex].name]))}
+      else {
+	// output
+	interpreterProxy.popthenPush(
+	  2,
+	  interpreterProxy.vm.Squeak.Primitives.prototype.makeStString.apply(
+	    interpreterProxy,
+	    ["out: " + top.WebMidi.outputs[portIndex - numberOfInterfaces].name]))}}
 
     function newMIDIPortHandleInto () {
-      // No handles are necessary with WebMidi.js.
+      // With WebMidi.js, no handles are necessary.
     }
       
     function outputPortIndexInputPortIndex () {
-      var receiver = interpreterProxy.stackObjectValue(3),
+      var receiver = interpreterProxy.stackObjectValue(2),
 	  jsProxyClass = interpreterProxy.vm.image.specialObjectsArray.pointers[Squeak.splOb_JSProxyClass]
       
       interpreterProxy.storePointerofObjectwithValue(
-	10,
+	7,
 	receiver,
 	SqueakJS.vm.primHandler.makeStObject(
 	  top.WebMidi.inputs[interpreterProxy.stackIntegerValue(0)],
 	  jsProxyClass))
 
       interpreterProxy.storePointerofObjectwithValue(
-	11,
+	8,
 	receiver,
 	SqueakJS.vm.primHandler.makeStObject(
-	  top.WebMidi.outputs[interpreterProxy.stackIntegerValue(1)],
-	  jsProxyClass))}
+	  top.WebMidi.outputs[interpreterProxy.stackIntegerValue(1) - top.WebMidi.inputs.length],
+	  jsProxyClass))
+
+      interpreterProxy.pop(2)}
     
     
-    // HTML UI support
-
-    function htmlSelectElementSetOptions () {
-      var self = (interpreterProxy.stackValue(1)).pointers[0].jsObject,
-	  strings = interpreterProxy.vm.primHandler.loadedModules.JavaScriptPlugin.primitiveFromStObject(interpreterProxy.stackValue(0))
-
-      while (self.children.length > 0) {
-	var child = self.firstChild
-	
-	self.removeChild(child)}
-
-      (
-	strings.map(function (string) {
-	  var option = document.createElement('option')
-
-	  option.value = string
-	  option.innerHTML = string
-
-	  return option})
-      )
-	.forEach(function (element) {self.appendChild(element)})
-
-      interpreterProxy.pop(1)}
-
     // read from Blobs, for sending binary WebSocket frames
 
     function setBytesFrom () {
       var byteArray = interpreterProxy.stackValue(1),
 	  result = interpreterProxy.stackValue(0).jsObject
 
-      byteArray.bytes = new Uint8Array(result)}
-    
-    // VisualWorks support
-
-    function decompressVisualWorksBitmapFromByteArray () {
-      var words = interpreterProxy.stackValue(1).words,
-	  bytes = interpreterProxy.stackValue(0).bytes,
-	  numberOfBytes = bytes.length,
-	  bytesPosition = 0,
-	  wordIndex = 0,
-	  word
-
-      while (bytesPosition < numberOfBytes) {
-	word = (bytes[bytesPosition++] << 24) + bytes[bytesPosition++]
-
-	if (bytesPosition < numberOfBytes) {
-	  word = word + (bytes[bytesPosition++] << 8) + (bytes[bytesPosition++] << 16)}
-
-	words[wordIndex++] = word}
+      byteArray.bytes = new Uint8Array(result)
 
       interpreterProxy.pop(1)}
+    
 
+    // Ensure that a websocket's "open" event handler is set before
+    // the event occurs, by creating the websocket and setting the
+    // handler in the same JS context (JS is single-threaded).
+
+    function urlonOpenonErroronMessageonClose () {
+      var websocket = new WebSocket(interpreterProxy.stackValue(4).bytesAsString())
+
+      websocket.onopen = interpreterProxy.vm.primHandler.js_fromStBlock(interpreterProxy.stackValue(3))
+      websocket.onerror = interpreterProxy.vm.primHandler.js_fromStBlock(interpreterProxy.stackValue(2))
+      websocket.onmessage = interpreterProxy.vm.primHandler.js_fromStBlock(interpreterProxy.stackValue(1))
+      websocket.onclose = interpreterProxy.vm.primHandler.js_fromStBlock(interpreterProxy.stackValue(0))
+
+      interpreterProxy.stackValue(5).jsObject = websocket
+      interpreterProxy.pop(5)}
+
+    
     // Naiad support
 
     function isMethodFused () {
@@ -137,9 +130,8 @@ module("SqueakJS.plugins.Flow").requires("users.bert.SqueakJS.vm").toRun(
 	nameOfMIDIPortAt: nameOfMIDIPortAt,
 	newMIDIPortHandleInto: newMIDIPortHandleInto,
 	outputPortIndexInputPortIndex: outputPortIndexInputPortIndex,
-	htmlSelectElementSetOptions: htmlSelectElementSetOptions,
-	decompressVisualWorksBitmapFromByteArray: decompressVisualWorksBitmapFromByteArray,
 	setBytesFrom: setBytesFrom,
+	urlonOpenonErroronMessageonClose: urlonOpenonErroronMessageonClose,
 	isMethodFused: isMethodFused,
 	fuseMethod: fuseMethod,
 	defuseMethod: defuseMethod,

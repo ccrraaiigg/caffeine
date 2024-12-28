@@ -5,7 +5,7 @@
 	KedamaPlugin2 Kedama-Plugins-yo.1 uuid: 3fc7d691-0149-ba4d-a339-5d27cd44a2f8
  */
 
-window.module("users.bert.SqueakJS.plugins.KedamaPlugin2").requires("users.bert.SqueakJS.vm").toRun(function() {
+module("users.bert.SqueakJS.plugins.KedamaPlugin2").requires("users.bert.SqueakJS.vm").toRun(function() {
 "use strict";
 
 var VM_PROXY_MAJOR = 1;
@@ -4174,7 +4174,7 @@ function zoomBitmap() {
 }
 
 
-window.Squeak.registerExternalModule("KedamaPlugin2", {
+Squeak.registerExternalModule("KedamaPlugin2", {
 	primitiveAddArrays: primitiveAddArrays,
 	getModuleName: getModuleName,
 	primitiveMulArrays: primitiveMulArrays,
