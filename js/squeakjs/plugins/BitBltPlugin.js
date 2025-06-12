@@ -5,7 +5,7 @@
 	BitBltSimulation VMMaker-bf.353 uuid: 8ae25e7e-8d2c-451e-8277-598b30e9c002
  */
 
-if (!window) const window = globalThis
+if (!window) {window = globalThis}
 window.module("users.bert.SqueakJS.plugins.BitBltPlugin").requires("users.bert.SqueakJS.vm").toRun(function() {
 "use strict";
 
