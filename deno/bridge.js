@@ -86,12 +86,12 @@ caffeine.worker.onmessage = async (message, websocket) => {
       var association = Array.from(caffeine.tethers)[1]
 
       if (association) {
-	var target = association[1],
+	var target = association[1]
 
-	target.sendMessage(
+	caffeine.tethers.get('worker').sendMessage(
 	  target,
 	  'render:originX:originY:extentX:extentY:',
-	  [pixels, data.rectangle.left, data.rectangle.top, data.rectangle.right, data.rectangle.bottom])}}}
+	  [data.pixels, data.rectangle.left, data.rectangle.top, data.rectangle.right, data.rectangle.bottom])}}}
 	  
   else {
     if (data.method) {
@@ -123,8 +123,8 @@ caffeine.worker.onmessage = async (message, websocket) => {
 
 	if (tag >= caffeine.otherMarkerBase) {
 	  // This is the remote tether announcing its exposure hash.
-	  tether.remoteExposureHash = tag - caffeine.otherMarkerBase
-	  tether.exposedObjects.set(tether.remoteExposureHash, tether)
+	  tether.exposureHash = tag - caffeine.otherMarkerBase
+	  tether.expose(tether)
 	  if (tether === caffeine.tethers.get('worker')) tether.push(tether)}
 	else {tether.handleEventFrom(tether)}}}}}
 
@@ -248,7 +248,7 @@ serve(
 	    workerTether = caffeine.tethers.get('worker')
 	
 	caffeine.tethers.set(websocket, tether)
-	tether.exposedObjects.set(workerTether.remoteExposureHash, workerTether)
+	tether.expose(workerTether)
 	tether.push(workerTether)}
       
       console.log('connected Tether websocket')

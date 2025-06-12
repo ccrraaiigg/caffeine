@@ -31,7 +31,20 @@ import {serve} from "https://deno.land/std/http/mod.ts"
 import * as pako from "https://esm.sh/pako@2.1.0"
 globalThis.pako = pako
 
-import {indexedDB, IDBCursor, IDBCursorWithValue, IDBDatabase, IDBFactory, IDBIndex, IDBKeyRange, IDBObjectStore, IDBOpenDBRequest, IDBRequest, IDBTransaction, IDBVersionChangeEvent,} from "npm:fake-indexeddb@6.0.1"}
+import {
+    indexedDB,
+    IDBCursor,
+    IDBCursorWithValue,
+    IDBDatabase,
+    IDBFactory,
+    IDBIndex,
+    IDBKeyRange,
+    IDBObjectStore,
+    IDBOpenDBRequest,
+    IDBRequest,
+    IDBTransaction,
+    IDBVersionChangeEvent,
+} from "npm:fake-indexeddb@6.0.1"
 
 globalThis.indexedDB = indexedDB
 globalThis.serve = serve
@@ -44,7 +57,7 @@ self.CanvasKit = await loadCanvasKit();
 //////////////////////////////////////////////////////////////////////////////
 
 
-(function () {
+(async function () {
   self.module = function(dottedPath) {
     if (dottedPath === "") return self
     var path = dottedPath.split("."),
@@ -110,8 +123,9 @@ self.CanvasKit = await loadCanvasKit();
   var vmDir,
       toLoad
   
-  vmDir = 'https://caffeine.js.org/js/squeakjs/'
+  vmDir = 'http://192.168.1.92:8080/js/squeakjs/'
 
+  import(vmDir + "lib/jszip.js")
   import(vmDir + "jit.js")
   import(vmDir + "plugins/BitBltPlugin.js")
   import(vmDir + "plugins/FloatArrayPlugin.js")
@@ -122,7 +136,6 @@ self.CanvasKit = await loadCanvasKit();
   import(vmDir + "plugins/StarSqueakPlugin.js")
   import(vmDir + "plugins/ZipPlugin.js")
   import(vmDir + "lib/lz-string.js")
-  import(vmDir + "lib/jszip.js")
   import(vmDir + "lib/FileSaver.js")
 
   // Uncomment the following line for production.
