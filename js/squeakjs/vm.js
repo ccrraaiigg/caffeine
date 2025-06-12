@@ -898,6 +898,9 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      this.hasNewInstances = {};
 		    },
 		    readFromBuffer: function(arraybuffer, thenDo, progressDo) {
+		      var lastSuccessfulRawBitsSize = 0,
+			  lastSuccessfulOop = 0;
+
 		      console.log('squeak: reading ' + this.name + ' (' + arraybuffer.byteLength + ' bytes)');
 		      this.startupTime = Date.now();
 
@@ -958,8 +961,8 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			this.savedHeaderWords.push(readWord());
 		      var firstSegSize = readWord();
 		      var prevObj;
-		      var oopMap = {};
-		      var rawBits = {};
+		      var oopMap = new Map();
+		      var rawBits = new Map();
 		      var headerSize = fileHeaderSize + imageHeaderSize;
 		      pos = headerSize;
 		      if (!this.isSpur) {
@@ -1002,12 +1005,17 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			  this.oldSpaceCount++;
 			  prevObj = object;
 			  //oopMap is from old oops to actual objects
-			  oopMap[oldBaseAddr + oop] = object;
+			  oopMap.set(oldBaseAddr + oop, object);
 
 			  //rawBits holds raw content bits for objects
-			  rawBits[oop] = bits;
+			  rawBits.set(oop, bits);
+			  
+			  if (rawBits.get(oop) != bits) debugger
+			  else {
+			    lastSuccessfulRawBitsSize = lastSuccessfulRawBitsSize + 1;
+			    lastSuccessfulOop = oop}
 			}
-			this.firstOldObject = oopMap[oldBaseAddr+4];
+			this.firstOldObject = oopMap.get(oldBaseAddr+4);
 			this.lastOldObject = object;
 			this.oldSpaceBytes = objectMemorySize;
 		      } else {
@@ -1045,15 +1053,15 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
                               this.oldSpaceCount++;
                               prevObj = object;
                               //oopMap is from old oops to actual objects
-                              oopMap[oldBaseAddr + oop] = object;
+                              oopMap.set(oldBaseAddr + oop, object);
                               //rawBits holds raw content bits for objects
-                              rawBits[oop] = bits;
+                              rawBits.set(oop, bits);
                               oopAdjust[oop] = skippedBytes;
 			    } else {
                               skippedBytes += pos - objPos;
                               if (!freePageList) freePageList = bits;         // first hidden obj
                               else if (!classPages) classPages = bits;        // second hidden obj
-                              if (classID) oopMap[oldBaseAddr + oop] = bits;  // used in spurClassTable()
+                              if (classID) oopMap.set(oldBaseAddr + oop, bits);  // used in spurClassTable()
 			    }
 			  }
 			  if (pos !== segmentEnd - 16) throw Error("invalid segment");
@@ -1072,15 +1080,15 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			  }
 			}
 			this.oldSpaceBytes -= skippedBytes;
-			this.firstOldObject = oopMap[oldBaseAddr];
+			this.firstOldObject = oopMap.get(oldBaseAddr);
 			this.lastOldObject = object;
 		      }
 
 		      if (true) {
 			// For debugging: re-create all objects from named prototypes
-			var _splObs = oopMap[specialObjectsOopInt],
+			var _splObs = oopMap.get(specialObjectsOopInt),
 			    cc = this.isSpur ? this.spurClassTable(oopMap, rawBits, classPages, _splObs)
-			    : rawBits[oopMap[rawBits[_splObs.oop][Squeak.splOb_CompactClasses]].oop];
+			    : rawBits.get(oopMap.get(rawBits.get(_splObs.oop)[Squeak.splOb_CompactClasses]).oop);
 			var renamedObj = null;
 			object = this.firstOldObject;
 			prevObj = null;
@@ -1089,19 +1097,19 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			  renamedObj = object.renameFromImage(oopMap, rawBits, cc);
 			  if (prevObj) prevObj.nextObject = renamedObj;
 			  else this.firstOldObject = renamedObj;
-			  oopMap[oldBaseAddr + object.oop] = renamedObj;
+			  oopMap.set(oldBaseAddr + object.oop, renamedObj);
 			  object = object.nextObject;
 			}
 			this.lastOldObject = renamedObj;
 		      }
 
 		      // properly link objects by mapping via oopMap
-		      var splObs         = oopMap[specialObjectsOopInt];
-		      var compactClasses = rawBits[oopMap[rawBits[splObs.oop][Squeak.splOb_CompactClasses]].oop];
-		      var floatClass     = oopMap[rawBits[splObs.oop][Squeak.splOb_ClassFloat]];
+		      var splObs         = oopMap.get(specialObjectsOopInt);
+		      var compactClasses = rawBits.get(oopMap.get(rawBits.get(splObs.oop)[Squeak.splOb_CompactClasses]).oop);
+		      var floatClass     = oopMap.get(rawBits.get(splObs.oop)[Squeak.splOb_ClassFloat]);
 		      // Spur needs different arguments for installFromImage()
 		      if (this.isSpur) {
-			var charClass = oopMap[rawBits[splObs.oop][Squeak.splOb_ClassCharacter]];
+			var charClass = oopMap.get(rawBits.get(splObs.oop)[Squeak.splOb_ClassCharacter]);
 			this.initCharacterTable(charClass);
 			compactClasses = this.spurClassTable(oopMap, rawBits, classPages, splObs);
 			nativeFloats = this.getCharacter.bind(this);
@@ -1849,18 +1857,18 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			prevObj.nextObject = object;
 			this.oldSpaceCount++;
 			prevObj = object;
-			oopMap[oop] = object;
-			rawBits[oop + oopOffset] = bits;
+			oopMap.get(oop) = object;
+			rawBits.set(oop + oopOffset, bits);
 		      }
 		      object.nextObject = endMarker;
 		      // add outPointers to oopMap
 		      for (var i = 0; i < outPointerArray.pointers.length; i++)
-			oopMap[0x80000004 + i * 4] = outPointerArray.pointers[i];
+			oopMap.set(0x80000004 + i * 4, outPointerArray.pointers[i]);
 		      // add compactClasses to oopMap
 		      var compactClasses = this.specialObjectsArray.pointers[Squeak.splOb_CompactClasses].pointers,
 			  fakeClsOop = 0, // make up a compact-classes array with oops, as if loading an image
 			  compactClassOops = compactClasses.map(function(cls) {
-			    oopMap[--fakeClsOop] = cls; return fakeClsOop; });
+			    oopMap.set(--fakeClsOop, cls); return fakeClsOop; });
 		      // truncate segmentWordArray array to one element
 		      segmentWordArray.words = new Uint32Array([segmentWordArray.words[0]]);
 		      // map objects using oopMap
@@ -1885,10 +1893,10 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			  nil = this.firstOldObject;
 		      // read class table pages
 		      for (var p = 0; p < 4096; p++) {
-			var page = oopMap[classPages[p]];
-			if (page.oop) page = rawBits[page.oop]; // page was not properly hidden
+			var page = oopMap.get(classPages[p]);
+			if (page.oop) page = rawBits.get(page.oop); // page was not properly hidden
 			if (page.length === 1024) for (var i = 0; i < 1024; i++) {
-			  var entry = oopMap[page[i]];
+			  var entry = oopMap.get(page[i]);
 			  if (!entry) throw Error("Invalid class table entry (oop " + page[i] + ")");
 			  if (entry !== nil) {
 			    var classIndex = p * 1024 + i;
@@ -1899,7 +1907,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      // add known classes which may not be in the table
 		      for (var key in Squeak) {
 			if (/^splOb_Class/.test(key)) {
-			  var knownClass = oopMap[rawBits[splObjs.oop][Squeak[key]]];
+			  var knownClass = oopMap.get(rawBits.get(splObjs.oop)[Squeak[key]]);
 			  if (knownClass && (knownClass !== nil)) {
 			    var classIndex = knownClass.hash;
 			    if (classIndex > 0 && classIndex < 1024)
@@ -2135,16 +2143,16 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      this.hash = hsh;
 		    },
 		    classNameFromImage: function(oopMap, rawBits) {
-		      var name = oopMap[rawBits[this.oop][Squeak.Class_name]];
+		      var name = oopMap.get(rawBits.get(this.oop)[Squeak.Class_name]);
 		      if (name && name._format >= 8 && name._format < 12) {
-			var bits = rawBits[name.oop],
+			var bits = rawBits.get(name.oop),
 			    bytes = name.decodeBytes(bits.length, bits, 0, name._format & 3);
 			return Squeak.bytesAsString(bytes);
 		      }
 		      return "Class";
 		    },
 		    renameFromImage: function(oopMap, rawBits, ccArray) {
-		      var classObj = this.sqClass < 32 ? oopMap[ccArray[this.sqClass-1]] : oopMap[this.sqClass];
+		      var classObj = this.sqClass < 32 ? oopMap.get(ccArray[this.sqClass-1]) : oopMap.get(this.sqClass);
 		      if (!classObj) return this;
 		      var instProto = classObj.instProto || classObj.classInstProto(classObj.classNameFromImage(oopMap, rawBits));
 		      if (!instProto) return this;
@@ -2160,10 +2168,10 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      var ccInt = this.sqClass;
 		      // map compact classes
 		      if ((ccInt>0) && (ccInt<32))
-			this.sqClass = oopMap[ccArray[ccInt-1]];
+			this.sqClass = oopMap.get(ccArray[ccInt-1]);
 		      else
-			this.sqClass = oopMap[ccInt];
-		      var bits = rawBits[this.oop],
+			this.sqClass = oopMap.get(ccInt);
+		      var bits = rawBits.get(this.oop),
 			  nWords = bits.length;
 		      if (this._format < 5) {
 			//Formats 0...4 -- Pointer fields
@@ -2210,7 +2218,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			if ((oop & 1) === 1) {          // SmallInteger
 			  ptrs[i] = oop >> 1;
 			} else {                        // Object
-			  ptrs[i] = oopMap[oop] || 42424242;
+			  ptrs[i] = oopMap.get(oop) || 42424242;
 			  // when loading a context from image segment, there is
 			  // garbage beyond its stack pointer, resulting in the oop
 			  // not being found in oopMap. We just fill in an arbitrary
@@ -2688,7 +2696,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			     if (classID < 32) throw Error("Invalid class ID: " + classID);
 			     this.sqClass = classTable[classID];
 			     if (!this.sqClass) throw Error("Class ID not in class table: " + classID);
-			     var bits = rawBits[this.oop],
+			     var bits = rawBits.get(this.oop),
 				 nWords = bits.length;
 			     switch (this._format) {
 			     case 0: // zero sized object
@@ -2761,7 +2769,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			       } else if ((oop & 3) === 2) {   // Character
 				 ptrs[i] = getCharacter(oop >>> 2);
 			       } else {                        // Object
-				 ptrs[i] = oopMap[oop] || 42424242;
+				 ptrs[i] = oopMap.get(oop) || 42424242;
 				 // when loading a context from image segment, there is
 				 // garbage beyond its stack pointer, resulting in the oop
 				 // not being found in oopMap. We just fill in an arbitrary
@@ -2778,9 +2786,9 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			     this.mark = true;   // stays always marked so not traced by GC
 			   },
 			   classNameFromImage: function(oopMap, rawBits) {
-			     var name = oopMap[rawBits[this.oop][Squeak.Class_name]];
+			     var name = oopMap(rawBits.get(this.oop)[Squeak.Class_name]);
 			     if (name && name._format >= 16 && name._format < 24) {
-			       var bits = rawBits[name.oop],
+			       var bits = rawBits.get(name.oop),
 				   bytes = name.decodeBytes(bits.length, bits, 0, name._format & 7);
 			       return Squeak.bytesAsString(bytes);
 			     }
@@ -3274,7 +3282,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			if (this.method.compiled) {
 			  this.method.compiled(this);
 			} else {
-			  this.currentInterpretOne();
+			  this.interpretOne();
 			}
 		      }
 		      // this is to allow 'freezing' the interpreter and restarting it asynchronously. See freeze()

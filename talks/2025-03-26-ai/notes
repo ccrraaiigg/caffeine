@@ -1,0 +1,182 @@
+2025-03-26 UKSTUG talk
+
+
+title
+
+     Livecoding Language Models: AI Context in Live Environments
+
+abstract
+
+     Using a tool creates context for complimentary tools. For
+example, selecting an object in a Smalltalk inspector creates useful
+context for browsing the class of that object. This is a potent idea
+in an integrated development environment, where multiple tools operate
+on related information. The extensive context in a live environment
+enables powerful collaboration with contemporary AI language models.
+
+     Tools built from that collaboration could greatly augment human
+capability. I’ll show some foundations for them, and suggest ways of
+easing their construction through the systematic description of
+existing tool functionality. For a preview, please see my blog at
+thiscontext.com.
+
+bio
+
+     Craig Latta is a research computer scientist in Berkeley and
+Amsterdam, with interests including livecoding, music performance, and
+interactive visualization. The discovery of a mysteriously-placed Blue
+Book at university led to stints at several exploratory labs, and a
+pursuit of improvisation wherever code is found. His current work
+focuses on polyglot computing with WebAssembly, the novel compiler
+framework Epigram, and human augmentation through AI.
+
+***
+
+brainstorming:
+
+- The talk title "Livecoding Language Models" has a double meaning:
+  both the human and the model are livecoding (and sometimes
+  livecoding each other).
+
+- Might be fun to have an opening slide which has two tentative titles
+  crossed out before the actual title: "Large Liability Models" and
+  "Large Language Models".
+
+- Is there going to be a split-screen with some non-Smalltalk thing,
+  like last time? The web browser devtools?
+
+- It might be fun to have prompts which can answer objects instead of
+  prose, with or without local Smalltalk tool functions.
+
+- Go breadth-first in topic coverage, to give the audience the most to
+  discuss as soon as possible.
+
+***
+
+(scroll for slide notes)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+slides:
+
+- "This work and presentation..."
+
+  Introduce myself. Read the latest at my blog... thiscontext.com
+  (show that website).
+
+- "Using a tool..."
+
+  Introduce the topic of "intelligence augmentation", mention its
+  Wikipedia page and the inspiration you took from Douglas
+  Engelbart. Show the website for Engelbart's 1962 SRI report.
+
+- "workspace example..."
+
+  With these IDE demos, I want to show a minimal example leading to a
+  pervasive technique. Let's expand on the meaning of "do it", which
+  traditionally works anywhere you can enter text. In addition to
+  evaluating code, we'll be evaluating English. In both cases, there
+  can be useful side effects, including provoking new ideas in
+  ourselves.
+
+  Show interaction with an LLM from a Smalltalk workspace, and show
+  how you use exception handling to invoke the LLM. Show how the
+  exception's context leads to context for the LLM (in particular,
+  from the workspace using the selected expression as an LLM prompt).
+
+  To show framework methods, halt in (OpenAIRESTClient class)>>forTool:
+
+  Framework methods in order of use:
+
+  Compiler>>evaluateCue:ifFail:
+  StringHolder>>handleUndeclaredVariableException: (sent by Compiler>>evaluateCue:ifFail:)
+  StringHolder>>tool, sent by StringHolder>>handleUndeclaredVariableException:
+  Object>>systemPrompt and overrides; an important ancestor context is (OpenAIRESTClient class)>>forTool:
+  Object>>tools and overrides, sent by OpenAIRESTClient>>nextCompletion
+
+- "inspector example..."
+
+  Show a similar example with different context, from an inspector. In
+  the workspace example, from the developer's point of view, a prompt
+  is context-free. The LLM context is all behind the scenes; it's just
+  the workspace's text selection. With an inspector, there is context
+  from having selected a field of the inspected object, and even from
+  just having opened the inspector. We can use that context to provide
+  different system prompts and "tool functions" for the LLM.
+
+  Explain tool functions from the OpenAI API. Mention that AI APIs
+  seem to be converging, and that I expect a similar convergence
+  around Anthropic's Model Context Protocol (MCP). MCP enables
+  separation between the system implementing tool functions and the
+  system implementing an AI application. Show the MCP announcement
+  webpage.
+
+- "debugger example..."
+
+  Show a final example using what is just a more complex inspector: a
+  Smalltalk debugger. Mention the potential for coding assistance,
+  and, more importantly, debugging assistance.
+
+  My first question when encountering a programming language is
+  usually "How do I debug?". My first question about coding assistants
+  is usually "How do you help me debug?" The current crop of coding
+  assistants are often good at generating working code, but weak at
+  dealing with problems in that code, and untrained in fixing a
+  running system without stopping it.
+
+  "Vibecoding" might come to mean something more substantial, if good
+  coding assistants become good debugging assistants as well. It may
+  establish itself alongside the other exploratory and collaborative
+  coding techniques we use with Smalltalk. I think there's an
+  interesting resonance between "vibecoding" and "livecoding". Show
+  the Wikipedia vibecoding page.
+
+  AI vs. IA... AI could be an enabler of human augmentation as Douglas
+  Engelbart envisioned it, through collaborative tools. It's more
+  effective for this when thoughfully integrated into comfortable
+  human interfaces, beyond the simple call-and-response format of the
+  initial chatbots.
+
+  Other groups are pursuing new UI ideas for AI. For example, The
+  Browser Company is making a web browser (Dia) that uses familiar UI
+  elements, like the ubiquitous text insertion cursor, as entrances
+  into AI collaboration. Show the Dia website.
+
+  The Caffeine and SqueakJS sites are there in case someone wants to
+  see them.
+

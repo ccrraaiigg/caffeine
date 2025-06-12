@@ -18,10 +18,24 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- */ 
+ */
 
 
 // Set up an environment for running the SqueakJS VM headlessly in a Web Worker.
+
+
+self.window = globalThis;
+
+import {loadCanvasKit} from "./load-canvaskit.js";
+import {serve} from "https://deno.land/std/http/mod.ts"
+import * as pako from "https://esm.sh/pako@2.1.0"
+globalThis.pako = pako
+
+import {indexedDB, IDBCursor, IDBCursorWithValue, IDBDatabase, IDBFactory, IDBIndex, IDBKeyRange, IDBObjectStore, IDBOpenDBRequest, IDBRequest, IDBTransaction, IDBVersionChangeEvent,} from "npm:fake-indexeddb@6.0.1"}
+
+globalThis.indexedDB = indexedDB
+globalThis.serve = serve
+self.CanvasKit = await loadCanvasKit();
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -99,6 +113,7 @@
   vmDir = 'https://caffeine.js.org/js/squeakjs/'
 
   import(vmDir + "jit.js")
+  import(vmDir + "plugins/BitBltPlugin.js")
   import(vmDir + "plugins/FloatArrayPlugin.js")
   import(vmDir + "plugins/Flow.js")
   import(vmDir + "plugins/LargeIntegers.js")
@@ -111,12 +126,12 @@
   import(vmDir + "lib/FileSaver.js")
 
   // Uncomment the following line for production.
-import(vmDir + "vm.js")
+  // import(vmDir + "vm.js")
 
   // Uncomment the following line for development. You'll need to
   // symlink .../caffeine/js/squeakjs/vm.js to
   // .../caffeine/deno/vm.js.
-//  import("./vm.js")
+  import("./vm.js")
 
   module("SqueakJS").requires("users.bert.SqueakJS.vm").toRun(function() {
 
@@ -422,6 +437,8 @@ import(vmDir + "vm.js")
   }
 
 
+  self.runDebugger = () => {debugger}
+  
   // communication with the main thread
   
   self.onmessage = (message) => {
@@ -445,3 +462,4 @@ import(vmDir + "vm.js")
       break}}
 
 })()
+//# sourceURL=squeak-worker.js

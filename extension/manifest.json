@@ -7,6 +7,7 @@
   "content_security_policy": "default-src 'self'; connect-src ws://localhost:8091 http://127.0.0.1:9222 https://caffeine.js.org https://api.openai.com https://california.demo.blackpagedigital.com:8087; style-src 'unsafe-inline'; style-src-elem 'unsafe-inline'; script-src 'self' 'unsafe-eval' 'sha256-+ROF8Vi+cTAH5xSnYBL0plFxMMI+080r+hnOro46Si8=' 'sha256-aD/lGrP87STQqzbORrhE5JXF/YRAdlDlCm9gBp5rH8Q=' 'sha256-km2MD5ya0pDJiKMwb+Z7FqsQDgqw/k0+t81uZTKKOFk='; object-src 'self'",
   "devtools_page": "devtools.html",
   "permissions": [
+    "activeTab",
     "debugger",
     "tabs",
     "tabCapture"],
@@ -16,6 +17,7 @@
     "default_icon": "caffeine16.png",
     "default_title": "Debug with Caffeine"},
   "externally_connectable": {
+    "ids": ["*"],
     "matches": [
       "https://caffeine.js.org/*",
       "http://blackpagedigital.com/*",

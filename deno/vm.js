@@ -19,13 +19,15 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
    * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
    * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
    * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-   * THE SOFTWARE. 
+   * THE SOFTWARE.
    */
 
   // shorter name for convenience
   self.Squeak = users.bert.SqueakJS.vm;
 
   Squeak.ExternalObjects = [];
+  self.damage = {left: 0, top: 0, right: 0, bottom: 0}
+  self.displayDamageTimeout = 0
 
   // if in private mode set localStorage to a regular dict
   var localStorage = self.localStorage;
@@ -1221,8 +1223,8 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      return newObjects.length > 0 ? newObjects[0] : null;
 		    },
 		    fusedGC: function(reason) {
-		      // This variant views all unfused compiled methods as garbage.
-		      // Collect garbage and return first tenured object (to support object enumeration)
+			// This variant views all unfused compiled methods as garbage.
+			// Collect garbage and return first tenured object (to support object enumeration)
 		      // Old space is a linked list of objects - each object has an "nextObject" reference.
 		      // New space objects do not have that pointer, they are garbage-collected by JavaScript.
 		      // But they have an allocation id so the survivors can be ordered on tenure.
@@ -1287,8 +1289,8 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      return this.isSpur ? newObjects : newObjects.sort(function(a,b){return b.oop - a.oop});
 		    },
 		    markFusedObjects: function() {
-		      // FusedGC: Visit all fused objects and mark them. For compiled methods, fused objects
-		      // are indicated by a 'fused' slot. For all other objects, fused objects are merely reachable.
+			// FusedGC: Visit all fused objects and mark them. For compiled methods, fused objects
+			// are indicated by a 'fused' slot. For all other objects, fused objects are merely reachable.
 		      // Return surviving new objects
 		      // Contexts are handled specially: they have garbage beyond the stack pointer
 		      // which must not be traced, and is cleared out here
@@ -4413,10 +4415,19 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		  'initialization', {
 		    initialize: function(vm, display) {
 		      this.vm = vm;
+
 		      if (display)
 			this.display = display;
-		      else
-			this.display = {headless: true};
+		      else {
+			this.display = {
+			  headless: true,
+			  width: 1000,
+			  height: 1000,
+			  getNextEvent: (pointers, startupTime) => {pointers[0] = 0}}
+
+			self.bufferSurface = self.CanvasKit.MakeSurface(this.display.width, this.display.height)
+			self.bufferCanvas = bufferSurface.getCanvas()}
+		      
 		      self.display = this.display;
 		      this.display.vm = this.vm;
 		      this.oldPrims = !this.vm.image.hasClosures;
@@ -5544,6 +5555,8 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      if (indexableSize * 4 > this.vm.image.bytesLeft()) {
 			// we're not really out of memory, we have no idea how much memory is available
 			// but we need to stop runaway allocations
+			debugger
+			this.vm.image.bytesLeft()
 			console.warn("squeak: out of memory");
 			this.success = false;
 			this.vm.primFailCode = Squeak.PrimErrNoMemory;
@@ -6555,13 +6568,17 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    
 		    showFormAt: function(ctx, form, rect, point, cursorColors) {
 		      if (!rect) return;
-		      if (!ctx) return;
+		      if ((!ctx) && (!this.display.headless)) return;
 		      var srcX = rect.left,
 			  srcY = rect.top,
 			  srcW = rect.right - srcX,
 			  srcH = rect.bottom - srcY,
-			  pixels = ctx.createImageData(srcW, srcH),
-			  pixelData = pixels.data;
+			  pixels,
+			  pixelData
+
+		      pixels = ctx ? ctx.createImageData(srcW, srcH) : new ImageData(srcW, srcH);
+		      pixelData = pixels.data;
+		      
 		      if (!pixelData.buffer) { // mobile IE uses a different data-structure
 			pixelData = new Uint8Array(srcW * srcH * 4);
 		      }
@@ -6652,7 +6669,100 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      if (pixels.data !== pixelData) {
 			pixels.data.set(pixelData);
 		      }
-		      ctx.putImageData(pixels, point.x, point.y);
+
+		      if (ctx) {
+			ctx.putImageData(
+			  pixels,
+			  point.x,
+			  point.y)}
+		      else {
+			// Aggregate damage rectangles. After a
+			// certain amount of time with no updates,
+			// post the cumulative damage to the bridge
+			// thread.
+			if (displayDamageTimeout) clearTimeout(displayDamageTimeout)
+
+//			console.log('starting to capture pixels at ' + Date.now())
+
+			function extractDamageRect(CanvasKit, sourceSurface, x, y, w, h) {
+			  const tmpSurface = CanvasKit.MakeSurface(w, h);
+			  const tmpCanvas = tmpSurface.getCanvas();
+
+			  // Copy just the aggregate damage rectangle from the original surface
+			  const paint = new CanvasKit.Paint();
+
+			  tmpCanvas.drawImageRect(
+			    sourceSurface.makeImageSnapshot(),
+			    CanvasKit.XYWHRect(x, y, w, h),
+			    CanvasKit.XYWHRect(0, 0, w, h),
+			    paint,
+			    CanvasKit.FilterMode.Nearest,
+			    0 // ← CanvasKit.SrcRectConstraint.Strict
+			  );
+
+			  const image = tmpSurface.makeImageSnapshot();
+			  const png = image.encodeToBytes(); // fallback format
+			  tmpSurface.delete();
+			  image.delete();
+			  paint.delete();
+
+			  return png; // ⚠️ still encoded as PNG — not RGBA!
+			}
+
+			function makeImageFromImageData(CanvasKit, imageData) {
+			  const w = imageData.width;
+			  const h = imageData.height;
+			  const bytesPerPixel = 4;
+			  const rowBytes = w * bytesPerPixel;
+			  const size = rowBytes * h;
+
+			  // Allocate WASM memory and copy pixel data
+			  const ptr = CanvasKit._malloc(size);
+			  CanvasKit.HEAPU8.set(imageData.data, ptr);
+
+			  // Create a view into WASM memory to pass to MakeImage
+			  const wasmBuffer = new Uint8Array(CanvasKit.HEAPU8.buffer, ptr, size);
+
+			  const image = CanvasKit.MakeImage({
+			    width: w,
+			    height: h,
+			    alphaType: CanvasKit.AlphaType.Unpremul,
+			    colorType: CanvasKit.ColorType.RGBA_8888,
+			    colorSpace: CanvasKit.ColorSpace.SRGB
+			  }, wasmBuffer, rowBytes);
+
+			  // Important: Free the WASM memory after creating the image
+			  CanvasKit._free(ptr);
+
+			  // Return null if creation failed (bad input or unsupported config)
+			  return image;
+			}
+
+			var bufferImage = makeImageFromImageData(CanvasKit, pixels)
+
+			if (!bufferImage) debugger
+			
+			bufferCanvas.drawImage(bufferImage, point.x, point.y)
+			bufferImage.delete()
+
+			damage.left = Math.min(damage.left, point.x)
+			damage.top = Math.min(damage.top, point.y)
+			damage.right = Math.max(damage.right, (point.x + srcW))
+			damage.bottom = Math.max(damage.bottom, (point.y + srcH))
+
+			displayDamageTimeout = setTimeout(
+			  () => {
+			    postMessage(
+			      {
+				pixels: extractDamageRect(
+				  CanvasKit,
+				  bufferSurface,
+				  damage.left,
+				  damage.top,
+				  damage.right - damage.left,
+				  damage.bottom - damage.top),
+				rectangle: damage})},
+			  100)}
 		    },
 		    primitiveDeferDisplayUpdates: function(argCount) {
 		      var flag = this.stackBoolean(0);
@@ -6673,13 +6783,14 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 
 		      if (display.context) {
 			w = display.context.canvas.width;
-			h = display.context.canvas.height;}
+			h = display.context.canvas.height;
+		      	display.width = w;
+			display.height = h;}
 		      else {
-			w = h = 0;}
-		      // crl
+			// crl
+			w = display.width
+			h = display.height}
 		      
-		      display.width = w;
-		      display.height = h;
 		      return this.popNandPushIfOK(argCount+1, this.makePointWithXandY(w, h));
 		    },
 		    primitiveSetFullScreen: function(argCount) {
@@ -6772,14 +6883,14 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      return true;
 		    },
 		    primitiveKeyboardNext: function(argCount) {
-		      var next;
-
-		      if (this.display.keys)
-			next = this.display.keys.shift();
-		      else
-			next = 0;
-		      
-		      return this.popNandPushIfOK(argCount+1, this.ensureSmallInt(next));
+		      if (this.display.keys) {
+			return this.popNandPushIfOK(
+			  argCount + 1,
+			  this.ensureSmallInt(this.display.keys.shift()))}
+		      else {
+			return this.popNandPushIfOK(
+			  argCount + 1,
+			  this.vm.nilObj)}
 		    },
 		    primitiveKeyboardPeek: function(argCount) {
 		      var length = this.display.keys.length;
@@ -7915,7 +8026,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		      this.signalSemaphoreWithIndex(this.js_callbackSema);
 		      this.vm.forceInterruptCheck();
 		      // interpret until primitiveReturnFromCallback sets result
-		      var timeout = Date.now() + 1000;
+		      var timeout = Date.now() + 500;
 		      while (Date.now() < timeout && !this.js_activeCallback.result)
 			this.vm.interpret(timeout - Date.now(), function (){self.setTimeout(function (){}, timeout - Date.now());});
 		      var result = this.js_activeCallback.result;
@@ -7930,8 +8041,9 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			try { resolve(this.js_fromStObject(result)); }
 			catch(err) { resolve(result.toString()); }
 		      } else {
-//			reject(Error("SqueakJS timeout"));
 			console.log("SqueakJS timeout");
+			debugger
+//			reject(Error("SqueakJS timeout"));
 		      }
 		    },
 		    js_objectOrGlobal: function(sqObject) {
