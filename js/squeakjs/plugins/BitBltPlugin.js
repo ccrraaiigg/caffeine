@@ -5,6 +5,7 @@
 	BitBltSimulation VMMaker-bf.353 uuid: 8ae25e7e-8d2c-451e-8277-598b30e9c002
  */
 
+const window = globalThis
 window.module("users.bert.SqueakJS.plugins.BitBltPlugin").requires("users.bert.SqueakJS.vm").toRun(function() {
 "use strict";
 
@@ -1892,7 +1893,7 @@ function ignoreSourceOrHalftone(formPointer) {
   writer[32] = -1;
 
   WebAssembly.instantiateStreaming(
-    fetch("/wasm/bitblt.wasm"),
+    fetch("https://caffeine.js.org/wasm/bitblt.wasm"),
     {wasm: {memory: memory}}).then((wasm) => {
       partitionedAND = wasm.instance.exports.partitionedAND;
       partitionedADD = wasm.instance.exports.partitionedADD;

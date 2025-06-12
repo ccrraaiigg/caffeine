@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <script src="https://cdn.jsdelivr.net/gh/AssemblyScript/wabt.js/index.js"></script>
+
+
+      // WebAssembly Text Format with GC and EH enabled
+      const wat = `
+      (module
+        (type $exn_t (func))
+        (tag $e (type $exn_t))
+        (import "env" "js_callback" (func $js_callback (param i32)))
+        (import "env" "throw_js_exception" (func $throw_js_exception))
+
+        ;; Export a function that throws and lets JS catch it
+        (func $throw_to_js (export "throw_to_js")
+          call $throw_js_exception
+        )
+
+        ;; Export a simple function that returns 42
+        (func $return_42 (export "return_42") (result i32)
+          i32.const 42
+        )
+
+        ;; Export a function that calls a JS function with an argument
+        (func $call_js (export "call_js")
+          i32.const 123
+          call $js_callback
+        )
+      )`;
+
+      // Enable GC and EH parsing
+      const mod = wabt.parseWat("example.wat", wat, {
+        features: {
+          exceptions: true,
+          gc: true
+        }
+      });
+
+      const { buffer } = mod.toBinary({});
+      mod.destroy();
+
+      // Define JS imports
+      const imports = {
+        env: {
+          js_callback: (x) => {
+            console.log("WASM called JS callback with:", x);
+          },
+          throw_js_exception: () => {
+            // JS-thrown exception so we get a JS stack
+            throw new Error("Exception from WASM via JS import");
+          }
+        }
+      };
+
+      // Compile and instantiate
+      const compiled = await WebAssembly.compile(buffer);
+      const instance = await WebAssembly.instantiate(compiled, imports);
+
+      const { throw_to_js, return_42, call_js } = instance.exports;
+
+      // --- JS Calls ---
+
+      // 1. Catch an exception thrown from WASM (via JS import)
+      try {
+        throw_to_js();
+      } catch (e) {
+        console.error("Caught exception from WASM:", e);
+        console.log("JS Stack trace:\n", e.stack);
+      }
+
+      // 2. Call WASM function that returns a number
+      const val = return_42();
+      console.log("WASM return_42() returned:", val);
+
+      // 3. Call WASM function that calls back into JS
+      call_js();
+    </script>
+  </body>
+</html>

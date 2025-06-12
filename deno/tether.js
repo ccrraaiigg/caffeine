@@ -23,19 +23,16 @@
 //
 // ***
 //
-// caffeine.tether.sendMessage(
-//   {
-//     'selector': 'echo:',
-//     'arguments': [3]},
-// 
-//   (result) => {console.log(result)})
+// browserTether.sendMessage(
+//   workerTether,
+//   'echo:',
+//   [3])
 //
 // ***
 // 
 // Caffeine responds with messages sent via postMessage(). See
 // /js/squeakjs/tether/handler.js for the handler to use for them.
 
-import {existsSync} from 'https://deno.land/std/fs/mod.ts'
 globalThis.caffeine = []
 
 caffeine.specialVariables = new Map()
@@ -50,6 +47,8 @@ caffeine.tags.set('trueTag', 536870913)
 caffeine.tags.set('falseTag', 536870914)
 caffeine.tags.set('nilTag', 536870915)
 caffeine.tags.set('stringTag', 536870917)
+caffeine.tags.set('symbolTag', 536870916)
+caffeine.tags.set('arrayTag', 536870920)
 caffeine.tags.set('tetherTag', 536870919)
 caffeine.tags.set('uuidTag', 536870929)
 caffeine.tags.set('answerTag', 536870941)
@@ -75,6 +74,8 @@ async function runCommand(command) {
   process.close()
   console.log(decoder.decode(output))}
 
+const equals = (a, b) => a instanceof caffeine.UUID && b instanceof caffeine.UUID && a.equals(b)
+
 caffeine.Portal = class {constructor(websocket) {
   this.websocket = websocket
   
@@ -83,7 +84,8 @@ caffeine.Portal = class {constructor(websocket) {
     this.outgoingPosition = 0}
 
   this.setOutgoingMessage = (message) => {
-    this.outgoingMessage = message}
+    this.outgoingMessage = message
+    this.outgoingPosition = message.length - 1}
   
   this.setIncomingMessage = (message) => {
     this.incomingMessage = message
@@ -108,7 +110,9 @@ caffeine.Portal = class {constructor(websocket) {
 	shift = 24
 
     for (let i = this.incomingPosition; i < (this.incomingPosition + 4); i++) {
-      word = word + (this.incomingMessage[i] << shift)
+      try {word = word + (this.incomingMessage[i] << shift)}
+      catch (exception) {debugger}
+      
       shift -= 8}
 
     return word}
@@ -122,7 +126,7 @@ caffeine.Portal = class {constructor(websocket) {
   this.nextBytePut = (byte) => {this.outgoingMessage[this.outgoingPosition++] = byte}
 
   this.nextWordPut = (word) => {
-    this.nextBytePut((word >> 24) & 255)
+    this.nextBytePut(word >> 24)
     this.nextBytePut((word >> 16) & 255)
     this.nextBytePut((word >> 8) & 255)
     this.nextBytePut(word & 255)}
@@ -134,7 +138,7 @@ caffeine.OtherMarker = class {constructor(object, tether) {
   this.exposureHash = ((Array.from(caffeine.tethers).filter(
     ([key, value]) => {
       if (value == object) {return true}
-      else return false}))[0][1]).remoteExposureHash
+      else return false}))[0][1]).exposureHash
 
   this.storeOnTether = (tether) => {
     tether.nextWordPut(this.exposureHash + caffeine.otherMarkerBase)}}}
@@ -151,14 +155,15 @@ caffeine.Tether = class {constructor(websocket) {
     // Relay the next incoming message, answer, or exception marker.
 
     let toTether,
-	nextWord = fromTether.nextWord(),
-	exchangeID = fromTether.next(),
-	receiverExposureHash = fromTether.nextWord(),
-	selector = '',
-	matches
-
-    if (nextWord == caffeine.tags.get('tetherTag')) {
+	tag = fromTether.nextWord(),
+	exchangeID = fromTether.next()
+    
+    if (tag == caffeine.tags.get('tetherTag')) {
       // message
+
+      var receiverExposureHash = fromTether.nextWord(),
+	  selector = '',
+	  matches
 
       // Skip MessageTag and SymbolTag.
       fromTether.nextWord()
@@ -168,29 +173,30 @@ caffeine.Tether = class {constructor(websocket) {
       
       for (var i = 0; i < size; i++) {
 	selector += String.fromCodePoint(fromTether.nextByte())}
-    
+      
       matches = Array.from(caffeine.tethers).filter(
 	([key, value]) => {
-	  if (value.remoteExposureHash == receiverExposureHash) {return true}
+	  if (value.exposureHash == receiverExposureHash) return true
 	  else return false})
 
       if (matches.length == 0) {
-	if (fromTether == caffeine.tethers.get('worker'))
+	if (fromTether == this.worker())
 	  toTether = (Array.from(caffeine.tethers))[1][1]
 	else
-	  toTether = caffeine.tethers.get('worker')}
+	  toTether = this.worker()}
       else toTether = matches[0][1]
 
-      if (toTether == caffeine.tethers.get('worker')) {
+      if (toTether == this.worker()) {
 	switch (selector) {
-
-	case 'terminateWorker':
-	  caffeine.worker.terminate()
-	  Deno.exit()
+	case 'waitForHeartbeatFrom:':
+	  // During debugging, discard these sends.
 	  break
 
-	case 'waitForHeartbeat':
-	  console.log('Bridge got heartbeat, responding...')
+	case 'terminateWorker':
+	  console.log('terminating upon request')
+	  debugger
+	  caffeine.worker.terminate()
+	  Deno.exit()
 	  break
 
 	case 'evaluate:':
@@ -220,28 +226,37 @@ caffeine.Tether = class {constructor(websocket) {
 	  toTether.portal.nextWordPut(result.length)
 
 	  for (i = 0; i < result.length; i++) toTether.portal.nextBytePut(result.codePointAt(i))
-	  fromTether.outgoingMessages.set(JSON.stringify(exchangeID))
-	  toTether.portal.send()
+	  fromTether.outgoingMessages.set(exchangeID)
+	  fromTether.portal.send()
 	  return
 
 	default:
-	  console.log('unhandled incoming remote message')
-	  debugger
-	  return}}
+	  break}}
       
-      fromTether.outgoingMessages.set(JSON.stringify(exchangeID))}
+      fromTether.outgoingMessages.set(exchangeID)}
     else {
       // answer or exception marker
-      toTether = (Array.from(caffeine.tethers).filter(
-	([key, value]) => {
-	  if (value.outgoingMessages.has(JSON.stringify(exchangeID))) {return true}
-	  else return false}))[0][1]
+      var hit = 0
+      
+      caffeine.tethers.values().forEach(tether => {
+	tether.outgoingMessages.keys().forEach(key => {
+	  if (key.equals(exchangeID)) {
+	    hit = 1
+	    
+	    //resolve the promise
+	    const func = tether.outgoingMessages.get(key)
 
-      toTether.outgoingMessages.delete(exchangeID)}
+	    func(fromTether.portal.incomingMessage.slice(28))
+	    tether.outgoingMessages.delete(key)}})})}
 
-    toTether.portal.setOutgoingMessage(fromTether.portal.incomingMessage)
-    toTether.portal.send()}
- 
+    if (!hit) reject(Error("received unexpected remote message answer"))
+    
+    if (selector) {
+      console.log('relaying message with selector ' + selector + ' (' + fromTether.portal.incomingMessage + ') from tether ' + fromTether.exposureHash + ' to tether ' + toTether.exposureHash)
+      if (toTether.portal.websocket) {
+	toTether.portal.setOutgoingMessage(fromTether.portal.incomingMessage)
+	toTether.portal.send()}}}
+  
   this.setIncomingMessage = (message) => {this.portal.setIncomingMessage(message)}
   
   this.nextByte = () => {return this.portal.nextByte()}
@@ -249,7 +264,7 @@ caffeine.Tether = class {constructor(websocket) {
   this.nextCharacter = () => {return this.portal.nextCharacter()}
 
   this.nextBytePut = (byte) => {this.portal.nextBytePut(byte)}
-    
+  
   this.peekWord = () => {return this.portal.peekWord()}
 
   this.nextWord = () => {return this.portal.nextWord()}
@@ -258,24 +273,61 @@ caffeine.Tether = class {constructor(websocket) {
     this.portal.nextWordPut(word)}
   
   this.storeOnTether = (sendingTether) => {
-    (new caffeine.OtherMarker(this, sendingTether)).storeOnTether(sendingTether)}
-  
+    if (this === this.worker())
+      sendingTether.nextWordPut(this.exposureHash)
+    else
+      (new caffeine.OtherMarker(this, sendingTether)).storeOnTether(sendingTether)}
+
+  this.storeArray = (array) => {
+    this.nextWordPut(caffeine.tags.get('arrayTag'))
+    this.nextWordPut(array.length)
+    array.forEach(each => {this.store(each)})}
+    
+  this.storeSymbol = (symbol) => {
+    this.nextWordPut(caffeine.tags.get('symbolTag'))
+    this.nextWordPut(symbol.length)
+    this.nextBytesPut([...symbol].map(c => c.codePointAt(0)))}
+    
   this.store = (object) => {
     if (typeof(object) == "number") {
       this.nextWordPut(object + caffeine.smallIntegerTagBase)}
+
     else if (typeof(object) == "string") {
       this.nextWordPut(caffeine.tags.get('stringTag'))
       this.nextWordPut(object.length)
-      for (let i = 0; i < object.length; i++) {this.nextBytePut(object.codePointAt(i))}}
-    else {object.storeOnTether(this)}}
+      this.nextBytesPut([...object].map(c => c.codePointAt(0)))}
+
+    else if (object.constructor === caffeine.Tether) {object.storeOnTether(this)}
+    else if (object.constructor === caffeine.UUID) {object.storeOnTether(this)}
+    else {this.storeArray(object)}}
 
   this.send = (block) => {
     this.portal.startMessage()
     block()
     this.portal.send()}
+
+  this.nextBytesPut = (array) => {
+    array.forEach(each => {this.nextBytePut(each)})}
   
+  this.sendMessage = (receiver, selector, args) => {
+    return new Promise((resolve, reject) => {
+      var uuid = new caffeine.UUID()
+
+      this.outgoingMessages.set(uuid, resolve)
+
+      this.send(() => {
+	this.nextBytesPut([32, 0, 0, 7])                     // a message-send
+	this.store(uuid)                                     // message-send UUID
+	this.store(receiver)                                 // receiver
+	this.nextBytesPut([32, 0, 0, 33])                    // a Message
+	this.storeSymbol(selector)                           // selector
+	this.storeArray(args)})})}                           // arguments
+
   this.push = (object) => {
     this.send(() => {this.store(object)})}
+
+  this.expose = (object) => {
+    this.exposedObjects.set(object.exposureHash, object)}
   
   this.next = () => {
     let tag = this.portal.nextWord(),
@@ -303,23 +355,30 @@ caffeine.Tether = class {constructor(websocket) {
 	      console.log('Exposing JavaScript objects remotely is not supported yet.')
 	      debugger}}}}}}}}
 
-caffeine.UUID = class {constructor(tether) {
-  this.bytes = []
+caffeine.UUID = class {constructor (tether) {
+  this.bytes = crypto.getRandomValues(new Uint8Array(16))
 
-  // I already know the number of bytes to read is 16.
-  for (let i = 0; i < 4; i++) {
-    tether.nextByte()}
+  this.readFromTether = (tether) => {
+    // class and size words have already been skipped
+    for (let i = 0; i < 4; i++) {tether.nextByte()}
   
-  for (let i = 0; i < 16; i++) {
-    this.bytes[i] = tether.nextByte()}
+    for (let i = 0; i < 16; i++) {
+      this.bytes[i] = tether.nextByte()}}
 
   this.storeOnTether = (tether) => {
     tether.nextWordPut(caffeine.tags.get('uuidTag'))
     tether.nextWordPut(16)
 
     for (let i = 0; i < 16; i++) {
-      tether.nextBytePut(this.bytes[i])}}}}
+      tether.nextBytePut(this.bytes[i])}}
+
+  this.equals = (id) => {
+    for (let i = 0; i < 16; i++) {
+      if (this.bytes[i] != id.bytes[i]) return false}
+
+    return true}
+      
+  if (tether) {this.readFromTether(tether)}}}
 
 caffeine.classes.set(caffeine.tags.get('tetherTag'), caffeine.Tether)
-caffeine.classes.set(caffeine.tags.get('uuidTag'), caffeine.UUID) 
-
+caffeine.classes.set(caffeine.tags.get('uuidTag'), caffeine.UUID)

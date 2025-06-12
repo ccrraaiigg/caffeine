@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+  <head>
+      <script src="https://cdn.jsdelivr.net/pyodide/v0.27.5/full/pyodide.js"></script>
+  </head>
+  <body style="background: black">
+    <h2 style="color: white">Pyodide test page</h2><br>
+    <p style="color: white">Open your browser console to see Pyodide output
+    <script type="text/javascript">
+      async function main(){
+        let pyodide = await loadPyodide();
+        console.log(pyodide.runPython(`
+            import sys
+            sys.version
+        `));
+        pyodide.runPython("print(1 + 2)");
+      }
+      main();
+    </script>
+  </body>
+</html>

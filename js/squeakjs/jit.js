@@ -321,7 +321,10 @@ to single-step.
 			this.deleteUnneededLabels();
 		      }
 		      this.deleteUnneededVariables();
-		      return new Function("'use strict';\nreturn function " + funcName + "(vm) {\n" + this.source.join("") + "}")();
+		      try {return new Function("'use strict';\nreturn function " + funcName + "(vm) {\n" + this.source.join("") + "}")();}
+		      catch(e){
+			console.log('Fatal error while executing translated method: ' + e);
+			debugger}
 		    },
 		    generateExtended: function(bytecode) {
 		      var byte2, byte3;

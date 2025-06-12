@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "canvaskit-wasm": "^0.40.0"
+  }
+}

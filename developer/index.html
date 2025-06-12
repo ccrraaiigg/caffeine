@@ -29,7 +29,7 @@
 		 min-width: 100%;
 		 transition: bgcolor 2s;">
 
-      <script src="/js/squeakjs/tether/tether.js"></script>
+      <script src="/deno/tether.js"></script>
       
       <br>
 
@@ -71,10 +71,13 @@
 
 	  &nbsp;&nbsp;&nbsp;&nbsp;
 
-	  Caffeine is a <b><i>livecoding</i></b> environment for
-	  the web. After adding it to a webpage, you can use it to
-	  make live persistent changes to that page and other
-	  pages running Caffeine, without reloading.
+	  Caffeine is a <b><i>livecoding</i></b> environment for the
+	  JavaScript
+	  and <a href="https://en.wikipedia.org/wiki/WebAssembly">WebAssembly</a>
+	  runtimes, including the Web and Deno. After adding it to a
+	  webpage, you can use it to make live persistent changes to
+	  that page and other pages running Caffeine, without
+	  reloading.
 
 	  <p>
 
@@ -84,16 +87,28 @@
 	    several ways:
 
 	    <ol>
-	      <li> as a headless Web Worker, with which you post
-		and receive messages (you are responsible for all
-		DOM manipulation).
-	      <li> as an IDE in a headful IFrame, with Caffeine
-		able to manipulate the DOM directly.
-	      <li> on a headless Node server, with which you also
-		exchange messages (over a WebSocket).
-	      <li> through a headful DevTools panel IDE, using the
-		Chrome Debugging Protocol to manipulate every page
-		your browser is running.
+	      <li>
+
+		as a headless Web Worker, with which you post and
+		receive messages (you are responsible for all DOM
+		manipulation).
+
+	      <li>
+
+		as an IDE in a headful IFrame, with Caffeine able to
+		manipulate the DOM directly.
+
+	      <li>
+
+		on a headless Deno (or Node) server, with which you
+		also exchange messages (over a WebSocket).
+
+	      <li>
+
+		through a headful DevTools panel IDE, using the Chrome
+		Debugging Protocol to manipulate every page your
+		browser is running.
+		
 	    </ol>
 
 	  <p>
@@ -101,13 +116,12 @@
 	    &nbsp;&nbsp;&nbsp;&nbsp;
 
 	    Caffeine's underlying computation engine
-	    is <a href="https://github.com/bertfreudenberg/SqueakJS">SqueakJS</a>,
-	    an
+	    is <a href="https://squeak.js.org">SqueakJS</a>, an
 	    open-source <a href="https://en.wikipedia.org/wiki/Smalltalk">Smalltalk</a>. It
 	    features a bi-directional JavaScript bridge, enabling
-	    Smalltalk methods to send messages to JavaScript
-	    objects, and provide Smalltalk block closures as
-	    JavaScript promises or callback functions.
+	    Smalltalk methods to send messages to JavaScript objects,
+	    and provide Smalltalk block closures as JavaScript
+	    promises or callback functions.
 
 	  <p>
 
@@ -122,42 +136,71 @@
                 Caffeine in each of the ways mentioned above. We'll
                 begin at the DevTools console.
 
-             1. To start Caffeine as a Web Worker, evaluate the
+		1. To start Caffeine as a Web Worker, evaluate the
                 following at the console:
 
               ---
 
-                fetch('https://caffeine.js.org/js/squeakjs/tether/handler.js')
-                  .then((handlerSourceResult) => {handlerSourceResult.text()
-                    .then((handlerSource) => {
-                      fetch('https://caffeine.js.org/developer/js/squeakjs/squeak-worker.js')
-                        .then((virtualMachineSourceResult) => {virtualMachineSourceResult.text()
-                          .then((virtualMachineSource) => {
-                            window.caffeineWorker = new Worker(URL.createObjectURL(new Blob([virtualMachineSource])))
+		let workerTether = new caffeine.Tether(),
+		    browserTether = new caffeine.Tether()
 
-                            window.caffeineWorker.onmessage = (new Function(handlerSource))()
-                            window.caffeineWorker.postMessage('start')})})})})
+		browserTether.exposureHash = 1
+		browserTether.expose(browserTether)
 
-              ---
+		caffeine.tethers.set('worker', workerTether)
+		caffeine.tethers.set('browser', browserTether)
+		
+		fetch('js/squeakjs/tether/squeak-worker.js')
+		  .then((virtualMachineSourceResult) => {
+		    virtualMachineSourceResult.text()
+		      .then((virtualMachineSource) => {
+		        caffeine.worker = new Worker(URL.createObjectURL(new Blob([virtualMachineSource])))
+			caffeine.worker.onmessage = (event) => {
+			  workerTether.setIncomingMessage(JSON.parse(event.data).payload)
+			  let tag = workerTether.peekWord()
+
+			  if (tag >= caffeine.otherMarkerBase) {
+			    // This is the remote tether announcing its exposure hash.
+			    workerTether.exposureHash = tag - caffeine.otherMarkerBase
+			    browserTether.expose(workerTether)
+			    workerTether.push(browserTether)}
+			  else {browserTether.handleEventFrom(workerTether)}}
+
+			setTimeout(
+			  () => {
+  		            caffeine.worker.postMessage(
+			      JSON.stringify({
+			        action: 'start',
+				imageName: 'caffeine',
+				appName: 'caffeine',
+
+				// Webserver for providing object memory and sources ZIPs
+				proxy: 'https://caffeine.js.org/',
+
+				parameters: {test: 'testing'}}))},
+			  1000)})})
+
+	      ---
 
                 This creates a worker running the code for the
                 Caffeine virtual machine, establishes a handler for
                 messages from the worker, and posts a message to the
                 worker telling the virtual machine to start. When
-                Caffeine has started, you'll see a message on the
-                console about a completed "fsck" operation.
+                Caffeine has started, you'll see the current time
+                logged to the console.
 
                 Caffeine speaks a remote messaging protocol called
                 "Tether". Each side speaking the protocol uses a
                 special "tether" object to coordinate
                 communication. The browser is the first side to speak,
-                by exposing its tether object to Caffeine. Caffeine
-                responds by exposing its local counterpart tether to
-                the browser. Expose your tether by evaluating:
+                by exposing its tether object (workerTether) to
+                Caffeine. Caffeine responds by exposing its local
+                counterpart tether (browserTether) to Caffeine. We did
+                this above in our worker message handler, with:
 
               ---
 
-                caffeine.tether.push(caffeine.tether)
+                browserTether.push(browserTether)
 
               ---
 
@@ -167,31 +210,27 @@
                 which lets you send messages to any object on the
                 other side.
 
-                You can send messages Caffeine's tether object like so:
+                You can send messages to Caffeine's tether object like
+                so:
 
               ---
 
-                caffeine.tether.sendMessage(
-                  {
-                    'selector': 'echo:',
-                    'arguments': [3]},
+                browserTether.sendMessage(
+		  workerTether,
+                  'echo:',
+                  [3],
                   (result) => {console.log(result)})
 
               ---
 
-                Caffeine responds with messages sent via postMessage(). See
-                /js/squeakjs/tether/handler.js for the handler we use
-                for them.
-
-
-             2. To run Caffeine within the main browser thread, with
+		2. To run Caffeine within the main browser thread, with
                 an IDE and the ability to manipulate the DOM directly,
                 evaluate:
 
               ---
 
                 let div = document.createElement('div'),
-                    center = document.createElement('center')
+                    center = document.createElement('center'),
                     frame = document.createElement('iframe')
 
                 div.id = 'embeddedSqueak'
@@ -223,13 +262,12 @@
                 page. This tutorial continues there, then returns here
                 for the next way of running Caffeine.
 
+		3. To run Caffeine as a Deno instance, check out
+                /deno in the repo.
 
-             3. To run Caffeine as a Node instance, check out
-                https://npmjs.com/xxx
-
-             4. To run Caffeine in a Chrome DevTools panel, install
-                the Caffeine Chrome extension from the Chrome Web
-                store, at https://xxx
+		4. To run Caffeine in a Chrome DevTools panel, install
+                the unpacked Caffeine Chrome extension from /extension
+                in the repo.
 
               -->
             
@@ -243,26 +281,21 @@
 
             &nbsp;&nbsp;&nbsp;&nbsp;
 
-            version 2019.4
+            version 2025.3
 
             <br>
 
             &nbsp;&nbsp;&nbsp;&nbsp;
 
-            22 December 2019
+            11 June 2025
 
             <br>
 
             &nbsp;&nbsp;&nbsp;&nbsp;
 
-            <a href="https://twitter.com/ccrraaiigg"
-               class="twitter-follow-button"
-               data-show-count="false">
+            follow: <a href="https://mastodon.social/@ccrraaiigg">@ccrraaiigg</a>
 
-              Follow @ccrraaiigg</a>
-
-            <script async src="//platform.twitter.com/widgets.js"
-                    charset="utf-8"></script></blockquote></div>
+      </blockquote></div>
 
       <div id="dashboard"
 	   style="position: fixed;
@@ -297,8 +330,8 @@
                  width="50"
                  height="50"
                  style="user-select: none;
-                	outline: none;"
-                 </input>
+                	outline: none;">
+
 	</div>
       </div>
 
@@ -321,7 +354,7 @@
 	window.setTimeout(
           function () {
             var summary = document.getElementById('summary'),
-            dashboard= document.getElementById('dashboard')
+		dashboard= document.getElementById('dashboard')
 
             summary.style.transition = 'opacity 1000ms'
             summary.style.opacity = 1

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      body {
+        background: black;
+        color: white;
+        font-family: monospace;
+        padding: 1em;
+      }
+      textarea {
+        width: 100%;
+        height: 200px;
+        background: #111;
+        color: #0f0;
+        border: 1px solid #444;
+        padding: 0.5em;
+        font-size: 14px;
+      }
+      button {
+        margin-top: 1em;
+        padding: 0.5em 1em;
+        background: #222;
+        color: #fff;
+        border: 1px solid #555;
+        cursor: pointer;
+      }
+      pre {
+        margin-top: 1em;
+        white-space: pre-wrap;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Live WAT to WASM</h2>
+
+    <textarea id="watInput">(module
+  (func (export "get_number") (result i32)
+    i32.const 1234
+  )
+)</textarea>
+    <br>
+    <button id="compileBtn" disabled>Loading WABT...</button>
+
+    <pre id="output"></pre>
+
+    <script src="https://cdn.jsdelivr.net/gh/AssemblyScript/wabt.js/index.js"></script>
+    <script>
+      (async () => {
+        const output = document.getElementById("output");
+        const button = document.getElementById("compileBtn");
+        const textarea = document.getElementById("watInput");
+
+        try {
+          const wabt = await WabtModule();
+          button.disabled = false;
+          button.textContent = "Compile and Run";
+
+          button.onclick = async () => {
+            output.textContent = "";
+            try {
+              const wat = textarea.value;
+              const mod = wabt.parseWat("live.wat", wat);
+              const { buffer } = mod.toBinary({});
+              mod.destroy();
+
+              const { instance } = await WebAssembly.instantiate(buffer);
+              const result = instance.exports.get_number?.();
+              output.textContent = result !== undefined
+                ? `WASM get_number() returned: ${result}`
+                : "Export 'get_number' not found.";
+            } catch (err) {
+              output.textContent = "❌ Error:\n" + err.message;
+            }
+          };
+        } catch (err) {
+          output.textContent = "❌ Failed to initialize WABT:\n" + err.message;
+        }
+      })();
+    </script>
+  </body>
+</html>
