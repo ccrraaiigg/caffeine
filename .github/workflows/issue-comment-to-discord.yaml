@@ -1,0 +1,22 @@
+name: Repost Issue Comments to Discord
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  notify-discord:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send comment to Discord
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        run: |
+          COMMENT_BODY=$(echo "${{ github.event.comment.body }}" | jq -Rs .)
+          ISSUE_URL="${{ github.event.issue.html_url }}"
+          COMMENT_AUTHOR="${{ github.event.comment.user.login }}"
+          curl -X POST "$DISCORD_WEBHOOK" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"content\": \"💬 **New comment by ${COMMENT_AUTHOR}** on [this issue](${ISSUE_URL}):\n${COMMENT_BODY}\"
+            }"
