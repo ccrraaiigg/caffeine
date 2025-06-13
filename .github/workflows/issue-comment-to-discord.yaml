@@ -21,4 +21,25 @@ jobs:
           TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
           # Truncate comment body to fit Discord embed limit (4096 chars max)
-          COMMENT_BODY=$(echo "$COMMENT_BODY_RAW" | cut_
+          COMMENT_BODY=$(echo "$COMMENT_BODY_RAW" | cut -c1-4000 | jq -Rs .)
+
+          curl -X POST "$DISCORD_WEBHOOK" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"embeds\": [{
+                \"title\": \"💬 Comment on Issue: ${ISSUE_TITLE}\",
+                \"url\": \"${COMMENT_URL}\",
+                \"author\": {
+                  \"name\": \"${AUTHOR_NAME}\",
+                  \"url\": \"https://github.com/${AUTHOR_NAME}\",
+                  \"icon_url\": \"${AUTHOR_AVATAR}\"
+                },
+                \"description\": ${COMMENT_BODY},
+                \"footer\": {
+                  \"text\": \"Posted via GitHub Actions • View issue thread\",
+                  \"icon_url\": \"https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png\"
+                },
+                \"timestamp\": \"${TIMESTAMP}\",
+                \"color\": 0x5865F2
+              }]
+            }"
