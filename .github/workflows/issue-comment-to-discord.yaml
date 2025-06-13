@@ -1,51 +1,100 @@
-name: Repost GitHub Issue Comments to Discord (Fancy)
+name: Notify Discord of GitHub Activity
 
 on:
   issue_comment:
     types: [created]
+  issues:
+    types: [opened]
+  push:
+    branches: [main]
+  workflow_run:
+    workflows: ["Deploy to GitHub Pages"]
+    types: [completed]
 
 jobs:
-  notify-discord:
+  discord-notify:
+    if: |
+      github.event_name == 'issues' ||
+      github.event_name == 'issue_comment' ||
+      github.event_name == 'push' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
     runs-on: ubuntu-latest
-
     steps:
-      - name: Send issue comment to Discord with embed
+      - name: Format payload and send to Discord
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         run: |
-          AUTHOR_NAME="${{ github.event.comment.user.login }}"
-          AUTHOR_AVATAR="${{ github.event.comment.user.avatar_url }}"
-          COMMENT_URL="${{ github.event.comment.html_url }}"
-          ISSUE_URL="${{ github.event.issue.html_url }}"
-          ISSUE_TITLE="${{ github.event.issue.title }}"
-          COMMENT_BODY_RAW="${{ github.event.comment.body }}"
+          EVENT_NAME="${{ github.event_name }}"
           TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-          jq -n --arg author "$AUTHOR_NAME" \
-                --arg avatar "$AUTHOR_AVATAR" \
-                --arg comment_url "$COMMENT_URL" \
-                --arg issue_url "$ISSUE_URL" \
-                --arg issue_title "$ISSUE_TITLE" \
-                --arg comment "$COMMENT_BODY_RAW" \
-                --arg time "$TIMESTAMP" \
-          '{
-            "embeds": [{
-              "title": "💬 Comment on Issue: \($issue_title)",
-              "url": $comment_url,
-              "author": {
-                "name": $author,
-                "url": ("https://github.com/" + $author),
-                "icon_url": $avatar
-              },
-              "description": $comment,
-              "footer": {
-                "text": "Posted via GitHub Actions • View issue thread",
-                "icon_url": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
-              },
-              "timestamp": $time,
-              "color": 5793266
-            }]
-          }' > payload.json
+          if [ "$EVENT_NAME" = "issues" ]; then
+            AUTHOR="${{ github.event.issue.user.login }}"
+            AVATAR="${{ github.event.issue.user.avatar_url }}"
+            TITLE="${{ github.event.issue.title }}"
+            URL="${{ github.event.issue.html_url }}"
+            BODY="${{ github.event.issue.body }}"
+            COLOR=16776960 # yellow
+            EVENT_LABEL="📝 New Issue"
+
+          elif [ "$EVENT_NAME" = "issue_comment" ]; then
+            AUTHOR="${{ github.event.comment.user.login }}"
+            AVATAR="${{ github.event.comment.user.avatar_url }}"
+            TITLE="Comment on: ${{ github.event.issue.title }}"
+            URL="${{ github.event.comment.html_url }}"
+            BODY="${{ github.event.comment.body }}"
+            COLOR=3447003 # blue
+            EVENT_LABEL="💬 New Comment"
+
+          elif [ "$EVENT_NAME" = "push" ]; then
+            AUTHOR="${{ github.event.pusher.name }}"
+            AVATAR="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
+            TITLE="Push to main"
+            URL="https://github.com/${{ github.repository }}/commits/main"
+            BODY="${{ github.event.head_commit.message }}"
+            COLOR=65280 # green
+            EVENT_LABEL="📦 New Commit"
+
+          elif [ "$EVENT_NAME" = "workflow_run" ]; then
+            AUTHOR="${{ github.event.workflow_run.actor.login }}"
+            AVATAR="${{ github.event.workflow_run.actor.avatar_url }}"
+            TITLE="`gh-pages` deploy succeeded"
+            URL="${{ github.event.workflow_run.html_url }}"
+            BODY="The GitHub Pages site was successfully deployed."
+            COLOR=3066993 # teal
+            EVENT_LABEL="✅ Pages Deploy"
+
+          else
+            echo "No matching event."
+            exit 0
+          fi
+
+          jq -n \
+            --arg author "$AUTHOR" \
+            --arg avatar "$AVATAR" \
+            --arg title "$TITLE" \
+            --arg url "$URL" \
+            --arg desc "$BODY" \
+            --arg label "$EVENT_LABEL" \
+            --arg time "$TIMESTAMP" \
+            --argjson color "$COLOR" \
+            '{
+              "embeds": [{
+                "title": $label + ": " + $title,
+                "url": $url,
+                "author": {
+                  "name": $author,
+                  "icon_url": $avatar,
+                  "url": ("https://github.com/" + $author)
+                },
+                "description": $desc,
+                "footer": {
+                  "text": "Posted via GitHub Actions",
+                  "icon_url": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
+                },
+                "timestamp": $time,
+                "color": $color
+              }]
+            }' > payload.json
 
           curl -X POST "$DISCORD_WEBHOOK" \
             -H "Content-Type: application/json" \
