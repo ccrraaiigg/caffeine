@@ -57,7 +57,7 @@ jobs:
           elif [ "$EVENT_NAME" = "workflow_run" ]; then
             AUTHOR="${{ github.event.workflow_run.actor.login }}"
             AVATAR="${{ github.event.workflow_run.actor.avatar_url }}"
-            TITLE="`gh-pages` deploy succeeded"
+            TITLE="gh-pages deploy succeeded"
             URL="${{ github.event.workflow_run.html_url }}"
             BODY="The GitHub Pages site was successfully deployed."
             COLOR=3066993 # teal
@@ -77,24 +77,24 @@ jobs:
             --arg label "$EVENT_LABEL" \
             --arg time "$TIMESTAMP" \
             --argjson color "$COLOR" \
-            '{
-              "embeds": [{
-                "title": $label + ": " + $title,
-                "url": $url,
-                "author": {
-                  "name": $author,
-                  "icon_url": $avatar,
-                  "url": ("https://github.com/" + $author)
-                },
-                "description": $desc,
-                "footer": {
-                  "text": "Posted via GitHub Actions",
-                  "icon_url": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
-                },
-                "timestamp": $time,
-                "color": $color
-              }]
-            }' > payload.json
+          '{
+            "embeds": [{
+              "title": "\($label): \($title)",
+              "url": $url,
+              "author": {
+                "name": $author,
+                "icon_url": $avatar,
+                "url": ("https://github.com/" + $author)
+              },
+              "description": $desc,
+              "footer": {
+                "text": "Posted via GitHub Actions",
+                "icon_url": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
+              },
+              "timestamp": $time,
+              "color": $color
+            }]
+          }' > payload.json
 
           curl -X POST "$DISCORD_WEBHOOK" \
             -H "Content-Type: application/json" \
