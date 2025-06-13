@@ -19,6 +19,19 @@ function output(id, content) {
 function error(id, content) {
   return response(id, {error: content})}
 
+caffeine.uint8ArrayToDataURL = (uint8Array) => {
+  // Convert Uint8Array to binary string
+  let binary = ''
+
+  for (let i = 0; i < uint8Array.length; i++) {
+    binary += String.fromCharCode(uint8Array[i])}
+
+  // Base64 encode the binary string
+  const base64 = btoa(binary)
+
+  // Prepend the PNG data URL prefix
+  return `data:image/png;base64,${base64}`}
+
 // One record per session (or per browser tab if you skip sessions):
 //   id           – UUID or server-generated session id
 //   stream       – ReadableStreamDefaultController
@@ -88,7 +101,7 @@ caffeine.worker.onmessage = async (message, websocket) => {
       if (association) {
 	var target = association[1]
 
-	caffeine.tethers.get('worker').sendMessage(
+	target.sendMessage(
 	  target,
 	  'render:originX:originY:extentX:extentY:',
 	  [data.pixels, data.rectangle.left, data.rectangle.top, data.rectangle.right, data.rectangle.bottom])}}}
@@ -108,15 +121,19 @@ caffeine.worker.onmessage = async (message, websocket) => {
 	if (!tethersKey) tethersKey = 'worker'
 	
 	if (!tether) {
+	  // Headless systems announce themselves on startup, which
+	  // causes the creation of the worker tether.
+	  //
+	  // Headful systems wait for the bridge to announce the
+	  // worker tether.
+
 	  tether = caffeine.tethers.get(tethersKey)
+
 	  if (!tether) {
-	    if (websocket) {
-	      console.log('tether not registered at connection time?')
-	      debugger}
-	    else {
-	      // for the worker Caffeine session
-	      tether = new caffeine.Tether()
-	      caffeine.tethers.set(tethersKey, tether)}}}
+	    // the worker tether (websocket tethers get created when
+	    // the HTTP connection is made)
+	    tether = new caffeine.Tether()
+	    caffeine.tethers.set(tethersKey, tether)}}
 
 	tether.setIncomingMessage(data.payload)
 	let tag = tether.peekWord()
@@ -125,7 +142,7 @@ caffeine.worker.onmessage = async (message, websocket) => {
 	  // This is the remote tether announcing its exposure hash.
 	  tether.exposureHash = tag - caffeine.otherMarkerBase
 	  tether.expose(tether)
-	  if (tether === caffeine.tethers.get('worker')) tether.push(tether)}
+	  if (tethersKey == 'worker') tether.push(tether)}
 	else {tether.handleEventFrom(tether)}}}}}
 
 async function callWorker(req) {
