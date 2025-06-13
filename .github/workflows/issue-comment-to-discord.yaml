@@ -1,45 +1,41 @@
-name: Repost GitHub Issue Comments to Discord (Fancy)
+- name: Send issue comment to Discord with embed
+  env:
+    DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+  run: |
+    AUTHOR_NAME="${{ github.event.comment.user.login }}"
+    AUTHOR_AVATAR="${{ github.event.comment.user.avatar_url }}"
+    COMMENT_URL="${{ github.event.comment.html_url }}"
+    ISSUE_URL="${{ github.event.issue.html_url }}"
+    ISSUE_TITLE="${{ github.event.issue.title }}"
+    COMMENT_BODY_RAW="${{ github.event.comment.body }}"
+    TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-on:
-  issue_comment:
-    types: [created]
+    jq -n --arg author "$AUTHOR_NAME" \
+          --arg avatar "$AUTHOR_AVATAR" \
+          --arg comment_url "$COMMENT_URL" \
+          --arg issue_url "$ISSUE_URL" \
+          --arg issue_title "$ISSUE_TITLE" \
+          --arg comment "$COMMENT_BODY_RAW" \
+          --arg time "$TIMESTAMP" \
+    '{
+      "embeds": [{
+        "title": "💬 Comment on Issue: \($issue_title)",
+        "url": $comment_url,
+        "author": {
+          "name": $author,
+          "url": ("https://github.com/" + $author),
+          "icon_url": $avatar
+        },
+        "description": $comment,
+        "footer": {
+          "text": "Posted via GitHub Actions • View issue thread",
+          "icon_url": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
+        },
+        "timestamp": $time,
+        "color": 5793266
+      }]
+    }' > payload.json
 
-jobs:
-  notify-discord:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Send issue comment to Discord with embed
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-        run: |
-          AUTHOR_NAME="${{ github.event.comment.user.login }}"
-          AUTHOR_AVATAR="${{ github.event.comment.user.avatar_url }}"
-          COMMENT_URL="${{ github.event.comment.html_url }}"
-          ISSUE_URL="${{ github.event.issue.html_url }}"
-          ISSUE_TITLE="${{ github.event.issue.title }}"
-          COMMENT_BODY_RAW="${{ github.event.comment.body }}"
-          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-
-          # Truncate comment body to fit Discord embed limit (4096 chars max)
-          COMMENT_BODY=$(echo "$COMMENT_BODY_RAW" | cut -c1-4000 | jq -Rs .)
-
-          curl -X POST "$DISCORD_WEBHOOK" \
-            -H "Content-Type: application/json" \
-            -d "{
-              \"embeds\": [{
-                \"title\": \"💬 Comment on Issue: ${ISSUE_TITLE}\",
-                \"url\": \"${COMMENT_URL}\",
-                \"author\": {
-                  \"name\": \"${AUTHOR_NAME}\",
-                  \"url\": \"https://github.com/${AUTHOR_NAME}\",
-                  \"icon_url\": \"${AUTHOR_AVATAR}\"
-                },
-                \"description\": ${COMMENT_BODY},
-                \"footer\": {
-                  \"text\": \"Posted via GitHub Actions • View issue thread\",
-                  \"icon_url\": \"https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png\"
-                },
-                \"timestamp\": \"${TIMESTAMP}\",
-                \"color\": 0x5865F2
-              }]
-            }"
+    curl -X POST "$DISCORD_WEBHOOK" \
+      -H "Content-Type: application/json" \
+      --data-binary @payload.json
