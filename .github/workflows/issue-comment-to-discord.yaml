@@ -1,4 +1,4 @@
-name: Repost Issue Comments to Discord
+name: Repost GitHub Issue Comments to Discord (Fancy)
 
 on:
   issue_comment:
@@ -8,15 +8,17 @@ jobs:
   notify-discord:
     runs-on: ubuntu-latest
     steps:
-      - name: Send comment to Discord
+      - name: Send issue comment to Discord with embed
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         run: |
-          COMMENT_BODY=$(echo "${{ github.event.comment.body }}" | jq -Rs .)
+          AUTHOR_NAME="${{ github.event.comment.user.login }}"
+          AUTHOR_AVATAR="${{ github.event.comment.user.avatar_url }}"
+          COMMENT_URL="${{ github.event.comment.html_url }}"
           ISSUE_URL="${{ github.event.issue.html_url }}"
-          COMMENT_AUTHOR="${{ github.event.comment.user.login }}"
-          curl -X POST "$DISCORD_WEBHOOK" \
-            -H "Content-Type: application/json" \
-            -d "{
-              \"content\": \"💬 **New comment by ${COMMENT_AUTHOR}** on [this issue](${ISSUE_URL}):\n${COMMENT_BODY}\"
-            }"
+          ISSUE_TITLE="${{ github.event.issue.title }}"
+          COMMENT_BODY_RAW="${{ github.event.comment.body }}"
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+          # Truncate comment body to fit Discord embed limit (4096 chars max)
+          COMMENT_BODY=$(echo "$COMMENT_BODY_RAW" | cut_
