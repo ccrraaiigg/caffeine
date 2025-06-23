@@ -92,16 +92,18 @@
     <script src="js/startup.js"></script>
     <script>
       window.onload = () => {
-    	window.startup()
+	  if (!window.top.loaded) {
+	      window.top.loaded = true
+    	      window.startup()
       
-        window.top.startCaffeine(
-          document.getElementById('caffeine-canvas'),
-          window.snapshot,
-          "SqueakV46",
-            {
-              appID: '4599d316-a13e-46ef-92be-c7337899038c',
-              appName: "Caffeine",
-              appServer: "demo.blackpagedigital.com:8091"})}
+              window.top.startCaffeine(
+		  document.getElementById('caffeine-canvas'),
+		  window.snapshot,
+		  "SqueakV46",
+		  {
+		      appID: '4599d316-a13e-46ef-92be-c7337899038c',
+		      appName: "Caffeine",
+		      appServer: "demo.blackpagedigital.com:8091"})}}
       </script>
   </body>
 </html>
