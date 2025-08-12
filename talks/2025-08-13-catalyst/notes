@@ -1,0 +1,73 @@
+2025-08-13 California Smalltalkers talk
+
+
+title
+
+     Catalyst: a WASM GC Open Smalltalk virtual machine with
+     LLM-assisted method translation
+
+abstract
+
+     Now that WebAssembly does garbage collection, I'm curious to see
+how Smalltalk can participate in the WASM module ecosystem, with
+optimal performance, both in web browsers and WASI environments. I'm
+writing an Open Smalltalk virtual machine for WASM GC, called
+Catalyst. It builds upon the Epigram compiler framework I wrote,
+decompiling a Smalltalk implementation to WASM GC. It uses AI to
+optimize translate method instructions to more efficient sequences,
+and compiles the translations to WASM. It'll be interesting to see how
+much performance is lost or gained by leaving register allocation to
+the underlying WASM engine.
+
+bio
+
+     Craig Latta is a research computer scientist in Berkeley and
+Amsterdam, with interests including livecoding, music performance, and
+interactive visualization. The discovery of a mysteriously-placed Blue
+Book at university led to stints at several exploratory labs, and a
+pursuit of improvisation wherever code is found. His current work
+focuses on polyglot computing with WebAssembly, the novel compiler
+framework Epigram, and human augmentation through AI.
+
+***
+
+brainstorming:
+
+- 
+
+
+(scroll for slides notes)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+slides:
+
+- 

@@ -1,0 +1,262 @@
+.offsetrect{
+    position: absolute;
+    opacity: 0;
+    height: 33.333%;
+    width: 33.333%;
+}
+#topleftoffset{
+    top: 0;
+    left: 0;
+}
+#topcenteroffset{
+    top: 0;
+    left: 33.333%;
+}
+#toprightoffset{
+    top: 0;
+    left: 66.666%;
+}
+#centerleftoffset{
+    top: 33.333%;
+    left: 0;
+}
+#centercenteroffset{
+    top: 33.333%;
+    left: 33.333%;
+}
+#centerrightoffset{
+    top: 33.333%;
+    left: 66.666%;
+}
+#bottomleftoffset{
+    top: 66.666%;
+    left: 0;
+}
+#bottomcenteroffset{
+    top: 66.666%;
+    left: 33.333%;
+}
+#bottomrightoffset{
+    top: 66.666%;
+    left: 66.666%;
+}
+
+   .fadein {
+       opacity: 0;
+       user-select: none;
+     transition: opacity .25s ease-in-out;
+     -moz-transition: opacity .25s ease-in-out;
+     -webkit-transition: opacity .25s ease-in-out;
+   }
+
+   .fadein:hover {
+      opacity: 1;
+   }
+
+   .fadeout {
+     opacity: 1;
+     transition: opacity .25s ease-in-out;
+     -moz-transition: opacity .25s ease-in-out;
+     -webkit-transition: opacity .25s ease-in-out;
+   }
+
+   .fadeout:hover {
+      opacity: 0;
+   }
+
+div#progress-spinner {
+    position: absolute;
+    margin: auto; top: 0; left: 0; bottom: 0; right: 0;
+    width: 100px;
+    height: 100px;
+    border-radius: 50px;
+    background: rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 5px 5px #F90;
+    display: none;
+    transform: rotate(30deg);
+}
+div#progress-spinner > div {
+    position: absolute;
+    top: 45px;
+    left: 5px;
+    width: 90px; 
+    height: 10px;
+    border-radius: 5px;
+    box-shadow: 0 0 5px 5px #F90;
+}
+
+/* Parallax base styles
+  --------------------------------------------- */
+
+  .parallax {
+    position: relative;
+    height: 500px; /* fallback for older browsers */
+    height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-perspective: 300px;
+    -webkit-overflow-scrolling: touch;
+    perspective: 300px;
+  }
+
+  .parallax__group {
+    position: relative;
+    height: 500px; /* fallback for older browsers */
+    height: 100vh;
+    -webkit-transform-style: preserve-3d;
+    transform-style: preserve-3d;
+  }
+
+  .parallax__layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0.9
+  }
+
+  .parallax__layer--fore {
+    -webkit-transform: translateZ(90px) scale(.7);
+    transform: translateZ(90px) scale(.7);
+    z-index: 1;
+  }
+
+  .parallax__layer--base {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    z-index: 4;
+  }
+
+  .parallax__layer--back {
+    -webkit-transform: translateZ(-300px) scale(2);
+    transform: translateZ(-300px) scale(2);
+    z-index: 3;
+  }
+
+  .parallax__layer--deep {
+    -webkit-transform: translateZ(-600px) scale(3);
+    transform: translateZ(-600px) scale(3);
+    z-index: 2;
+  }
+
+
+  /* Debugger styles - used to show the effect
+  --------------------------------------------- */
+
+  .debug {
+    position: fixed;
+    top: 0;
+    left: .5em;
+    z-index: 999;
+    background: rgb(0,0,0);
+    padding: .5em;
+    border-radius: 0 0 5px 5px;
+  }
+  .debug-on {
+      /* background: #999999; */
+      /* background: url(http://lorempixel.com/1440/900); */
+      
+      background: url(http://blackpagedigital.com/context/pictures/backgrounds/doubleclick.png);
+  }
+  .debug-on .parallax__group {
+    -webkit-transform: translate3d(800px, 0, -800px) rotateY(30deg);
+    transform: translate3d(700px, 0, -600px) rotateY(23deg);
+ }
+  .debug-on .parallax__layer {
+    box-shadow: 0 0 0 2px #000;
+    opacity: 0.9;
+  }
+  .parallax__group {
+    -webkit-transition: -webkit-transform 0.5s;
+    transition: transform 0.5s;
+  }
+
+
+  /* demo styles
+  --------------------------------------------- */
+
+  body, html {
+    overflow: hidden;
+  }
+
+  body {
+      font: 100% / 1.5 Arial;
+  }
+
+  * {
+    margin:0;
+    padding:0;
+  }
+
+  .parallax {
+    font-size: 200%;
+  }
+
+   /* centre the content in the parallax layers */
+  .title {
+    text-align: center;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+  }
+
+  /* style the groups
+  --------------------------------------------- */
+
+  #title {
+    z-index: 5; /* slide over group 2 */
+  }
+  #title .parallax__layer--base {
+    background: url("pictures/title.png") no-repeat center;
+    background-size: 100% 100%
+  }
+
+  #aboutBlackPageDigital {
+    z-index: 3; /* slide under groups 1 and 3 */
+  }
+  #aboutBlackPageDigital .parallax__layer--back {
+    background: url("pictures/universe.jpg") no-repeat center;
+    background-size: 100% 100%
+  }
+
+  #informatics {
+    z-index: 4; /* slide over group 2 and 4 */
+  }
+  #informatics .parallax__layer--fore {
+    background: url("pictures/fish.jpg") no-repeat center;
+    background-size: 100% 100%
+  }
+
+  #livecoding {
+    z-index: 2; /* slide under group 3 and 5 */
+  }
+  #livecoding .parallax__layer--deep {
+    background: rgb(0, 0, 0);
+  }
+
+  #music {
+    z-index: 3; /* slide over group 4 and 6 */
+  }
+  #music .parallax__layer--fore {
+    background: url("pictures/console.jpg") no-repeat center;
+    background-size: 100% 100%
+  }
+
+  #aboutCraigLatta {
+    z-index: 2; /* slide under group 5 and 7 */
+  }
+  #aboutCraigLatta .parallax__layer--back {
+    background: url("pictures/me.jpg") no-repeat center;
+    background-size: 100% 100%
+  }
+
+  #contact {
+    z-index: 3; /* slide over group 7 */
+  }
+  #contact .parallax__layer--base {
+    background: url("pictures/message.jpg") no-repeat center;
+    background-size: 100% 100%
+  }

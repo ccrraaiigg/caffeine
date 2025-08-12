@@ -1,0 +1,41 @@
+{
+  "name": "Caffeine",
+  "short_name": "Caffeine",
+  "description": "Caffeine adds a GUI to the Chrome devtools, and manages browser tabs.",
+  "version": "90",
+  "minimum_chrome_version": "88",
+  "content_security_policy": {
+    "extension_pages": "default-src 'self'; connect-src ws://localhost:8091 http://127.0.0.1:9222 https://caffeine.js.org https://api.openai.com https://california.demo.blackpagedigital.com:8087; style-src 'unsafe-inline'; style-src-elem 'unsafe-inline'; script-src 'self' 'wasm-unsafe-eval'; object-src 'self'",
+    "sandbox": "allow-scripts allow-forms"
+  },
+  "devtools_page": "devtools.html",
+  "permissions": [
+    "activeTab",
+    "debugger",
+    "tabs",
+    "tabCapture",
+    "storage"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_icon": "caffeine16.png",
+    "default_title": "Debug with Caffeine"
+  },
+  "externally_connectable": {
+    "ids": [
+      "*"
+    ],
+    "matches": [
+      "https://caffeine.js.org/*",
+      "http://blackpagedigital.com/*",
+      "http://localhost/*"
+    ]
+  },
+  "icons": {
+    "48": "caffeine48.png",
+    "128": "caffeine128.png"
+  },
+  "manifest_version": 3
+}

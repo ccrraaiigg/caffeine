@@ -1,0 +1,69 @@
+* {
+  box-sizing: border-box;
+}
+
+html {
+    text-align: center;
+    background: url(../pictures/backgrounds/scenes/6.jpg) no-repeat center center fixed; 
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+
+blockquote {
+  position: relative;
+  display: inline-block;
+  background: rgba(211, 211, 240, 0.9);
+  padding: 20px 20px 20px 20px;
+  margin: 0px 0px 0px 0px;
+  border-radius: 10px;
+  font-family: 'Didact+Gothic', sans-serif;
+  color: #333;
+  text-align: left;
+  transition: box-shadow 300ms;
+}
+
+blockquote:hover {
+    box-shadow: 1px 1px 7px #999,
+                2px 2px 8px #999,
+                3px 3px 9px #999;
+}
+
+blockquote p:last-child { margin-bottom: 0; }
+
+h1 {
+    font-family: 'Didact+Gothic', sans-serif;
+    display: inline-block;
+    margin: 10;
+    font: bold 20px Sans-Serif;
+    vertical-align: middle;
+    horizontal-align: middle;
+}
+
+img {
+    vertical-align: middle;
+}
+
+.middle > * {
+  vertical-align: middle;
+  horizontal-align: middle;
+}
+
+div#sqSpinner {
+    border-radius: 50px;
+    background: rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 5px 5px #F90;
+    display: none;
+    transform: rotate(30deg);
+}
+
+div#sqSpinner > div {
+    position: relative;
+    top: 45px;
+    left: 5px;
+    width: 50px; 
+    height: 5px;
+    border-radius: 5px;
+    box-shadow: 0 0 5px 5px #F90;
+}
