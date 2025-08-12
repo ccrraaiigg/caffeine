@@ -1,0 +1,226 @@
+
+<!--
+
+    slides for "Catalyst: a WASM GC Open Smalltalk virtual machine with LLM-assisted method translation"
+    2025-08-13
+
+    To open in Caffeine:
+
+    HTMLWindow
+	showing: 'http://localhost:8080/talks/2025-08-13-catalyst'
+	withWidth: 1000
+	andHeight: 600
+
+    Note that the text on all slides is editable live.
+
+  -->
+
+<html lang="en" data-darkreader-scheme="dark" data-darkreader-mode="dynamic">
+  <head profile="http://www.w3.org/2005/10/profile">
+
+    <link rel="icon" 
+	  type="image/png" 
+	  href="favicon.png">
+
+    <link rel="apple-touch-icon"
+	  href="/pictures/icons/caffeine/caffeineWebAppIcon.png">
+    
+    <link rel="apple-touch-startup-image"
+	  href="/pictures/backgrounds/bootscreen/bootscreen.png">
+    
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:regular,semibold,italic,italicsemibold|PT+Sans:400,700,400italic,700italic|PT+Serif:400,700,400italic,700italic"
+	  rel="stylesheet" />
+
+    <link href="/css/livecoding-talk.css"
+	  rel="stylesheet" />
+
+    <link href="/css/squeakjs.css"
+	  rel="stylesheet" />
+
+    <link rel="shortcut icon"
+	  href="/favicon.png" />
+
+    <meta name="apple-mobile-web-app-capable"
+	  content="yes" />
+
+    <meta name="apple-mobile-web-app-status-bar-style"
+	  content="black-translucent">
+
+    <meta name="apple-mobile-web-app-title"
+	  content="Caffeine" />
+
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+	  content="width=1024" />
+
+    <title>Livecoding Language Models: AI Context in Live Environments</title></head>
+
+  <body class="impress-not-supported"
+	style="background-color: gray;">
+
+    <div class="fallback-message">
+
+      <p>
+
+	Your browser <b>doesn't support the features required</b> by
+	impress.js; the presentation has been simplified.
+
+      </p>
+      <p>
+
+	For the best experience, please use the
+	latest <a href="https://google.com/chrome"><b>Chrome</b></a>,
+	<b>Safari</b>
+	or <a href="https://mozilla.org/en-US/firefox/new"><b>Firefox</b></a>
+	browser.
+
+      </p></div>
+
+    <div id="impress">
+
+      <div class="step skip"
+	   data-x="12000"
+	   data-y="9500"
+	   data-z="-10000"
+	   data-scale="40"
+	   style="position: absolute;
+		  left: 0px;
+		  top: 0px;
+		  width: 1300px;
+		  pointer-events: none;">
+
+	<img src="/pictures/backgrounds/bootscreen/bootscreen.png"
+             style="z-index: -1;
+		    width: 100%;
+		    opacity: 0.15" /></div>
+
+      <div id="title"
+	   class="step"
+	   data-x="9000"
+	   data-y="3000"
+	   data-scale="25"
+	   style="width: 1000px;">
+
+<!--	<span class="try"> -->
+
+	  <i>Catalyst:</i><br>
+
+	  a WASM GC Open Smalltalk virtual machine with LLM-assisted
+	  method translation
+
+<!-- </span> -->
+      </div>
+
+      <div id="blog"
+	   class="step"
+	   data-x="30000"
+	   data-y="10000"
+	   data-z="20000"
+	   data-rotate-z="20"
+	   data-scale="10">
+
+        <p contentEditable=true>
+
+	  This work and presentation are at an early stage. Please
+	  jump in at any time with questions and comments. Follow new
+	  developments at my blog... <i>thiscontext.com</i>.
+
+	</p></div>
+
+      <div id="premise"
+	   class="step"
+	   data-x="35000"
+	   data-y="15000"
+	   data-z="25000"
+	   data-rotate-x="20"
+	   data-rotate-z="40"
+	   data-scale="10">
+
+        <p contentEditable=true>
+
+	  How can Smalltalk participate in the WebAssembly module
+	  ecosystem? How much faster than a JavaScript implementation
+	  can it be in a web browser?
+
+	  
+	</p><br></div>
+
+      <div id="third-slide"
+	   class="step"
+	   data-x="40000"
+	   data-y="20000"
+	   data-z="35000"
+	   data-rotate-x="40"
+	   data-rotate-z="60"
+	   data-scale="10">
+
+        <p contentEditable=true>
+
+	  This is the third slide.
+
+	</p><br></div>
+
+      <div id="fourth-slide"
+	   class="step"
+	   data-x="35000"
+	   data-y="15000"
+	   data-z="40000"
+	   data-rotate-x="60"
+	   data-rotate-z="80"
+	   data-scale="10">
+
+        <p contentEditable=true>
+
+	  This is the fourth slide.
+
+	</p><br></div>
+      
+      <div id="fifth-slide"
+	   class="step"
+	   data-x="30000"
+	   data-y="5000"
+	   data-z="45000"
+	   data-rotate-x="80"
+	   data-rotate-z="100"
+	   data-scale="10">
+
+        <p contentEditable=true>
+
+	  This is the fifth slide.
+
+	</p><br></div>
+	      
+      <!-- more slides here -->
+      
+      <div id="author"
+	   class="step"
+	   data-x="24000"
+	   data-y="18000"
+	   data-scale="20"
+	   style="width: 1000px;">
+
+	<span class="try">
+
+	  Craig Latta :: thiscontext.com
+
+       </span></div>
+       
+      <div id="overview"
+	   class="step"
+	   data-x="12000"
+	   data-y="9500"
+	   data-scale="27"
+	   style="position: absolute;
+		  left: 0px;
+		  top: 0px;
+		  width: 1400px;" /></div>
+
+    <script src="js/impress/impress.js"></script>
+    <script src="js/impress/lib/gc.js"></script>
+    <script src="js/impress/lib/util.js"></script>
+    <script src="js/impress/plugins/navigation.js"></script>
+    <script src="js/impress/plugins/skip.js"></script>
+    <script src="js/impress/plugins/touch.js"></script>
+    <script>impress().init()</script>
+    <script src="js/talk.js"></script></body></html>
