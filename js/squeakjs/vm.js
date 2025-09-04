@@ -1347,7 +1347,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			    while (todo.length > 0) {
 				var object = todo.pop();
 				if (object.isMethod() && !object.fused && !object.compiled ) {
-				    object.fused = false;}
+				    object.fused = 0;}
 				if (object.mark) continue;    // objects are added to todo more than once
 				if (object.oop < 0)           // it's a new object
 				    newObjects.push(object);
@@ -1369,9 +1369,9 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 				    for (var i = 0; i < n; i++) {
 					if (typeof body[i] === "object" && !body[i].mark) {      // except immediates
 					    if (body[i].isMethod()) {
-						if (body[i].compiled) {body[i].fused = true;}
+						if (body[i].compiled) {this.fuseMethod(body[i]);}
 						else {
-						    if (body[i].fused === false) {
+						    if (body[i].fused === 0) {
 							// Treat each unfused compiled method as garbage; replace it
 							// with a special method which can reload the original from a
 							// tethered system.
@@ -2960,7 +2960,8 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			    this.initVMState();
 			    this.loadInitialContext();
 			    this.initCompiler();
-
+			    this.methodFusingIndex = 1;
+			    
 			    console.log('squeak: ready');
 			},
 
@@ -3657,7 +3658,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			    if (primitiveIndex > 0) {
 				if (this.tryPrimitive(primitiveIndex, argumentCount, newMethod)) {
 				    //Primitive succeeded -- end of story
-				    newMethod.fused = true;
+				    this.fuseMethod(newMethod);
 				    return;}}
 			    var newContext = this.allocateOrRecycleContext(newMethod.methodNeedsLargeFrame());
 			    var tempCount = newMethod.methodTempCount();
@@ -3708,7 +3709,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			    this.activeContext.dirty = true;
 			    this.homeContext = newContext;
 			    this.method = newMethod;
-			    this.method.fused = true;
+			    this.fuseMethod(this.method);
 			    this.pc = newPC;
 			    this.sp = newSP;
 
@@ -3891,6 +3892,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 			    //will not keep dislodging each other
 			    var entry;
 			    if (!selector) debugger;
+			    if (!lkupClass) debugger;
 			    this.methodCacheRandomish = (this.methodCacheRandomish + 1) & 3;
 			    var firstProbe = (selector.hash ^ lkupClass.hash) & this.methodCacheMask;
 			    var probe = firstProbe;
@@ -4176,6 +4178,12 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 		    },
 		    'utils',
 		    {
+			fuseMethod: function(method) {
+			    if (method.fused === 0) method.fused = this.nextMethodFusingIndex()},
+			
+			nextMethodFusingIndex: function() {
+			    return this.methodFusingIndex++},
+			
 			isContext: function(obj) {//either block or methodContext
 			    if (obj.sqClass === this.specialObjects[Squeak.splOb_ClassMethodContext]) return true;
 			    if (obj.sqClass === this.specialObjects[Squeak.splOb_ClassBlockContext]) return true;
