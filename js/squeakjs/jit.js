@@ -215,7 +215,7 @@ to single-step.
 		      this.sourcePos['loop-start'] = this.source.length; this.source.push("while (true) switch (vm.pc) {\ncase 0:\n");
 		      this.done = false;
 
-		      method.fused = true;
+			method.fused = SqueakJS.vm.nextMethodFusingIndex();
 
 		      while (!this.done) {
 			var byte = method.bytes[this.pc++],

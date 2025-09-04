@@ -1,4 +1,3 @@
-
 <!--
 
     slides for "Catalyst: a WASM GC Open Smalltalk virtual machine with LLM-assisted method translation"
@@ -7,29 +6,32 @@
     To open in Caffeine:
 
     HTMLWindow
-	showing: 'http://localhost:8080/talks/2025-08-13-catalyst'
-	withWidth: 1000
-	andHeight: 600
+    showing: 'http://localhost:8080/talks/2025-08-13-catalyst'
+    withWidth: 1000
+    andHeight: 600
 
     Note that the text on all slides is editable live.
 
   -->
 
-<html lang="en" data-darkreader-scheme="dark" data-darkreader-mode="dynamic">
+<html lang="en" data-darkreader-scheme="dark"
+      data-darkreader-mode="dynamic">
+
   <head profile="http://www.w3.org/2005/10/profile">
 
-    <link rel="icon" 
-	  type="image/png" 
+    <link rel="icon"
+	  type="image/png"
 	  href="favicon.png">
 
     <link rel="apple-touch-icon"
 	  href="/pictures/icons/caffeine/caffeineWebAppIcon.png">
-    
+
     <link rel="apple-touch-startup-image"
 	  href="/pictures/backgrounds/bootscreen/bootscreen.png">
-    
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:regular,semibold,italic,italicsemibold|PT+Sans:400,700,400italic,700italic|PT+Serif:400,700,400italic,700italic"
-	  rel="stylesheet" />
+
+    <link
+      href="https://fonts.googleapis.com/css?family=Open+Sans:regular,semibold,italic,italicsemibold|PT+Sans:400,700,400italic,700italic|PT+Serif:400,700,400italic,700italic"
+      rel="stylesheet" />
 
     <link href="/css/livecoding-talk.css"
 	  rel="stylesheet" />
@@ -54,7 +56,8 @@
     <meta name="viewport"
 	  content="width=1024" />
 
-    <title>Livecoding Language Models: AI Context in Live Environments</title></head>
+    <title>Livecoding Language Models: AI Context in Live Environments</title>
+  </head>
 
   <body class="impress-not-supported"
 	style="background-color: gray;">
@@ -75,14 +78,15 @@
 	or <a href="https://mozilla.org/en-US/firefox/new"><b>Firefox</b></a>
 	browser.
 
-      </p></div>
+      </p>
+    </div>
 
     <div id="impress">
 
       <div class="step skip"
 	   data-x="12000"
 	   data-y="9500"
-	   data-z="-10000"
+	   data-z="-15000"
 	   data-scale="40"
 	   style="position: absolute;
 		  left: 0px;
@@ -91,9 +95,10 @@
 		  pointer-events: none;">
 
 	<img src="/pictures/backgrounds/bootscreen/bootscreen.png"
-             style="z-index: -1;
+	     style="z-index: -1;
 		    width: 100%;
-		    opacity: 0.15" /></div>
+		    opacity: 0.15" />
+      </div>
 
       <div id="title"
 	   class="step"
@@ -102,97 +107,180 @@
 	   data-scale="25"
 	   style="width: 1000px;">
 
-<!--	<span class="try"> -->
-
 	  <i>Catalyst:</i><br>
 
 	  a WASM GC Open Smalltalk virtual machine with LLM-assisted
 	  method translation
 
-<!-- </span> -->
       </div>
 
       <div id="blog"
 	   class="step"
 	   data-x="30000"
 	   data-y="10000"
-	   data-z="20000"
+	   data-z="35000"
 	   data-rotate-z="20"
 	   data-scale="10">
 
-        <p contentEditable=true>
+	<p contentEditable=true>
 
 	  This work and presentation are at an early stage. Please
 	  jump in at any time with questions and comments. Follow new
 	  developments at my blog... <i>thiscontext.com</i>.
 
-	</p></div>
+	</p>
+      </div>
 
       <div id="premise"
 	   class="step"
 	   data-x="35000"
 	   data-y="15000"
-	   data-z="25000"
+	   data-z="30000"
 	   data-rotate-x="20"
 	   data-rotate-z="40"
 	   data-scale="10">
 
-        <p contentEditable=true>
+	<p contentEditable=true>
 
 	  How can Smalltalk participate in the WebAssembly module
-	  ecosystem? How much faster than a JavaScript implementation
-	  can it be in a web browser?
+	  ecosystem? In a web browser, how much faster can it be than
+	  a JavaScript implementation?
 
-	  
-	</p><br></div>
+	</p><br>
+      </div>
 
-      <div id="third-slide"
+      <div id="epigram"
 	   class="step"
 	   data-x="40000"
 	   data-y="20000"
-	   data-z="35000"
+	   data-z="25000"
 	   data-rotate-x="40"
 	   data-rotate-z="60"
 	   data-scale="10">
 
-        <p contentEditable=true>
+	<p contentEditable=true>
 
-	  This is the third slide.
+	  Catalyst is enabled by the Epigram compiler framework. The
+	  Smalltalk support reifies grammar tokens, code generation
+	  units, instruction sets, and instructions, to provide
+	  compilation, decompilation to multiple languages,
+	  instruction printing, and interpretation.
 
-	</p><br></div>
+	</p><br>
+      </div>
 
-      <div id="fourth-slide"
+      <div id="dealing-with-types"
 	   class="step"
-	   data-x="35000"
-	   data-y="15000"
-	   data-z="40000"
+	   data-x="45000"
+	   data-y="25000"
+	   data-z="20000"
 	   data-rotate-x="60"
 	   data-rotate-z="80"
 	   data-scale="10">
 
-        <p contentEditable=true>
+	<p contentEditable=true>
 
-	  This is the fourth slide.
+	  WASM GC is strictly and statically typed. Through the use of
+	  pragmas, we can annotate classes and method as to the types
+	  of their fields and variables.
 
-	</p><br></div>
-      
-      <div id="fifth-slide"
+	</p><br>
+      </div>
+
+      <div id="type-space"
 	   class="step"
-	   data-x="30000"
-	   data-y="5000"
-	   data-z="45000"
+	   data-x="50000"
+	   data-y="30000"
+	   data-z="15000"
 	   data-rotate-x="80"
 	   data-rotate-z="100"
 	   data-scale="10">
 
-        <p contentEditable=true>
+	<p contentEditable=true>
 
-	  This is the fifth slide.
+	  SmallIntegers are of WASM GC reference type i31. Every other
+	  object is of a user-defined struct type; the supertype of
+	  all those types is WASM GC reference type (ref eq), for
+	  entities that can be compared. This type is used when
+	  passing Smalltalk objects between WASM modules.
 
-	</p><br></div>
-	      
+	</p><br>
+      </div>
+
+      <div id="test-harness"
+	   class="step"
+	   data-x="55000"
+	   data-y="35000"
+	   data-z="10000"
+	   data-rotate-x="100"
+	   data-rotate-z="120"
+	   data-scale="10">
+
+	<p contentEditable=true>
+
+	  Catalyst has a test harness, an interactive web interface
+	  for benchmarking and debugging. It provides real-time
+	  feedback on method translations and optimization impacts.
+
+	</p><br>
+      </div>
+
+      <div id="method-translation"
+	   class="step"
+	   data-x="60000"
+	   data-y="40000"
+	   data-z="5000"
+	   data-rotate-x="120"
+	   data-rotate-z="140"
+	   data-scale="10">
+
+	<p contentEditable=true>
+
+	  Catalyst's method translation uses LLMs to infer optimal
+	  bytecode sequences before translating them to WASM GC. The
+	  current benchmark method which is sufficiently expensive for
+	  time profiling, and amenable to inference. It only uses a
+	  few instructions in the instruction set.
+
+	</p><br>
+      </div>
+
+      <div id="current-work"
+	   class="step"
+	   data-x="65000"
+	   data-y="45000"
+	   data-z="0"
+	   data-rotate-x="140"
+	   data-rotate-z="160"
+	   data-scale="10">
+
+	<p contentEditable=true>
+
+	  I'm currently completing the Smalltalk simulation's support
+	  for the "V3 plus closures" instruction set, and ensuring
+	  that it decompiles to a working WASM GC implementation.
+
+	</p><br>
+      </div>
+
+      <div id="questions"
+	   class="step"
+	   data-x="70000"
+	   data-y="50000"
+	   data-z="-5000"
+	   data-rotate-x="160"
+	   data-rotate-z="180"
+	   data-scale="10">
+
+	<p contentEditable=true>
+
+	  Thank you! Questions?
+
+	</p><br>
+      </div>
+
       <!-- more slides here -->
-      
+
       <div id="author"
 	   class="step"
 	   data-x="24000"
@@ -204,8 +292,9 @@
 
 	  Craig Latta :: thiscontext.com
 
-       </span></div>
-       
+	</span>
+      </div>
+
       <div id="overview"
 	   class="step"
 	   data-x="12000"
@@ -214,7 +303,8 @@
 	   style="position: absolute;
 		  left: 0px;
 		  top: 0px;
-		  width: 1400px;" /></div>
+		  width: 1400px;" />
+    </div>
 
     <script src="js/impress/impress.js"></script>
     <script src="js/impress/lib/gc.js"></script>
@@ -223,4 +313,7 @@
     <script src="js/impress/plugins/skip.js"></script>
     <script src="js/impress/plugins/touch.js"></script>
     <script>impress().init()</script>
-    <script src="js/talk.js"></script></body></html>
+    <script src="js/talk.js"></script>
+  </body>
+
+</html>
