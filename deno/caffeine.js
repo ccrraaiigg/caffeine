@@ -59,8 +59,8 @@ if (!(existsSync(caffeineFolder))) {
   await downloadAndUnzip('https://files.squeak.org/4.6/Squeak-4.6-All-in-One.zip')
   // await downloadAndUnzip('https://caffeine.js.org/memories/caffeine.zip')
   await downloadAndUnzip(urlBase + '/memories/caffeine.zip')
-  await downloadAndUnzip(urlBase + '/sources/SqueakV46.sources.zip')
-  await downloadAndUnzip('http://blackpagedigital.com/caffeine.zip')}
+    await downloadAndUnzip(urlBase + '/sources/SqueakV46.sources.zip')}
+//  await downloadAndUnzip('http://blackpagedigital.com/caffeine.zip')}
 
 // We don't use runCommand here, because we only want to wait for the
 // process to start, not to finish.
