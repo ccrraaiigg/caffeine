@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Mockup</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #1c1c1e;
+        }
+
+        .chat-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #2c2c2e;
+            border-radius: 20px;
+            padding: 30px 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .message {
+            margin: 15px 0;
+            clear: both;
+        }
+
+        /* Left-aligned messages (Person A) */
+        .message.left {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .message.left .bubble {
+            background-color: gray;
+            color: black;
+            border-radius: 20px 20px 20px 8px;
+        }
+
+        /* Right-aligned messages (Person B) */
+        .message.right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .message.right .bubble {
+            background-color: #0084ff;
+            color: white;
+            border-radius: 20px 20px 8px 20px;
+        }
+
+        .bubble {
+            max-width: 75%;
+            padding: 12px 18px;
+            word-wrap: break-word;
+            font-size: 17px;
+            line-height: 1.4;
+            font-weight: 400;
+        }
+
+        /* Sender names */
+        .sender-name {
+            font-size: 13px;
+            color: #8e8e93;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="message right">
+            <div class="sender-name">human</div>
+            <div class="bubble">
+
+	      Create a new MCP tool called "instanceCount".
+
+            </div>
+	</div>
+
+        <div class="message left">
+            <div class="sender-name">AI</div>
+            <div class="bubble">
+
+	      What's the description?
+
+	    </div>
+        </div>
+
+        <div class="message right">
+          <div class="bubble">
+
+	    "Answer the number of instances of the named class."
+	    
+	  </div>
+        </div>
+
+        <div class="message left">
+          <div class="bubble">
+
+	    Okay; it sounds like there's a single parameter, required,
+	    of type "string", and a result of type "integer".
+
+	  </div>
+        </div>
+
+        <div class="message right">
+          <div class="bubble">
+
+	    That's right.
+
+	  </div>
+        </div>
+
+        <div class="message left">
+          <div class="bubble">
+
+	    Is it implemented as a message, or as a closure?
+
+	  </div>
+        </div>
+
+        <div class="message right">
+          <div class="bubble">
+
+	    It's a closure: [:className | (Smalltalk at: className) instanceCount]
+
+	  </div>
+        </div>
+	
+        <div class="message left">
+          <div class="bubble">
+
+	    Created.
+
+	  </div>
+        </div>
+
+        <div class="message right">
+          <div class="bubble">
+
+	    Okay, how many instances of class String are there?
+
+	  </div>
+        </div>
+	
+        <div class="message left">
+          <div class="bubble">
+
+	    There are 128,476 instances of class String.
+
+	  </div>
+        </div>
+
+    </div>
+</body>
+</html>

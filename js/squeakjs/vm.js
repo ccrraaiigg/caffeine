@@ -3283,7 +3283,7 @@ module('users.bert.SqueakJS.vm').requires().toRun(function() {
 				if (this.method.compiled) {
 				    this.method.compiled(this);
 				} else {
-				    this.currentInterpretOne();
+				    this.interpretOne();
 				}
 			    }
 			    // this is to allow 'freezing' the interpreter and restarting it asynchronously. See freeze()

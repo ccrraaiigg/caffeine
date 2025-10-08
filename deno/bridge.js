@@ -14,7 +14,18 @@ function result(id, content) {
     return response(id, {result: content})}
 
 function output(id, content) {
-    return response(id, {result: {content: [{type: "text", text: content.text}]}})}
+    var payload = content
+
+    if (typeof(payload) === 'object') payload = JSON.stringify(payload)
+    
+    return response(
+	id,
+	{
+	    result: {
+		content: [{
+		    type: "text",
+		    text: payload}],
+		isError: false}})}
 
 function error(id, content) {
     return response(id, {error: content})}
@@ -29,6 +40,9 @@ const postSessions = new Map() // key: sessionId → { stream, lastEventId }
 const getSessions = new Map()
 const mcpServers = new Map() // key: endpoint -> tether
 const FAILURE = -1337
+
+function objectFromTetherEncodedJSON(bytes) {
+    return JSON.parse(String.fromCharCode(...bytes.slice(8)))}
 
 function keyAtValue(map, value) {
     for (let [key, val] of map) {
@@ -145,6 +159,11 @@ caffeine.worker.onmessage = async (message, websocket) => {
 			mcpServers.set(data.mcp.endpoint, tether)
 			console.log('tether ' + tether.exposureHash + ' is now providing MCP service at ' + data.mcp.endpoint)
 		    }}
+
+		else if (data.heartbeat) {
+		    console.log('ack!')
+		    websocket.send('ack!')}
+
 		else {
 		    // an MCP message initiated by a server, as opposed to
 		    // being in response to a client AI model
@@ -168,8 +187,6 @@ caffeine.worker.onmessage = async (message, websocket) => {
 	}}}
 
 async function forwardRequest(tether, request) {
-    request.endpoint = keyAtValue(mcpServers, tether)
-	
     return tether.sendMessage(
 	tether,
 	'serviceExternalMessage:',
@@ -189,6 +206,9 @@ async function handleHttpRpc(endpoint, msg) {
 	    protocolVersion: "2025-03-26",
 	    capabilities: {
 		tools: {listChanged: true},
+		resources: {
+		    subscribe: true,
+		    listChanged: true},
 		stream: true,
 		sampling: {}},
 	    serverInfo: {
@@ -196,22 +216,49 @@ async function handleHttpRpc(endpoint, msg) {
 		version: "0.3.0"},
 	    instructions: "This MCP server has notifications to send. Please request an SSE stream with HTTP GET."})
 
-    case "tools/list": {
-	console.log("MCP: performing tools/list")
-	const tools = await forwardRequest(tether, {action: "tools/list"})
-	return result(id, {tools})}
+    case "resources/list": {
+	console.log("MCP: id " + id + ": performing resources/list")
+	var resources = await forwardRequest(tether, {endpoint: endpoint, action: "resources/list"})
+	return result(id, objectFromTetherEncodedJSON(resources))}
 
-    case "tools/call": {
-	console.log("MCP: performing tools/call with " + params)
+    case "resources/read": {
+	console.log("MCP: id " + id + ": performing resources/read with " + JSON.stringify(params))
 	
 	const answer = await forwardRequest(tether, {
+	    endpoint: endpoint,
+	    action: "resources/read",
+	    data: params})
+
+	return result(id, objectFromTetherEncodedJSON(answer))}
+
+    case "resources/subscribe": {
+	console.log("MCP: id " + id + ": performing resources/subscribe with " + JSON.stringify(params))
+	
+	const answer = await forwardRequest(tether, {
+	    endpoint: endpoint,
+	    action: "resources/subscribe",
+	    data: params})
+
+	    return output(id, objectFromTetherEncodedJSON(answer))}
+	
+    case "tools/list": {
+	console.log("MCP: id " + id + ": performing tools/list")
+	var tools = await forwardRequest(tether, {endpoint: endpoint, action: "tools/list"})
+	return result(id, objectFromTetherEncodedJSON(tools))}
+
+    case "tools/call": {
+	console.log("MCP: id " + id + ": performing tools/call with " + JSON.stringify(params))
+	
+	const answer = await forwardRequest(tether, {
+	    endpoint: endpoint,
 	    action: "tools/call",
 	    data: params})
 
-	return output(id, answer)}
+	return output(id, objectFromTetherEncodedJSON(answer))}
 
     default:
-	console.log("MCP: unknown method: '" + method + "' with " + params)
+	console.log("MCP: id " + id + ": unknown method: '" + method+ "'")
+	if (params) console.log("  with params: " + JSON.stringify(params))
 	return FAILURE}}
 
 serve(
@@ -241,6 +288,9 @@ serve(
 			console.log('returning 202 response with empty body')
 			return new Response(null, {status: 202})}
 		    else {
+			var stringy = JSON.stringify(rpcResult)
+			console.log('responding with "' + stringy + '"')
+			
 			return new Response(
 			    JSON.stringify(rpcResult),
 			    {
@@ -284,7 +334,6 @@ serve(
 	    return response}
 	
 	else {
-	    console.log('client rejected')
 	    return new Response("Not Found", {status: 404})}},
 
     // Tailscale Funnel exposure is possible on ports 443, 8443, and 10000.

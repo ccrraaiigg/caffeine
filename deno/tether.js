@@ -254,7 +254,7 @@ caffeine.Tether = class {constructor(websocket) {
 			if (typeof(func) == "function") func(answer)
 			tether.outgoingMessages.delete(key)}})})
 
-	    if (!hit) reject(Error("received unexpected remote message answer"))
+	    if (!hit) throw new Error("received unexpected remote message answer")
 	    if ((!fromTether) || (!toTether)) debugger
 	    console.log('tether ' + fromTether.exposureHash + ' answers ' + answer + ' to tether ' + toTether.exposureHash)}
 
