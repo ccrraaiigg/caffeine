@@ -140,7 +140,7 @@ caffeine.worker.onmessage = async (message, websocket) => {
 		tether = caffeine.tethers.get(tethersKey)
 
 		if (!tether) {
-		    // the worker tether (websocket tethers get created when
+		    // the worker tether (websocket tethers get created when 
 		    // the HTTP connection is made)
 		    tether = new caffeine.Tether()
 		    caffeine.tethers.set(tethersKey, tether)}}
