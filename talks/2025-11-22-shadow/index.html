@@ -1,16 +1,16 @@
 <!--
 
-    slides for "Catalyst: a WASM GC Open Smalltalk virtual machine with LLM-assisted method translation"
-    2025-08-13
+    slides for "Shadow: a Manifold for Collaborative Agentic Livecoding"
+    2025-11-22
 
     To open in Caffeine:
 
     HTMLWindow
-    showing: 'http://localhost:8080/talks/2025-08-13-catalyst'
-    withWidth: 1000
-    andHeight: 600
+      showing: 'http://localhost:8080/talks/2025-11-22-shadow'
+      withWidth: 1000
+      andHeight: 600
 
-    Note that the text on all slides is editable live.
+    Note that the text on all slides is editable, live.
 
   -->
 
@@ -107,10 +107,9 @@
 	   data-scale="25"
 	   style="width: 1000px;">
 
-	  <b><i>Catalyst:</i></b><br>
+	  <b><i>Shadow:</i></b><br>
 
-	  a WASM GC Open Smalltalk virtual machine with LLM-assisted
-	  method translation
+	  a Manifold for Collaborative Agentic Livecoding
 
       </div>
 
@@ -142,9 +141,7 @@
 
 	<p contentEditable=true>
 
-	  How can Smalltalk participate in the WebAssembly module
-	  ecosystem? In a web browser, how much faster can it be than
-	  a JavaScript implementation?
+	  How could an AI agent collaborate with a human livecoder?
 
 	</p><br>
       </div>
@@ -160,11 +157,11 @@
 
 	<p contentEditable=true>
 
-	  Catalyst is enabled by the Epigram compiler framework. The
-	  Smalltalk support reifies grammar tokens, code generation
-	  units, instruction sets, and instructions, to provide
-	  compilation, decompilation to multiple languages,
-	  instruction printing, and interpretation.
+	  <b>Shadow</b> is a <i>manifold</i> of contextual cues to
+	  augment the collaborative livecoding skills of an AI
+	  agent. It has an MCP server with local tools and resources,
+	  steering documents, and a scheme for externalizing the
+	  agent's context window.
 
 	</p><br>
       </div>
@@ -180,9 +177,8 @@
 
 	<p contentEditable=true>
 
-	  WASM GC is strictly and statically typed. Through the use of
-	  pragmas, we can annotate classes and methods as to the types
-	  of their fields and variables.
+	  the Model Context Protocol: access to local tools and
+	  resources (and prompts)
 
 	</p><br>
       </div>
@@ -198,12 +194,7 @@
 
 	<p contentEditable=true>
 
-	  SmallIntegers are of WASM GC reference
-	  type <i>i31</i>. Every other object is of a user-defined
-	  struct type; the supertype of all those types is WASM GC
-	  reference type <i>(ref eq)</i>, for entities that can be
-	  compared. This type is used when passing Smalltalk objects
-	  between WASM modules.
+	  structured steering documents
 
 	</p><br>
       </div>
@@ -219,9 +210,12 @@
 
 	<p contentEditable=true>
 
-	  Catalyst has a test harness, an interactive web interface
-	  for benchmarking and debugging. It provides real-time
-	  feedback on method translations and optimization impacts.
+	  The steering documents establish a scheme for externalizing
+	  the agent's context window as often as possible, to increase
+	  accuracy and human accessibility. This is <i>context
+	  management</i>; several other projects have interesting
+	  approaches to this (e.g., AWS Kiro, Google Antigravity,
+	  letta.com)
 
 	</p><br>
       </div>
@@ -237,11 +231,12 @@
 
 	<p contentEditable=true>
 
-	  Catalyst's method translation uses LLMs to infer optimal
-	  bytecode sequences before translating them to WASM GC. The
-	  current benchmark method is sufficiently expensive for time
-	  profiling, and amenable to inference. It only uses a few
-	  instructions of the instruction set.
+	  The agent's context window is externalized into a simple
+	  file hierarchy, each file using an agent-friendly format
+	  appropriate to its purpose. For example, additional steering
+	  documents use Markdown format, and a ledger dictionary
+	  binding Smalltalk variable names to remote object IDs uses
+	  JSON.
 
 	</p><br>
       </div>
@@ -257,9 +252,11 @@
 
 	<p contentEditable=true>
 
-	  I'm currently completing the Smalltalk simulation's support
-	  for the "V3 plus closures" instruction set, and ensuring
-	  that it decompiles to a working WASM GC implementation.
+	  There are only two MCP tools: one that returns the ID of the
+	  first exposed object in a live Squeak system, and another
+	  that sends a message to a given exposed object. As the agent
+	  builds up its knowledge of the system, it becomes a useful
+	  collaborator.
 
 	</p><br>
       </div>

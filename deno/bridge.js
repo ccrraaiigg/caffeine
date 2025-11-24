@@ -289,7 +289,7 @@ serve(
 			return new Response(null, {status: 202})}
 		    else {
 			var stringy = JSON.stringify(rpcResult)
-			console.log('responding with "' + stringy + '"')
+			console.log("responding with '" + stringy + "'")
 			
 			return new Response(
 			    JSON.stringify(rpcResult),

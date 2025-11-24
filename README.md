@@ -1,4 +1,9 @@
-Caffeine is a livecoding environment for [web browsers](https://developer.mozilla.org/en-US), [Deno](https://deno.land), and [WebAssembly](https://en.wikipedia.org/wiki/WebAssembly). After adding it to a webpage, you can use it to make live persistent changes to that page and other pages running Caffeine, without reloading.
+Caffeine is a livecoding environment for [web
+browsers](https://developer.mozilla.org/en-US),
+[Deno](https://deno.land), and
+[WebAssembly](https://en.wikipedia.org/wiki/WebAssembly). After adding
+it to a webpage, you can use it to make live persistent changes to
+that page and other pages running Caffeine, without reloading.
 
 You can interact with Caffeine from JavaScript in several ways:
 
@@ -7,13 +12,37 @@ You can interact with Caffeine from JavaScript in several ways:
 - on a headless Deno server, with which you also exchange messages (over a WebSocket).
 - through a headful DevTools panel IDE, using the Chrome Debugging Protocol to manipulate every page your browser is running.
 
-Caffeine's underlying computation engine is [SqueakJS](https://squeak.js.org), an open-source [Smalltalk](https://en.wikipedia.org/wiki/Smalltalk), assisted by dynamically-generated [WebAssembly](https://wikiwand.com/en/Webassembly). It features a bi-directional JavaScript bridge, enabling Smalltalk methods to send messages to JavaScript objects, and provide Smalltalk block closures as JavaScript promises or callback functions. Caffeine includes the [Epigram](https://thiscontext.com/2022/06/28/epigram-reifying-grammar-production-rules-for-clearer-parsing-compiling-and-searching) parser and compiler framework, with which I have written compilers for Smalltalk, SVG, Protocol Buffers, and WebAssembly.
+Caffeine's underlying computation engine is
+[SqueakJS](https://squeak.js.org), an open-source
+[Smalltalk](https://en.wikipedia.org/wiki/Smalltalk), assisted by
+dynamically-generated
+[WebAssembly](https://wikiwand.com/en/Webassembly). It features a
+bi-directional JavaScript bridge, enabling Smalltalk methods to send
+messages to JavaScript objects, and provide Smalltalk block closures
+as JavaScript promises or callback functions. Caffeine includes the
+[Epigram](https://thiscontext.com/2022/06/28/epigram-reifying-grammar-production-rules-for-clearer-parsing-compiling-and-searching)
+parser and compiler framework, with which I have written compilers for
+Smalltalk, SVG, Protocol Buffers, and WebAssembly.
 
-Caffeine has support for [Squeak](http://squeak.org), [Pharo](https://pharo.org), [Cuis](http://cuis-smalltalk.org), 3D VR (via [A-Frame](https://aframe.io) and [OSC](http://opensoundcontrol.org)), zooming 3D presentations (via [impress.js](https://impress.js.org)), [VueJS](https://vuejs.org), [WebMIDI](https://github.com/djipco/webmidi), [Observable](https://observablehq.com), [Web Workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API), [DevTools](https://chrome.google.com/webstore/detail/caffeine/jhbbonmkjnodgkammmgfhaljmicpeakb) and many other JS frameworks.
+Caffeine has support for [Squeak](http://squeak.org),
+[Pharo](https://pharo.org), [Cuis](http://cuis-smalltalk.org), 3D VR
+(via [A-Frame](https://aframe.io) and
+[OSC](http://opensoundcontrol.org)), zooming 3D presentations (via
+[impress.js](https://impress.js.org)), [VueJS](https://vuejs.org),
+[WebMIDI](https://github.com/djipco/webmidi),
+[Observable](https://observablehq.com), [Web
+Workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API),
+[DevTools](https://chrome.google.com/webstore/detail/caffeine/jhbbonmkjnodgkammmgfhaljmicpeakb)
+and many other JS frameworks.
 
-You can read more about the design of Caffeine, and new features, at my blog, [https://thiscontext.com](https://thiscontext.com). Check out the [teaser trailer](https://www.youtube.com/watch?v=8VzXmgAQWjc&t=8s) on YouTube.
+You can read more about the design of Caffeine, and new features, at
+my blog, [https://thiscontext.com](https://thiscontext.com). Check out
+the [teaser trailer](https://www.youtube.com/watch?v=8VzXmgAQWjc&t=8s)
+on YouTube.
 
-[This repository](https://github.com/ccrraaiigg/caffeine) is the content for [the Caffeine website](https://caffeine.js.org), **caffeine.js.org**. It provides these endpoints:
+[This repository](https://github.com/ccrraaiigg/caffeine) is the
+content for [the Caffeine website](https://caffeine.js.org),
+**caffeine.js.org**. It provides these endpoints:
 
 | ------------------------------------------------- | ---------------------------- |  
 | [/](https://caffeine.js.org/)                     | this page  |  
@@ -29,8 +58,14 @@ You can read more about the design of Caffeine, and new features, at my blog, [h
 | [/tabulator](https://caffeine.js.org/tabulator)   | a tabs-management app, with a [VueJS](https://vuejs.org) user interface |  
 | [/files](https://caffeine.js.org/files)           | a listing of the files Caffeine has stored in your web browser's cache. You can download files from it, and drop new files into it. |  
 
-There are [issues](https://github.com/ccrraaiigg/caffeine/issues) and [projects](https://github.com/ccrraaiigg/caffeine/projects) to follow; please do! Current activity is focused on [making Caffeine a productive in-world VR livecoding environment](https://github.com/ccrraaiigg/caffeine/projects/1), and deploying livecoded [WebComponent](https://wikiwand.com/en/WebComponents)-based web apps.
-
+There are [issues](https://github.com/ccrraaiigg/caffeine/issues) and
+[projects](https://github.com/ccrraaiigg/caffeine/projects) to follow;
+please do! Current activity is focused on [making Caffeine a
+productive in-world VR livecoding
+environment](https://github.com/ccrraaiigg/caffeine/projects/1),
+deploying livecoded
+[WebComponent](https://wikiwand.com/en/WebComponents)-based webapps,
+and developing LLM-based livecoding collaborators.
 
 <br>
 Craig Latta
